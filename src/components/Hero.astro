@@ -1,42 +1,56 @@
 ---
 import ConfirmButton from './ConfirmButton.astro';
+import MusicPlayerBadge from './MusicPlayerBadge.astro';
 ---
 
 <section class="hero" data-hero>
 	<div class="hero__frame">
 		<div class="hero__media" data-hero-media>
-			<img
-				class="hero__image"
-				src="/bg_image.webp"
-				alt="Andrea and Chris embracing outdoors"
-				width="1600"
-				height="2000"
-				fetchpriority="high"
-				data-hero-image
-			/>
+			<div class="hero__parallax" data-hero-parallax>
+				<img
+					class="hero__image"
+					src="/bg_image.webp"
+					alt="Andrea and Chris embracing outdoors"
+					width="1600"
+					height="2000"
+					fetchpriority="high"
+				/>
+			</div>
 			<div class="hero__veil" aria-hidden="true"></div>
 		</div>
 
 		<div class="hero__content">
-			<p class="hero__eyebrow hero__eyebrow--mobile">
+			<div class="hero__music hero__enter" style="--enter-delay: 160ms">
+				<MusicPlayerBadge />
+			</div>
+
+			<p class="hero__eyebrow hero__eyebrow--mobile hero__enter" style="--enter-delay: 240ms">
 				Invitándote a ser parte de<br />nuestra historia de amor
 			</p>
 
 			<div class="hero__stage">
 				<div class="hero__intro">
-					<p class="hero__eyebrow hero__eyebrow--desktop">
+					<p class="hero__eyebrow hero__eyebrow--desktop hero__enter" style="--enter-delay: 120ms">
 						Invitándote a ser parte de<br />nuestra historia de amor
 					</p>
 					<h1 class="hero__title" aria-label="Andrea & Chris">
-						<span class="hero__name hero__name--andrea" aria-hidden="true">Andrea</span>
-						<span class="hero__name-row" aria-hidden="true">
+						<span
+							class="hero__name hero__name--andrea hero__enter"
+							style="--enter-delay: 280ms"
+							aria-hidden="true">Andrea</span
+						>
+						<span
+							class="hero__name-row hero__enter"
+							style="--enter-delay: 420ms"
+							aria-hidden="true"
+						>
 							<span class="hero__amp">&</span>
 							<span class="hero__name hero__name--chris">Chris</span>
 						</span>
 					</h1>
 				</div>
 
-				<div class="hero__cta-block">
+				<div class="hero__cta-block hero__enter" style="--enter-delay: 580ms">
 					<p class="hero__note">
 						Avísanos si puedes acompañarnos<br />hasta finales de enero.
 					</p>
@@ -44,7 +58,7 @@ import ConfirmButton from './ConfirmButton.astro';
 				</div>
 			</div>
 
-			<p class="hero__scroll">(Desplaza hacia abajo ↓)</p>
+			<p class="hero__scroll hero__enter" style="--enter-delay: 720ms">(Desplaza hacia abajo ↓)</p>
 		</div>
 	</div>
 </section>
@@ -73,17 +87,30 @@ import ConfirmButton from './ConfirmButton.astro';
 		z-index: 0;
 	}
 
-	.hero__image {
+	.hero__parallax {
 		position: absolute;
 		left: 50%;
 		top: -12%;
 		width: 120%;
 		height: 124%;
+		transform: translate3d(-50%, 0, 0);
+		will-change: transform;
+	}
+
+	.hero__image {
+		width: 100%;
+		height: 100%;
 		max-width: none;
 		object-fit: cover;
 		object-position: center 28%;
-		transform: translate3d(-50%, 0, 0);
+		transform: scale(1.1);
+		transform-origin: center center;
+		transition: transform 2.2s cubic-bezier(0.22, 1, 0.36, 1);
 		will-change: transform;
+	}
+
+	.hero.is-entered .hero__image {
+		transform: scale(1);
 	}
 
 	.hero__veil {
@@ -100,6 +127,14 @@ import ConfirmButton from './ConfirmButton.astro';
 		pointer-events: none;
 	}
 
+	.hero__music {
+		position: relative;
+		z-index: 2;
+		width: max-content;
+		max-width: 100%;
+		margin: 0 0 1.15rem;
+	}
+
 	.hero__content {
 		position: relative;
 		z-index: 1;
@@ -107,7 +142,7 @@ import ConfirmButton from './ConfirmButton.astro';
 		flex-direction: column;
 		align-items: center;
 		height: 100%;
-		padding: 2.1rem 1.25rem 60px;
+		padding: 1.15rem 1.25rem 60px;
 		color: var(--color-white);
 		text-align: center;
 	}
@@ -193,6 +228,48 @@ import ConfirmButton from './ConfirmButton.astro';
 		white-space: nowrap;
 	}
 
+	.hero__enter {
+		opacity: 0;
+		filter: blur(14px);
+		transform: translate3d(0, 0.65rem, 0);
+		transition:
+			opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--enter-delay, 0ms),
+			filter 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--enter-delay, 0ms),
+			transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--enter-delay, 0ms);
+		will-change: opacity, filter, transform;
+	}
+
+	.hero.is-entered .hero__enter {
+		opacity: 1;
+		filter: blur(0);
+		transform: translate3d(0, 0, 0);
+	}
+
+	/* Keep centered — enter only blurs in place (no slide) */
+	.hero__scroll.hero__enter {
+		transform: translate3d(-50%, 0, 0);
+	}
+
+	.hero.is-entered .hero__scroll.hero__enter {
+		opacity: 0.92;
+		filter: blur(0);
+		transform: translate3d(-50%, 0, 0);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero__enter {
+			opacity: 1;
+			filter: none;
+			transform: none;
+			transition: none;
+		}
+
+		.hero__image {
+			transform: scale(1);
+			transition: none;
+		}
+	}
+
 	@media (min-width: 900px) {
 		.hero {
 			padding: 0 1.5rem 1.5rem;
@@ -203,11 +280,22 @@ import ConfirmButton from './ConfirmButton.astro';
 			min-height: calc(100svh - 5.25rem);
 		}
 
-		.hero__image {
+		.hero__parallax {
 			top: -18%;
 			width: 112%;
 			height: 136%;
+		}
+
+		.hero__image {
 			object-position: center 32%;
+		}
+
+		.hero__music {
+			position: absolute;
+			top: 1.5rem;
+			right: 2.75rem;
+			left: auto;
+			margin: 0;
 		}
 
 		.hero__content {
@@ -243,7 +331,6 @@ import ConfirmButton from './ConfirmButton.astro';
 			position: absolute;
 			left: 50%;
 			bottom: 1.35rem;
-			transform: translateX(-50%);
 		}
 
 		.hero__intro {
@@ -270,37 +357,110 @@ import ConfirmButton from './ConfirmButton.astro';
 
 <script>
 	const hero = document.querySelector<HTMLElement>('[data-hero]');
-	const image = document.querySelector<HTMLElement>('[data-hero-image]');
+	const parallax = document.querySelector<HTMLElement>('[data-hero-parallax]');
 
-	if (hero && image) {
+	if (hero) {
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-		let ticking = false;
 
-		const update = () => {
-			if (reduceMotion.matches) {
-				image.style.transform = 'translate3d(-50%, 0, 0)';
-				ticking = false;
-				return;
-			}
-
-			const rect = hero.getBoundingClientRect();
-			const progress = Math.min(Math.max(-rect.top / Math.max(rect.height, 1), 0), 1);
-			// Image moves slower than page scroll (~35% of scroll distance)
-			const offset = progress * rect.height * 0.35;
-			image.style.transform = `translate3d(-50%, ${offset}px, 0)`;
-			ticking = false;
+		const playEnter = () => {
+			hero.classList.add('is-entered');
 		};
 
-		const onScroll = () => {
-			if (!ticking) {
-				ticking = true;
-				requestAnimationFrame(update);
-			}
-		};
+		if (reduceMotion.matches) {
+			playEnter();
+		} else {
+			requestAnimationFrame(() => {
+				requestAnimationFrame(playEnter);
+			});
+		}
 
-		update();
-		window.addEventListener('scroll', onScroll, { passive: true });
-		window.addEventListener('resize', onScroll);
-		reduceMotion.addEventListener('change', update);
+		if (parallax) {
+			const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+			const maxCursorShift = 20;
+			const ease = 0.08;
+			let targetX = 0;
+			let targetY = 0;
+			let currentX = 0;
+			let currentY = 0;
+			let rafId = 0;
+			let running = false;
+
+			const applyTransform = () => {
+				if (reduceMotion.matches) {
+					parallax.style.transform = 'translate3d(-50%, 0, 0)';
+					return;
+				}
+
+				const rect = hero.getBoundingClientRect();
+				const progress = Math.min(Math.max(-rect.top / Math.max(rect.height, 1), 0), 1);
+				const scrollOffset = progress * rect.height * 0.35;
+
+				const shiftX = finePointer.matches ? -currentX * maxCursorShift : 0;
+				const shiftY = finePointer.matches ? -currentY * maxCursorShift : 0;
+
+				parallax.style.transform = `translate3d(calc(-50% + ${shiftX}px), ${scrollOffset + shiftY}px, 0)`;
+			};
+
+			const tick = () => {
+				currentX += (targetX - currentX) * ease;
+				currentY += (targetY - currentY) * ease;
+
+				applyTransform();
+
+				const settled =
+					Math.abs(targetX - currentX) < 0.001 && Math.abs(targetY - currentY) < 0.001;
+
+				if (settled) {
+					currentX = targetX;
+					currentY = targetY;
+					applyTransform();
+					running = false;
+					rafId = 0;
+					return;
+				}
+
+				rafId = requestAnimationFrame(tick);
+			};
+
+			const startLoop = () => {
+				if (!running) {
+					running = true;
+					rafId = requestAnimationFrame(tick);
+				}
+			};
+
+			const onPointerMove = (event: PointerEvent) => {
+				const rect = hero.getBoundingClientRect();
+				const halfW = rect.width / 2 || 1;
+				const halfH = rect.height / 2 || 1;
+				targetX = Math.max(-1, Math.min(1, (event.clientX - rect.left - halfW) / halfW));
+				targetY = Math.max(-1, Math.min(1, (event.clientY - rect.top - halfH) / halfH));
+				startLoop();
+			};
+
+			const onPointerLeave = () => {
+				targetX = 0;
+				targetY = 0;
+				startLoop();
+			};
+
+			const onScrollOrResize = () => {
+				applyTransform();
+			};
+
+			applyTransform();
+			window.addEventListener('scroll', onScrollOrResize, { passive: true });
+			window.addEventListener('resize', onScrollOrResize);
+			hero.addEventListener('pointermove', onPointerMove);
+			hero.addEventListener('pointerleave', onPointerLeave);
+			reduceMotion.addEventListener('change', () => {
+				if (rafId) cancelAnimationFrame(rafId);
+				running = false;
+				currentX = targetX;
+				currentY = targetY;
+				applyTransform();
+			});
+			finePointer.addEventListener('change', applyTransform);
+		}
 	}
 </script>

@@ -27,5 +27,39 @@ const { title = 'Andrea & Chris — Boda' } = Astro.props;
 	</head>
 	<body>
 		<slot />
+		<script>
+			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+			const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+
+			const reveal = (el: Element, observer?: IntersectionObserver) => {
+				el.classList.add('is-revealed');
+				const group = el.getAttribute('data-reveal-group');
+				if (group) {
+					document.querySelectorAll(`[data-reveal-group="${group}"]`).forEach((sib) => {
+						sib.classList.add('is-revealed');
+						observer?.unobserve(sib);
+					});
+				}
+				observer?.unobserve(el);
+			};
+
+			if (reduceMotion.matches) {
+				targets.forEach((el) => reveal(el));
+			} else if (targets.length && 'IntersectionObserver' in window) {
+				const observer = new IntersectionObserver(
+					(entries) => {
+						entries.forEach((entry) => {
+							if (!entry.isIntersecting) return;
+							reveal(entry.target, observer);
+						});
+					},
+					{ threshold: 0.35, rootMargin: '0px 0px -8% 0px' },
+				);
+
+				targets.forEach((el) => observer.observe(el));
+			} else {
+				targets.forEach((el) => reveal(el));
+			}
+		</script>
 	</body>
 </html>
