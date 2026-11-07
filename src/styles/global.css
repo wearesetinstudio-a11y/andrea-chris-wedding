@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-	--color-accent: #1a3012;
+	--color-accent: #101e0b;
 	--color-surface: #f6f7f6;
 	--color-white: #ffffff;
+	--color-muted: #afafaf;
 	--font-serif: "Headland One", Georgia, serif;
 	--font-sans: "Inter", system-ui, sans-serif;
 }
@@ -41,4 +42,8 @@ a {
 button {
 	font: inherit;
 	cursor: pointer;
+}
+
+body.menu-open {
+	overflow: hidden;
 }

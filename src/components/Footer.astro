@@ -1,0 +1,133 @@
+---
+const contacts = [
+	{
+		label: 'Whatsapp Andrea',
+		value: '(+507) 6997 9321',
+		href: 'https://wa.me/50769979321',
+		external: true,
+	},
+	{
+		label: 'Correo Andrea',
+		value: 'vega21andrea@gmail.com',
+		href: 'mailto:vega21andrea@gmail.com',
+		external: false,
+	},
+	{
+		label: 'Whatsapp Chris',
+		value: '(+507) 6628 6524',
+		href: 'https://wa.me/50766286524',
+		external: true,
+	},
+	{
+		label: 'Correo Chris',
+		value: 'k4bartosik@gmail.com',
+		href: 'mailto:k4bartosik@gmail.com',
+		external: false,
+	},
+] as const;
+---
+
+<footer id="contact" class="footer bg-accent text-white" aria-labelledby="footer-heading">
+	<div class="footer__inner footer__main">
+		<h2
+			id="footer-heading"
+			class="font-serif text-[1.85rem] leading-tight text-white md:text-3xl lg:text-[2.15rem]"
+		>
+			¡Contáctanos para cualquier duda!
+		</h2>
+
+		<div
+			class="mt-8 flex flex-col gap-6 md:mt-10 md:flex-row md:items-center md:justify-between md:gap-6 lg:gap-8"
+		>
+			<p class="shrink-0 font-serif text-xl leading-none text-white md:text-[1.35rem]">
+				Andrea &amp; Chris
+			</p>
+
+			<ul
+				class="m-0 flex list-none flex-col p-0 md:flex-1 md:flex-row md:items-stretch md:justify-end md:gap-0"
+				role="list"
+			>
+				{
+					contacts.map((item) => (
+						<li class="footer__item border-b border-white/10 py-4 first:pt-0 last:border-b-0 last:pb-0 md:border-b-0 md:border-l md:border-white/20 md:px-5 md:py-0 lg:px-7">
+							<span class="mb-1 block font-sans text-xs text-muted">{item.label}</span>
+							<a
+								href={item.href}
+								class="font-sans text-sm font-medium text-white transition-opacity hover:underline"
+								{...(item.external
+									? { target: '_blank', rel: 'noopener noreferrer' }
+									: {})}
+							>
+								{item.value}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</div>
+
+	<div class="footer__bar bg-[color-mix(in_srgb,var(--color-accent)_72%,black)]">
+		<div class="footer__inner footer__bar-inner">
+			<p
+				class="m-0 font-sans text-[0.65rem] uppercase tracking-[0.14em] text-muted sm:text-xs"
+			>
+				TODOS LOS DERECHOS RESERVADOS POR ANDREA &amp; CHRIS&nbsp;&nbsp;&nbsp;2026
+			</p>
+
+			<p class="m-0 flex items-center gap-1.5 font-sans text-xs text-muted">
+				<span>Diseñado por</span>
+				<img
+					src="/setin-studio-logo.svg"
+					alt="setin studio"
+					width="71"
+					height="12"
+					class="h-3 w-auto"
+				/>
+			</p>
+		</div>
+	</div>
+</footer>
+
+<style>
+	/* Match FAQ / RSVP horizontal inset */
+	.footer__inner {
+		width: 100%;
+		padding-inline: 1.15rem;
+	}
+
+	.footer__main {
+		padding-block: 4.5rem 3.5rem;
+	}
+
+	.footer__bar-inner {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.75rem;
+		padding-block: 1rem;
+	}
+
+	@media (min-width: 768px) {
+		.footer__inner {
+			padding-inline: 1.5rem;
+		}
+
+		.footer__main {
+			padding-block: 6rem 5rem;
+		}
+
+		.footer__bar-inner {
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+			gap: 1rem;
+		}
+	}
+
+	@media (min-width: 900px) {
+		.footer__inner {
+			padding-inline: max(1.5rem, 2.75vw);
+		}
+	}
+</style>

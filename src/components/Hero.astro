@@ -60,8 +60,10 @@ import ConfirmButton from './ConfirmButton.astro';
 		position: relative;
 		isolation: isolate;
 		overflow: hidden;
-		min-height: calc(100svh - 6.5rem);
-		background: #1a1f1a;
+		/* Fill remaining viewport below header + bottom margin */
+		height: calc(100svh - 6.75rem);
+		min-height: 28rem;
+		background: var(--color-accent);
 	}
 
 	.hero__media {
@@ -101,12 +103,11 @@ import ConfirmButton from './ConfirmButton.astro';
 	.hero__content {
 		position: relative;
 		z-index: 1;
-		display: grid;
-		grid-template-rows: auto 1fr auto;
+		display: flex;
+		flex-direction: column;
 		align-items: center;
-		justify-items: center;
-		min-height: inherit;
-		padding: 2.1rem 1.25rem 1.2rem;
+		height: 100%;
+		padding: 2.1rem 1.25rem 60px;
 		color: var(--color-white);
 		text-align: center;
 	}
@@ -127,10 +128,9 @@ import ConfirmButton from './ConfirmButton.astro';
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		justify-content: center;
 		gap: 1.35rem;
 		width: 100%;
-		padding-bottom: 1.5rem;
+		margin-top: auto;
 	}
 
 	.hero__intro {
@@ -185,6 +185,7 @@ import ConfirmButton from './ConfirmButton.astro';
 	}
 
 	.hero__scroll {
+		display: none;
 		margin: 0;
 		font-size: 0.9375rem;
 		letter-spacing: 0.01em;
@@ -198,6 +199,7 @@ import ConfirmButton from './ConfirmButton.astro';
 		}
 
 		.hero__frame {
+			height: auto;
 			min-height: calc(100svh - 5.25rem);
 		}
 
@@ -212,6 +214,8 @@ import ConfirmButton from './ConfirmButton.astro';
 			display: flex;
 			align-items: stretch;
 			justify-content: flex-end;
+			min-height: inherit;
+			height: auto;
 			padding: 2.5rem 2.75rem 1.5rem;
 			text-align: left;
 		}
@@ -230,7 +234,16 @@ import ConfirmButton from './ConfirmButton.astro';
 			justify-content: space-between;
 			gap: 2rem;
 			width: 100%;
+			margin-top: 0;
 			padding-bottom: 2.35rem;
+		}
+
+		.hero__scroll {
+			display: block;
+			position: absolute;
+			left: 50%;
+			bottom: 1.35rem;
+			transform: translateX(-50%);
 		}
 
 		.hero__intro {
@@ -251,13 +264,6 @@ import ConfirmButton from './ConfirmButton.astro';
 		.hero__cta-block {
 			align-items: stretch;
 			text-align: right;
-		}
-
-		.hero__scroll {
-			position: absolute;
-			left: 50%;
-			bottom: 1.35rem;
-			transform: translateX(-50%);
 		}
 	}
 </style>

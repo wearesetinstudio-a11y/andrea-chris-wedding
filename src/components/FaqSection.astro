@@ -1,0 +1,277 @@
+---
+const faqItems = [
+	{
+		question: 'Código de vestimenta',
+		answer:
+			'Formal elegante / Tropical elegante. Queremos que te sientas cómodo pero con estilo para celebrar este día tan especial con nosotros.',
+	},
+	{
+		question: 'Regalos',
+		answer:
+			'Tu presencia es nuestro mejor regalo. Si aún así deseas hacernos un detalle, tendremos un buzón para sobres el día del evento o puedes consultar nuestra mesa de regalos.',
+	},
+	{
+		question: 'Niños',
+		answer:
+			'Amamos a los pequeños, pero hemos decidido organizar una celebración exclusivamente para adultos. Queremos que disfrutes de una noche libre de preocupaciones.',
+	},
+	{
+		question: 'Cómo llegar',
+		answer:
+			'La ceremonia y recepción se llevarán a cabo en Boquete, Chiriquí. Se puede llegar en auto desde David (aprox. 45 min) o en autobús local.',
+	},
+	{
+		question: 'Dónde hospedarse',
+		answer:
+			'Boquete cuenta con excelentes hoteles y Airbnbs. Les recomendamos reservar con anticipación en la zona central de Boquete o cerca de Bajo Boquete.',
+	},
+	{
+		question: 'El clima',
+		answer:
+			'Boquete se caracteriza por un clima fresco y primaveral (entre 16°C y 23°C). Les recomendamos traer un suéter ligero o chaqueta para la noche.',
+	},
+	{
+		question: '¿Puedo dar un discurso?',
+		answer:
+			'¡Nos encantaría! Si deseas dedicar unos minutos a decir unas palabras, por favor avísanos con anticipación en el formulario para coordinarlo en el programa.',
+	},
+	{
+		question: '¿Habrá opciones veganas o vegetarianas?',
+		answer:
+			'¡Sí, totalmente! Tendremos opciones deliciosas para personas vegetarianas, veganas y con restricciones alimenticias. Solo asegúrate de indicarlo en tu RSVP.',
+	},
+	{
+		question: 'Recomendaciones gastronómicas en Boquete',
+		answer:
+			'Les recomendamos probar el café Geisha en locales como Café de Eleta o Kotowa, y cenar en restaurantes como The Rock, Palo Cortao o Retrogusto.',
+	},
+];
+---
+
+<section id="faq" class="faq" aria-labelledby="faq-title" data-faq>
+	<div class="faq__inner">
+		<h2 id="faq-title" class="faq__title">
+			<span class="faq__title-line">Lo que tal vez</span>
+			<span class="faq__title-line">quieras saber antes</span>
+		</h2>
+
+		<ul class="faq__list" role="list">
+			{
+				faqItems.map((item, index) => (
+					<li class="faq__item" data-faq-item>
+						<button
+							type="button"
+							class="faq__trigger"
+							id={`faq-trigger-${index}`}
+							aria-expanded="false"
+							aria-controls={`faq-panel-${index}`}
+							data-faq-trigger
+						>
+							<span class="faq__question">{item.question}</span>
+							<svg
+								class="faq__chevron"
+								width="14"
+								height="8"
+								viewBox="0 0 14 8"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+								aria-hidden="true"
+							>
+								<path
+									d="M1 1.5L7 6.5L13 1.5"
+									stroke="currentColor"
+									stroke-width="1.25"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								/>
+							</svg>
+						</button>
+						<div
+							id={`faq-panel-${index}`}
+							class="faq__panel"
+							role="region"
+							aria-labelledby={`faq-trigger-${index}`}
+							aria-hidden="true"
+							data-faq-panel
+						>
+							<div class="faq__panel-inner">
+								<p class="faq__answer">{item.answer}</p>
+							</div>
+						</div>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.faq {
+		background: var(--color-white);
+		color: var(--color-accent);
+	}
+
+	.faq__inner {
+		margin-inline: auto;
+		width: 100%;
+		padding: 6.5rem 1.15rem;
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.faq__title {
+		margin: 0;
+		font-family: var(--font-serif);
+		font-weight: 400;
+		font-size: clamp(2.15rem, 7.5vw, 3.25rem);
+		line-height: 1.15;
+		letter-spacing: -0.01em;
+		color: var(--color-accent);
+	}
+
+	.faq__title-line {
+		display: block;
+	}
+
+	.faq__list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		border-top: 1px solid #e5e5e5;
+	}
+
+	.faq__item {
+		border-bottom: 1px solid #e5e5e5;
+	}
+
+	.faq__trigger {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.25rem;
+		width: 100%;
+		padding: 1.35rem 0;
+		background: transparent;
+		border: 0;
+		text-align: left;
+		color: inherit;
+	}
+
+	.faq__question {
+		font-family: var(--font-sans);
+		font-size: 1.0625rem;
+		font-weight: 500;
+		line-height: 1.4;
+		color: #1a1a1a;
+	}
+
+	.faq__chevron {
+		flex-shrink: 0;
+		width: 0.875rem;
+		height: 0.5rem;
+		color: var(--color-muted);
+		transition: transform 0.3s ease;
+	}
+
+	.faq__item.is-open .faq__chevron {
+		transform: rotate(180deg);
+	}
+
+	.faq__panel {
+		display: grid;
+		grid-template-rows: 0fr;
+		transition: grid-template-rows 0.3s ease;
+	}
+
+	.faq__item.is-open .faq__panel {
+		grid-template-rows: 1fr;
+	}
+
+	.faq__panel-inner {
+		overflow: hidden;
+		min-height: 0;
+	}
+
+	.faq__answer {
+		margin: 0;
+		padding: 0 0 1.35rem;
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 400;
+		line-height: 1.7;
+		color: var(--color-muted);
+		max-width: 42rem;
+	}
+
+	@media (min-width: 768px) {
+		.faq__inner {
+			display: grid;
+			grid-template-columns: minmax(12rem, 0.38fr) minmax(0, 0.62fr);
+			align-items: start;
+			column-gap: 3rem;
+			row-gap: 0;
+			padding: 12rem 1.5rem;
+		}
+
+		.faq__title {
+			position: sticky;
+			top: 6.5rem;
+			font-size: clamp(2.35rem, 3.2vw, 3.15rem);
+			line-height: 1.12;
+		}
+
+		.faq__trigger {
+			padding: 1.5rem 0;
+		}
+
+		.faq__question {
+			font-size: 1.125rem;
+		}
+
+		.faq__answer {
+			padding-bottom: 1.5rem;
+		}
+	}
+
+	@media (min-width: 900px) {
+		.faq__inner {
+			/* Match contact / RSVP horizontal inset */
+			padding-inline: max(1.5rem, 2.75vw);
+			column-gap: 4rem;
+		}
+	}
+</style>
+
+<script>
+	function setOpen(item: HTMLElement, open: boolean) {
+		const trigger = item.querySelector<HTMLButtonElement>('[data-faq-trigger]');
+		const panel = item.querySelector<HTMLElement>('[data-faq-panel]');
+		item.classList.toggle('is-open', open);
+		trigger?.setAttribute('aria-expanded', String(open));
+		panel?.setAttribute('aria-hidden', String(!open));
+	}
+
+	function initFaq(root: HTMLElement) {
+		if (root.dataset.faqReady === 'true') return;
+		root.dataset.faqReady = 'true';
+
+		const items = Array.from(root.querySelectorAll<HTMLElement>('[data-faq-item]'));
+
+		items.forEach((item) => {
+			const trigger = item.querySelector<HTMLButtonElement>('[data-faq-trigger]');
+			if (!trigger) return;
+
+			trigger.addEventListener('click', () => {
+				const willOpen = !item.classList.contains('is-open');
+				items.forEach((other) => setOpen(other, other === item && willOpen));
+			});
+		});
+	}
+
+	document.querySelectorAll<HTMLElement>('[data-faq]').forEach(initFaq);
+
+	document.addEventListener('astro:page-load', () => {
+		document.querySelectorAll<HTMLElement>('[data-faq]').forEach(initFaq);
+	});
+</script>

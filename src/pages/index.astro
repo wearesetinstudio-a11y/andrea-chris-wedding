@@ -3,6 +3,9 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import CountdownSection from '../components/CountdownSection.astro';
+import FaqSection from '../components/FaqSection.astro';
+import WeddingChatRSVP from '../components/WeddingChatRSVP.astro';
+import Footer from '../components/Footer.astro';
 ---
 
 <Layout>
@@ -10,15 +13,9 @@ import CountdownSection from '../components/CountdownSection.astro';
 	<main>
 		<Hero />
 		<CountdownSection />
-		<section id="boquete" class="next-section" aria-label="Next section">
-			<!-- Following sections land here -->
-		</section>
+		<WeddingChatRSVP />
+		<section id="boquete" aria-label="Boquete"></section>
+		<FaqSection />
 	</main>
+	<Footer />
 </Layout>
-
-<style>
-	.next-section {
-		min-height: 70vh;
-		background: var(--color-white);
-	}
-</style>

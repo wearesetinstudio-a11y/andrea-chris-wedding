@@ -1,0 +1,1098 @@
+---
+interface Props {
+	/** Web3Forms access key — falls back to PUBLIC_WEB3FORMS_ACCESS_KEY */
+	accessKey?: string;
+	/** Couple photo */
+	imageSrc?: string;
+	imageAlt?: string;
+}
+
+const {
+	accessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY ?? '',
+	imageSrc = '/contact_image.webp',
+	imageAlt = 'Andrea and Chris standing together outdoors',
+} = Astro.props;
+
+const notifyEmail = 'vega21andrea@gmail.com';
+---
+
+<section class="rsvp" aria-label="Confirmation chat" data-wedding-rsvp>
+	<div id="rsvp" class="rsvp__anchor" aria-hidden="true"></div>
+
+	<div class="rsvp__shell">
+		<figure class="rsvp__photo">
+			<img
+				src={imageSrc}
+				alt={imageAlt}
+				width="900"
+				height="1200"
+				loading="lazy"
+				decoding="async"
+			/>
+		</figure>
+
+		<div class="rsvp__panel">
+			<div class="rsvp__chat">
+				<div class="rsvp__thread" data-thread role="log" aria-live="polite" aria-relevant="additions">
+					<div class="rsvp__stack">
+						<h2 class="rsvp__title">Confirmation chat</h2>
+						<div class="rsvp__thread-inner" data-thread-inner></div>
+					</div>
+				</div>
+
+				<div class="rsvp__footer" data-footer>
+					<div class="rsvp__rule" aria-hidden="true"></div>
+					<div class="rsvp__controls" data-controls>
+						<!-- Populated by state machine -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script
+	define:vars={{
+		accessKey,
+		notifyEmail,
+	}}
+>
+	(() => {
+	const root = document.querySelector('[data-wedding-rsvp]');
+	if (!root) return;
+
+	const thread = root.querySelector('[data-thread]');
+	const threadInner = root.querySelector('[data-thread-inner]');
+	const controls = root.querySelector('[data-controls]');
+	if (
+		!(thread instanceof HTMLElement) ||
+		!(threadInner instanceof HTMLElement) ||
+		!(controls instanceof HTMLElement)
+	)
+		return;
+
+	const TYPING_MS = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 400 : 3000;
+	const MAX_GUESTS = 5;
+
+	/** @type {{ attending: boolean | null, guests: number, name: string, email: string }} */
+	const state = {
+		attending: null,
+		guests: 0,
+		name: '',
+		email: '',
+	};
+
+	let busy = false;
+
+	const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+	/**
+	 * @param {'bot' | 'user' | 'typing' | 'signoff'} kind
+	 * @param {string} text
+	 */
+	function addBubble(kind, text) {
+		if (kind === 'signoff') {
+			const el = document.createElement('p');
+			el.className = 'rsvp__signoff';
+			el.textContent = text;
+			threadInner.appendChild(el);
+			return el;
+		}
+
+		const el = document.createElement('div');
+		el.className = `rsvp__bubble rsvp__bubble--${kind}`;
+
+		if (kind === 'typing') {
+			el.setAttribute('data-typing', '');
+			el.innerHTML = `<span class="rsvp__typing-label">Escribiendo</span><span class="rsvp__dots" aria-hidden="true"><i></i><i></i><i></i></span>`;
+		} else {
+			el.textContent = text;
+		}
+
+		threadInner.appendChild(el);
+		return el;
+	}
+
+	/**
+	 * User answers are tappable — rewind the conversation to that step.
+	 * @param {string} text
+	 * @param {'attendance' | 'guests' | 'contact'} step
+	 */
+	function addUserBubble(text, step) {
+		const el = addBubble('user', text);
+		el.dataset.step = step;
+		el.setAttribute('role', 'button');
+		el.setAttribute('tabindex', '0');
+		el.setAttribute('aria-label', `Volver a editar: ${text}`);
+
+		const rewind = () => rewindTo(step);
+		el.addEventListener('click', rewind);
+		el.addEventListener('keydown', (event) => {
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				rewind();
+			}
+		});
+		return el;
+	}
+
+	/** @param {'attendance' | 'guests' | 'contact'} step */
+	function rewindTo(step) {
+		if (busy) return;
+
+		const target = threadInner.querySelector(`.rsvp__bubble--user[data-step="${step}"]`);
+		if (!(target instanceof HTMLElement)) return;
+
+		// Drop this answer and everything after it
+		let node = /** @type {ChildNode | null} */ (target);
+		while (node) {
+			const next = node.nextSibling;
+			node.remove();
+			node = next;
+		}
+
+		if (step === 'attendance') {
+			state.guests = 0;
+			state.name = '';
+			state.email = '';
+			renderAttendanceControls();
+		} else if (step === 'guests') {
+			state.name = '';
+			state.email = '';
+			renderGuestControls();
+		} else {
+			renderContactControls();
+		}
+	}
+
+	async function withTyping(messages) {
+		const typing = addBubble('typing', '');
+		await wait(TYPING_MS);
+		typing.remove();
+		for (const msg of messages) {
+			addBubble('bot', msg);
+			await wait(120);
+		}
+	}
+
+	function clearControls() {
+		controls.innerHTML = '';
+		controls.dataset.mode = '';
+	}
+
+	function arrowButton(enabled, onClick) {
+		const btn = document.createElement('button');
+		btn.type = 'button';
+		btn.className = `rsvp__arrow${enabled ? ' is-ready' : ''}`;
+		btn.setAttribute('aria-label', 'Continuar');
+		btn.disabled = !enabled;
+		btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+		if (enabled && onClick) btn.addEventListener('click', onClick);
+		return btn;
+	}
+
+	function checkboxIcon(checked) {
+		return `<span class="rsvp__check${checked ? ' is-on' : ''}" aria-hidden="true">${
+			checked
+				? `<svg viewBox="0 0 12 10" fill="none"><path d="M1 5.2L4.2 8.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+				: ''
+		}</span>`;
+	}
+
+	function renderAttendanceControls() {
+		clearControls();
+		controls.dataset.mode = 'attendance';
+
+		const row = document.createElement('div');
+		row.className = 'rsvp__row';
+
+		const group = document.createElement('div');
+		group.className = 'rsvp__choice-group';
+		group.setAttribute('role', 'radiogroup');
+		group.setAttribute('aria-label', '¿Nos acompañarás?');
+
+		/** @type {HTMLButtonElement[]} */
+		const optionBtns = [];
+		const arrowWrap = document.createElement('div');
+		arrowWrap.className = 'rsvp__arrow-wrap';
+
+		function syncArrow() {
+			arrowWrap.replaceChildren(
+				arrowButton(state.attending !== null, () => {
+					if (busy || state.attending === null) return;
+					void onAttendanceConfirm();
+				}),
+			);
+		}
+
+		function paint() {
+			const selectedValue =
+				state.attending === true ? 'yes' : state.attending === false ? 'no' : '';
+			optionBtns.forEach((btn) => {
+				const selected = btn.dataset.value === selectedValue;
+				btn.classList.toggle('is-selected', selected);
+				btn.setAttribute('aria-checked', selected ? 'true' : 'false');
+				const box = btn.querySelector('.rsvp__check');
+				if (box) box.outerHTML = checkboxIcon(selected);
+			});
+			syncArrow();
+		}
+
+		const options = [
+			{ value: 'yes', label: '¡Sí! Estaré allí' },
+			{ value: 'no', label: 'No podré estar' },
+		];
+
+		options.forEach(({ value, label }) => {
+			const btn = document.createElement('button');
+			btn.type = 'button';
+			btn.className = 'rsvp__choice';
+			btn.dataset.value = value;
+			btn.setAttribute('role', 'radio');
+			btn.setAttribute('aria-checked', 'false');
+			btn.innerHTML = `<span class="rsvp__choice-label">${label}</span>${checkboxIcon(false)}`;
+			btn.addEventListener('click', () => {
+				state.attending = value === 'yes';
+				paint();
+			});
+			optionBtns.push(btn);
+			group.appendChild(btn);
+		});
+
+		paint();
+		row.append(group, arrowWrap);
+		controls.appendChild(row);
+	}
+
+	function guestLabel(count) {
+		if (count <= 0) return 'Solo yo';
+		if (count === 1) return 'Yo + 1 invitado';
+		return `Yo + ${count} invitados`;
+	}
+
+	function renderGuestControls() {
+		clearControls();
+		controls.dataset.mode = 'guests';
+
+		const row = document.createElement('div');
+		row.className = 'rsvp__row rsvp__row--guests';
+
+		const labelBtn = document.createElement('button');
+		labelBtn.type = 'button';
+		labelBtn.className = 'rsvp__guest-label';
+		labelBtn.textContent = guestLabel(state.guests);
+
+		const steppers = document.createElement('div');
+		steppers.className = 'rsvp__steppers';
+
+		const minus = document.createElement('button');
+		minus.type = 'button';
+		minus.className = 'rsvp__step';
+		minus.setAttribute('aria-label', 'Menos invitados');
+		minus.textContent = '−';
+
+		const plus = document.createElement('button');
+		plus.type = 'button';
+		plus.className = 'rsvp__step';
+		plus.setAttribute('aria-label', 'Más invitados');
+		plus.textContent = '+';
+
+		const sync = () => {
+			labelBtn.textContent = guestLabel(state.guests);
+			minus.disabled = state.guests <= 0;
+			plus.disabled = state.guests >= MAX_GUESTS;
+		};
+
+		minus.addEventListener('click', () => {
+			if (state.guests > 0) {
+				state.guests -= 1;
+				sync();
+			}
+		});
+		plus.addEventListener('click', () => {
+			if (state.guests < MAX_GUESTS) {
+				state.guests += 1;
+				sync();
+			}
+		});
+
+		sync();
+		steppers.append(minus, plus);
+
+		const arrow = arrowButton(true, () => {
+			if (busy) return;
+			void onGuestConfirm();
+		});
+
+		row.append(labelBtn, steppers, arrow);
+		controls.appendChild(row);
+	}
+
+	/**
+	 * Empty = placeholder on the line; focused/filled = label above + value.
+	 * @param {{ name: string, label: string, type?: string, value?: string, autocomplete?: string }} opts
+	 */
+	function makeField(opts) {
+		const field = document.createElement('label');
+		field.className = 'rsvp__field';
+
+		const label = document.createElement('span');
+		label.className = 'rsvp__field-label';
+		label.textContent = opts.label;
+
+		const input = document.createElement('input');
+		input.type = opts.type || 'text';
+		input.name = opts.name;
+		input.autocomplete = opts.autocomplete || 'on';
+		input.required = true;
+		input.placeholder = opts.label;
+		input.value = opts.value || '';
+
+		const sync = () => {
+			const filled = input.value.trim().length > 0;
+			const active = document.activeElement === input;
+			field.classList.toggle('is-filled', filled);
+			field.classList.toggle('is-active', active);
+		};
+
+		input.addEventListener('focus', sync);
+		input.addEventListener('blur', sync);
+		input.addEventListener('input', sync);
+		sync();
+
+		field.append(label, input);
+		return { field, input };
+	}
+
+	function renderContactControls() {
+		clearControls();
+		controls.dataset.mode = 'contact';
+
+		const form = document.createElement('form');
+		form.className = 'rsvp__form';
+		form.noValidate = true;
+
+		const fields = document.createElement('div');
+		fields.className = 'rsvp__fields';
+
+		const name = makeField({
+			name: 'name',
+			label: 'Nombre y apellido',
+			autocomplete: 'name',
+			value: state.name,
+		});
+		const email = makeField({
+			name: 'email',
+			label: 'Correo electrónico',
+			type: 'email',
+			autocomplete: 'email',
+			value: state.email,
+		});
+
+		fields.append(name.field, email.field);
+
+		const arrow = arrowButton(true);
+		arrow.type = 'submit';
+
+		form.append(fields, arrow);
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+			if (busy) return;
+			const nameValue = name.input.value.trim();
+			const emailValue = email.input.value.trim();
+			if (!nameValue || !emailValue || !email.input.checkValidity()) {
+				email.input.reportValidity();
+				name.input.reportValidity();
+				return;
+			}
+			state.name = nameValue;
+			state.email = emailValue;
+			void onContactSubmit();
+		});
+
+		controls.appendChild(form);
+		name.input.focus();
+	}
+
+	function renderIdleArrow() {
+		clearControls();
+		controls.dataset.mode = 'idle';
+		const row = document.createElement('div');
+		row.className = 'rsvp__row rsvp__row--end';
+		row.appendChild(arrowButton(false));
+		controls.appendChild(row);
+	}
+
+	async function submitPayload(payload) {
+		if (!accessKey) {
+			console.warn(
+				'[WeddingChatRSVP] Missing PUBLIC_WEB3FORMS_ACCESS_KEY — RSVP was not emailed. Add your Web3Forms key to .env',
+			);
+			return { ok: false, skipped: true };
+		}
+
+		const body = {
+			access_key: accessKey,
+			subject: payload.status === 'Declined' ? 'Wedding RSVP — Declined' : 'Wedding RSVP — Confirmed',
+			from_name: payload.name || 'Wedding guest',
+			email: payload.email || notifyEmail,
+			to: notifyEmail,
+			...payload,
+		};
+
+		try {
+			const res = await fetch('https://api.web3forms.com/submit', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify(body),
+			});
+			const data = await res.json().catch(() => ({}));
+			return { ok: res.ok && data.success !== false, data };
+		} catch (error) {
+			console.error('[WeddingChatRSVP] Submit failed', error);
+			return { ok: false, error };
+		}
+	}
+
+	async function onAttendanceConfirm() {
+		busy = true;
+		renderIdleArrow();
+
+		const label = state.attending ? '¡Sí! Estaré allí' : 'No podré estar';
+		addUserBubble(label, 'attendance');
+
+		if (!state.attending) {
+			await withTyping(['¡Qué mal :(', 'Bueno, ¡tenemos que vernos y celebrar antes!']);
+			await submitPayload({
+				status: 'Declined',
+				attending: 'no',
+				message: 'Invitado declinó la RSVP de la boda civil.',
+			});
+			busy = false;
+			return;
+		}
+
+		await withTyping([
+			'¡Genial! ¡Tengo muchas ganas de verte allí!',
+			'¿Vienes solo o con alguien?',
+		]);
+		busy = false;
+		renderGuestControls();
+	}
+
+	async function onGuestConfirm() {
+		busy = true;
+		renderIdleArrow();
+		addUserBubble(guestLabel(state.guests), 'guests');
+		await withTyping(['¡Maravilloso! ¿Podrías dejarnos tus datos?']);
+		busy = false;
+		renderContactControls();
+	}
+
+	async function onContactSubmit() {
+		busy = true;
+		renderIdleArrow();
+		addUserBubble(state.name, 'contact');
+		await wait(180);
+		addUserBubble(state.email, 'contact');
+
+		await submitPayload({
+			status: 'Confirmed',
+			attending: 'yes',
+			name: state.name,
+			email: state.email,
+			guests: state.guests,
+			guest_label: guestLabel(state.guests),
+			party_size: state.guests + 1,
+			message: `RSVP confirmada — ${guestLabel(state.guests)}`,
+		});
+
+		await withTyping(['¡Muchas gracias! ¡Tenemos muchas ganas de verte allí!']);
+		addBubble('signoff', 'Andrea & Chris');
+		busy = false;
+	}
+
+	async function boot() {
+		busy = true;
+		renderIdleArrow();
+		addBubble('bot', '¡Hola! ¿Qué xopa?');
+		await withTyping(['¿Nos acompañaras en nuestra boda civil?']);
+		busy = false;
+		renderAttendanceControls();
+	}
+
+	/** Pin the whole RSVP section into the viewport (title + thread + controls). */
+	function pinSectionInViewport(behavior = 'smooth') {
+		const top = root.getBoundingClientRect().top + window.scrollY;
+		window.scrollTo({ top, left: 0, behavior });
+	}
+
+	function maybePinFromHash() {
+		const hash = window.location.hash;
+		if (hash === '#contact' || hash === '#rsvp') {
+			pinSectionInViewport('smooth');
+		}
+	}
+
+	document.querySelectorAll('a[href="#contact"], a[href="#rsvp"]').forEach((link) => {
+		link.addEventListener('click', () => {
+			requestAnimationFrame(() => pinSectionInViewport('smooth'));
+		});
+	});
+
+	window.addEventListener('hashchange', maybePinFromHash);
+	if (window.location.hash === '#contact' || window.location.hash === '#rsvp') {
+		requestAnimationFrame(() => pinSectionInViewport('auto'));
+	}
+
+	void boot();
+	})();
+</script>
+
+<style is:global>
+	/* Global because bubbles/controls are created by the client state machine */
+	.rsvp {
+		--rsvp-bg: var(--color-accent);
+		--rsvp-bubble: rgb(255 255 255 / 0.1);
+		--rsvp-bubble-user: rgb(255 255 255 / 0.2);
+		--rsvp-text: #f5f7f4;
+		--rsvp-muted: rgb(255 255 255 / 0.55);
+		--rsvp-line: rgb(255 255 255 / 0.85);
+		position: relative;
+		background: var(--rsvp-bg);
+		color: var(--rsvp-text);
+		scroll-margin-top: 0;
+	}
+
+	.rsvp__anchor {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 1px;
+		height: 1px;
+		pointer-events: none;
+	}
+
+	.rsvp__shell {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 0;
+	}
+
+	.rsvp__photo {
+		order: 2;
+		margin: 0.75rem 1.15rem 1.15rem;
+		overflow: hidden;
+		aspect-ratio: 3 / 4;
+		max-height: 34rem;
+	}
+
+	.rsvp__photo img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center 20%;
+	}
+
+	.rsvp__panel {
+		order: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		/* Mobile: hug content so section grows with new bubbles */
+		min-height: 0;
+		padding: 6.5rem 1.15rem 0;
+	}
+
+	.rsvp__chat {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.rsvp__thread {
+		display: flex;
+		flex-direction: column;
+	}
+
+	/* Title + messages hug the action box together */
+	.rsvp__stack {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		padding-bottom: 1.35rem;
+	}
+
+	.rsvp__title {
+		margin: 0 0 1.1rem;
+		font-family: var(--font-serif);
+		font-size: clamp(2rem, 7vw, 2.65rem);
+		font-weight: 400;
+		line-height: 1.05;
+		letter-spacing: -0.01em;
+	}
+
+	.rsvp__thread-inner {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.55rem;
+		width: 100%;
+	}
+
+	.rsvp__footer {
+		flex-shrink: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.rsvp__bubble {
+		max-width: min(92%, 26rem);
+		width: fit-content;
+		padding: 0.72rem 0.9rem;
+		background: var(--rsvp-bubble);
+		color: var(--rsvp-text);
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 400;
+		line-height: 1.4;
+		border-radius: 2px;
+		animation: rsvp-in 0.35s ease both;
+	}
+
+	.rsvp__bubble--bot,
+	.rsvp__bubble--typing {
+		align-self: flex-start;
+	}
+
+	.rsvp__bubble--user {
+		align-self: flex-end;
+		background: var(--rsvp-bubble-user);
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+	}
+
+	.rsvp__bubble--user:hover,
+	.rsvp__bubble--user:focus-visible {
+		background: rgb(255 255 255 / 0.28);
+		outline: none;
+	}
+
+	.rsvp__bubble--typing {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+	}
+
+	.rsvp__typing-label {
+		opacity: 0.92;
+	}
+
+	.rsvp__dots {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.18rem;
+		margin-left: 0.1rem;
+	}
+
+	.rsvp__dots i {
+		width: 0.28rem;
+		height: 0.28rem;
+		border-radius: 50%;
+		background: currentColor;
+		opacity: 0.35;
+		animation: rsvp-blink 1.2s infinite ease-in-out;
+	}
+
+	.rsvp__dots i:nth-child(2) {
+		animation-delay: 0.2s;
+	}
+
+	.rsvp__dots i:nth-child(3) {
+		animation-delay: 0.4s;
+	}
+
+	.rsvp__signoff {
+		margin: 0.55rem 0 0;
+		align-self: flex-start;
+		font-family: var(--font-serif);
+		font-size: 1.35rem;
+		font-weight: 400;
+		line-height: 1.2;
+		animation: rsvp-in 0.4s ease both;
+	}
+
+	.rsvp__rule {
+		height: 1px;
+		background: var(--rsvp-line);
+		opacity: 0.9;
+		margin: 0 0 1rem;
+		flex-shrink: 0;
+	}
+
+	.rsvp__controls {
+		min-height: 3.25rem;
+		flex-shrink: 0;
+	}
+
+	.rsvp__row {
+		display: flex;
+		align-items: stretch;
+		gap: 0.55rem;
+	}
+
+	.rsvp__row--end {
+		justify-content: flex-end;
+	}
+
+	.rsvp__row--guests {
+		align-items: stretch;
+	}
+
+	.rsvp__choice-group {
+		display: flex;
+		flex: 1;
+		gap: 0.55rem;
+		min-width: 0;
+	}
+
+	.rsvp__choice {
+		display: inline-flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.65rem;
+		flex: 1;
+		min-width: 0;
+		padding: 0.85rem 0.85rem;
+		border: 1px solid rgb(255 255 255 / 0.85);
+		background: transparent;
+		color: var(--rsvp-text);
+		font-family: var(--font-sans);
+		font-size: clamp(0.78rem, 2.8vw, 0.9375rem);
+		font-weight: 400;
+		line-height: 1.2;
+		text-align: left;
+		transition:
+			background-color 0.2s ease,
+			color 0.2s ease,
+			border-color 0.2s ease;
+	}
+
+	.rsvp__choice-label {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.rsvp__choice.is-selected {
+		background: #fff;
+		border-color: #fff;
+		color: var(--rsvp-bg);
+	}
+
+	.rsvp__check {
+		display: grid;
+		place-items: center;
+		width: 1rem;
+		height: 1rem;
+		border: 1.5px solid currentColor;
+		flex-shrink: 0;
+	}
+
+	.rsvp__check svg {
+		width: 0.65rem;
+		height: 0.55rem;
+	}
+
+	.rsvp__arrow-wrap {
+		display: contents;
+	}
+
+	.rsvp__arrow {
+		display: grid;
+		place-items: center;
+		width: 3.1rem;
+		height: 3.1rem;
+		flex-shrink: 0;
+		align-self: stretch;
+		min-height: 3.1rem;
+		border: 0;
+		background: rgb(255 255 255 / 0.12);
+		color: #fff;
+		transition:
+			background-color 0.2s ease,
+			color 0.2s ease,
+			opacity 0.2s ease;
+	}
+
+	.rsvp__arrow svg {
+		width: 1.15rem;
+		height: 1.15rem;
+	}
+
+	.rsvp__arrow.is-ready {
+		background: #fff;
+		color: var(--rsvp-bg);
+	}
+
+	.rsvp__arrow:disabled {
+		cursor: default;
+		opacity: 0.85;
+	}
+
+	.rsvp__arrow.is-ready:not(:disabled):hover {
+		opacity: 0.92;
+	}
+
+	.rsvp__guest-label {
+		flex: 1;
+		min-width: 0;
+		padding: 0.85rem 1rem;
+		border: 1px solid rgb(255 255 255 / 0.85);
+		background: transparent;
+		color: var(--rsvp-text);
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		text-align: left;
+		pointer-events: none;
+	}
+
+	.rsvp__steppers {
+		display: flex;
+		gap: 0.45rem;
+	}
+
+	.rsvp__step {
+		display: grid;
+		place-items: center;
+		width: 3.1rem;
+		min-height: 3.1rem;
+		border: 1px solid rgb(255 255 255 / 0.85);
+		background: var(--rsvp-bubble);
+		color: var(--rsvp-text);
+		font-size: 1.15rem;
+		line-height: 1;
+		transition: opacity 0.2s ease;
+	}
+
+	.rsvp__step:disabled {
+		opacity: 0.35;
+		cursor: default;
+	}
+
+	.rsvp__form {
+		display: flex;
+		align-items: flex-end;
+		gap: 1rem;
+		width: 100%;
+	}
+
+	.rsvp__fields {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 1.35rem;
+		min-width: 0;
+	}
+
+	.rsvp__field {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		font-family: var(--font-sans);
+	}
+
+	/* Empty: placeholder on the line. Filled/focus: small label above value. */
+	.rsvp__field-label {
+		display: block;
+		font-size: 0.75rem;
+		font-weight: 400;
+		line-height: 1.2;
+		letter-spacing: 0.01em;
+		color: rgb(255 255 255 / 0.5);
+		max-height: 0;
+		opacity: 0;
+		overflow: hidden;
+		transform: translateY(0.2rem);
+		transition:
+			max-height 0.2s ease,
+			opacity 0.2s ease,
+			transform 0.2s ease,
+			margin 0.2s ease;
+	}
+
+	.rsvp__field.is-active .rsvp__field-label,
+	.rsvp__field.is-filled .rsvp__field-label {
+		max-height: 1rem;
+		opacity: 1;
+		margin-bottom: 0.2rem;
+		transform: none;
+	}
+
+	.rsvp__field input {
+		width: 100%;
+		padding: 0.05rem 0 0.55rem;
+		border: 0;
+		border-bottom: 1px solid #fff;
+		border-radius: 0;
+		background: transparent;
+		color: #fff;
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 400;
+		line-height: 1.35;
+		outline: none;
+		caret-color: #fff;
+		box-shadow: none;
+		-webkit-appearance: none;
+		appearance: none;
+	}
+
+	.rsvp__field input::placeholder {
+		color: rgb(255 255 255 / 0.5);
+		opacity: 1;
+		font-weight: 400;
+		transition: opacity 0.15s ease;
+	}
+
+	.rsvp__field.is-active input::placeholder,
+	.rsvp__field.is-filled input::placeholder {
+		opacity: 0;
+	}
+
+	.rsvp__field input:focus {
+		border-bottom-color: #fff;
+	}
+
+	.rsvp__field input:-webkit-autofill,
+	.rsvp__field input:-webkit-autofill:hover,
+	.rsvp__field input:-webkit-autofill:focus {
+		-webkit-text-fill-color: #fff;
+		caret-color: #fff;
+		transition: background-color 99999s ease-out;
+		box-shadow: 0 0 0 1000px var(--rsvp-bg) inset;
+		border-bottom: 1px solid #fff;
+	}
+
+	.rsvp__form .rsvp__arrow {
+		width: 3rem;
+		height: 3rem;
+		min-height: 3rem;
+		align-self: flex-end;
+		margin-bottom: 0;
+		flex-shrink: 0;
+		background: #fff;
+		color: var(--rsvp-bg);
+	}
+
+	.rsvp__form .rsvp__arrow svg {
+		width: 1.05rem;
+		height: 1.05rem;
+	}
+
+	@keyframes rsvp-blink {
+		0%,
+		80%,
+		100% {
+			opacity: 0.25;
+			transform: translateY(0);
+		}
+		40% {
+			opacity: 1;
+			transform: translateY(-1px);
+		}
+	}
+
+	@keyframes rsvp-in {
+		from {
+			opacity: 0;
+			transform: translateY(6px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@media (min-width: 900px) {
+		.rsvp {
+			--rsvp-inset-x: max(1.5rem, 2.75vw);
+			--rsvp-inset-y: max(1.5rem, 4.5svh);
+			min-height: 100svh;
+			min-height: 100dvh;
+		}
+
+		.rsvp__shell {
+			/* Photo ~39% of frame width (matches Figma); green frame on L/T/B */
+			grid-template-columns: minmax(0, 0.413fr) minmax(0, 0.587fr);
+			column-gap: var(--rsvp-inset-x);
+			min-height: inherit;
+			align-items: center;
+			box-sizing: border-box;
+			padding: var(--rsvp-inset-y) 0 var(--rsvp-inset-y) var(--rsvp-inset-x);
+		}
+
+		.rsvp__photo {
+			order: 0;
+			aspect-ratio: auto;
+			max-height: none;
+			height: auto;
+			min-height: calc(100svh - (var(--rsvp-inset-y) * 2));
+			align-self: stretch;
+			margin: 0;
+		}
+
+		.rsvp__panel {
+			order: 0;
+			min-height: 0;
+			height: auto;
+			justify-content: center;
+			align-self: center;
+			/* Right inset mirrors left photo frame */
+			padding: 0 var(--rsvp-inset-x) 0 0;
+		}
+
+		.rsvp__stack {
+			padding-bottom: 1.5rem;
+		}
+
+		.rsvp__title {
+			margin-bottom: 1.25rem;
+			font-size: clamp(2.35rem, 3.2vw, 3.15rem);
+		}
+
+		.rsvp__thread-inner {
+			gap: 0.65rem;
+		}
+
+		.rsvp__bubble {
+			font-size: 1rem;
+			padding: 0.8rem 1rem;
+		}
+
+		.rsvp__choice {
+			font-size: 0.9375rem;
+			padding: 0.95rem 1rem;
+		}
+
+		.rsvp__arrow,
+		.rsvp__step {
+			width: 3.35rem;
+			min-height: 3.35rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.rsvp__bubble,
+		.rsvp__signoff {
+			animation: none;
+		}
+
+		.rsvp__dots i {
+			animation: none;
+			opacity: 0.7;
+		}
+	}
+</style>
