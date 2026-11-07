@@ -1,0 +1,300 @@
+---
+import ConfirmButton from './ConfirmButton.astro';
+---
+
+<section class="hero" data-hero>
+	<div class="hero__frame">
+		<div class="hero__media" data-hero-media>
+			<img
+				class="hero__image"
+				src="/bg_image.webp"
+				alt="Andrea and Chris embracing outdoors"
+				width="1600"
+				height="2000"
+				fetchpriority="high"
+				data-hero-image
+			/>
+			<div class="hero__veil" aria-hidden="true"></div>
+		</div>
+
+		<div class="hero__content">
+			<p class="hero__eyebrow hero__eyebrow--mobile">
+				Inviting you to join our<br />love story come true
+			</p>
+
+			<div class="hero__stage">
+				<div class="hero__intro">
+					<p class="hero__eyebrow hero__eyebrow--desktop">
+						Inviting you to join our<br />love story come true
+					</p>
+					<h1 class="hero__title" aria-label="Andrea & Chris">
+						<span class="hero__name hero__name--andrea" aria-hidden="true">Andrea</span>
+						<span class="hero__name-row" aria-hidden="true">
+							<span class="hero__amp">&</span>
+							<span class="hero__name hero__name--chris">Chris</span>
+						</span>
+					</h1>
+				</div>
+
+				<div class="hero__cta-block">
+					<p class="hero__note">
+						Let us know if you can participate<br />till the end of january.
+					</p>
+					<ConfirmButton variant="hero" />
+				</div>
+			</div>
+
+			<p class="hero__scroll">(Scroll below ↓ )</p>
+		</div>
+	</div>
+</section>
+
+<style>
+	.hero {
+		position: relative;
+		background: var(--color-white);
+		padding: 0 0.75rem 0.75rem;
+	}
+
+	.hero__frame {
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+		min-height: calc(100svh - 6.5rem);
+		background: #1a1f1a;
+	}
+
+	.hero__media {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		z-index: 0;
+	}
+
+	.hero__image {
+		position: absolute;
+		left: 50%;
+		top: -12%;
+		width: 120%;
+		height: 124%;
+		max-width: none;
+		object-fit: cover;
+		object-position: center 28%;
+		transform: translate3d(-50%, 0, 0);
+		will-change: transform;
+	}
+
+	.hero__veil {
+		position: absolute;
+		inset: 0;
+		background:
+			linear-gradient(
+				180deg,
+				rgb(0 0 0 / 0.18) 0%,
+				rgb(0 0 0 / 0.08) 28%,
+				rgb(0 0 0 / 0.22) 62%,
+				rgb(0 0 0 / 0.42) 100%
+			);
+		pointer-events: none;
+	}
+
+	.hero__content {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		align-items: center;
+		justify-items: center;
+		min-height: inherit;
+		padding: 2.1rem 1.25rem 1.2rem;
+		color: var(--color-white);
+		text-align: center;
+	}
+
+	.hero__eyebrow {
+		margin: 0;
+		font-size: 0.9375rem;
+		font-weight: 400;
+		line-height: 1.45;
+		letter-spacing: 0.01em;
+	}
+
+	.hero__eyebrow--desktop {
+		display: none;
+	}
+
+	.hero__stage {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1.35rem;
+		width: 100%;
+		padding-bottom: 1.5rem;
+	}
+
+	.hero__intro {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.85rem;
+	}
+
+	.hero__title {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.12em;
+		margin: 0;
+		font-family: var(--font-serif);
+		font-size: clamp(3.25rem, 13vw, 4.25rem);
+		font-weight: 400;
+		line-height: 0.92;
+		letter-spacing: -0.02em;
+	}
+
+	.hero__name--andrea {
+		display: block;
+	}
+
+	.hero__name-row {
+		display: flex;
+		align-items: baseline;
+		gap: 0.28em;
+	}
+
+	.hero__amp {
+		font-size: 0.58em;
+		line-height: 1;
+		transform: translateY(-0.06em);
+	}
+
+	.hero__cta-block {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 1rem;
+		width: fit-content;
+		max-width: 100%;
+	}
+
+	.hero__note {
+		margin: 0;
+		font-size: 0.9375rem;
+		line-height: 1.45;
+	}
+
+	.hero__scroll {
+		margin: 0;
+		font-size: 0.9375rem;
+		letter-spacing: 0.01em;
+		opacity: 0.92;
+		white-space: nowrap;
+	}
+
+	@media (min-width: 900px) {
+		.hero {
+			padding: 0 1.5rem 1.5rem;
+		}
+
+		.hero__frame {
+			min-height: calc(100svh - 5.25rem);
+		}
+
+		.hero__image {
+			top: -18%;
+			width: 112%;
+			height: 136%;
+			object-position: center 32%;
+		}
+
+		.hero__content {
+			display: flex;
+			align-items: stretch;
+			justify-content: flex-end;
+			padding: 2.5rem 2.75rem 1.5rem;
+			text-align: left;
+		}
+
+		.hero__eyebrow--mobile {
+			display: none;
+		}
+
+		.hero__eyebrow--desktop {
+			display: block;
+		}
+
+		.hero__stage {
+			flex-direction: row;
+			align-items: flex-end;
+			justify-content: space-between;
+			gap: 2rem;
+			width: 100%;
+			padding-bottom: 2.35rem;
+		}
+
+		.hero__intro {
+			align-items: flex-start;
+			gap: 0.95rem;
+		}
+
+		.hero__title {
+			align-items: flex-start;
+			gap: 0.16em;
+			font-size: clamp(5.5rem, 9vw, 8.25rem);
+		}
+
+		.hero__amp {
+			font-size: 0.55em;
+		}
+
+		.hero__cta-block {
+			align-items: stretch;
+			text-align: right;
+		}
+
+		.hero__scroll {
+			position: absolute;
+			left: 50%;
+			bottom: 1.35rem;
+			transform: translateX(-50%);
+		}
+	}
+</style>
+
+<script>
+	const hero = document.querySelector<HTMLElement>('[data-hero]');
+	const image = document.querySelector<HTMLElement>('[data-hero-image]');
+
+	if (hero && image) {
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+		let ticking = false;
+
+		const update = () => {
+			if (reduceMotion.matches) {
+				image.style.transform = 'translate3d(-50%, 0, 0)';
+				ticking = false;
+				return;
+			}
+
+			const rect = hero.getBoundingClientRect();
+			const progress = Math.min(Math.max(-rect.top / Math.max(rect.height, 1), 0), 1);
+			// Image moves slower than page scroll (~35% of scroll distance)
+			const offset = progress * rect.height * 0.35;
+			image.style.transform = `translate3d(-50%, ${offset}px, 0)`;
+			ticking = false;
+		};
+
+		const onScroll = () => {
+			if (!ticking) {
+				ticking = true;
+				requestAnimationFrame(update);
+			}
+		};
+
+		update();
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll);
+		reduceMotion.addEventListener('change', update);
+	}
+</script>

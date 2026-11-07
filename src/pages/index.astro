@@ -1,11 +1,24 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import CountdownSection from '../components/CountdownSection.astro';
 ---
 
 <Layout>
-	<Welcome />
+	<Header />
+	<main>
+		<Hero />
+		<CountdownSection />
+		<section id="boquete" class="next-section" aria-label="Next section">
+			<!-- Following sections land here -->
+		</section>
+	</main>
 </Layout>
+
+<style>
+	.next-section {
+		min-height: 70vh;
+		background: var(--color-white);
+	}
+</style>

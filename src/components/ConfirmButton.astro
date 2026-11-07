@@ -1,0 +1,111 @@
+---
+interface Props {
+	class?: string;
+	variant?: 'hero' | 'header';
+}
+
+const { class: className = '', variant = 'hero' } = Astro.props;
+const showCheckbox = variant === 'hero';
+---
+
+<a
+	href="#rsvp"
+	class:list={['confirm-btn', `confirm-btn--${variant}`, className]}
+	data-confirm-btn
+>
+	<span class="confirm-btn__label">Confirm your presence</span>
+	{
+		showCheckbox && (
+			<span class="confirm-btn__box" aria-hidden="true">
+				<svg
+					class="confirm-btn__check"
+					viewBox="0 0 12 10"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M1 5.2L4.2 8.5L11 1.5"
+						stroke="currentColor"
+						stroke-width="1.6"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				</svg>
+			</span>
+		)
+	}
+</a>
+
+<style>
+	.confirm-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		background: var(--color-accent);
+		color: var(--color-white);
+		font-family: var(--font-sans);
+		font-weight: 500;
+		line-height: 1;
+		white-space: nowrap;
+		transition:
+			background-color 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	.confirm-btn--header {
+		padding: 0.75rem 1.2rem;
+		font-size: 0.9375rem;
+		letter-spacing: 0.01em;
+	}
+
+	.confirm-btn--hero {
+		padding: 0.95rem 1.25rem;
+		font-size: 1rem;
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.confirm-btn__box {
+		display: grid;
+		place-items: center;
+		width: 1.125rem;
+		height: 1.125rem;
+		border: 1.5px solid currentColor;
+		flex-shrink: 0;
+	}
+
+	.confirm-btn__check {
+		width: 0.7rem;
+		height: 0.6rem;
+		opacity: 0;
+		transform: scale(0.7);
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.confirm-btn--hero:hover .confirm-btn__check,
+		.confirm-btn--hero:focus-visible .confirm-btn__check {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	.confirm-btn--hero:active .confirm-btn__check,
+	.confirm-btn--hero.is-pressed .confirm-btn__check {
+		opacity: 1;
+		transform: scale(1);
+	}
+</style>
+
+<script>
+	const buttons = document.querySelectorAll<HTMLElement>('[data-confirm-btn].confirm-btn--hero');
+
+	buttons.forEach((btn) => {
+		btn.addEventListener('touchstart', () => btn.classList.add('is-pressed'), { passive: true });
+		btn.addEventListener('touchend', () => btn.classList.remove('is-pressed'));
+		btn.addEventListener('touchcancel', () => btn.classList.remove('is-pressed'));
+	});
+</script>

@@ -1,0 +1,368 @@
+---
+interface Props {
+	/** ISO date string for the wedding moment */
+	targetDate?: string;
+}
+
+const { targetDate = '2027-04-10T16:00:00' } = Astro.props;
+
+const units = [
+	{ key: 'days', label: 'DAYS' },
+	{ key: 'hours', label: 'HRS' },
+	{ key: 'minutes', label: 'MIN' },
+	{ key: 'seconds', label: 'SEC' },
+] as const;
+---
+
+<section
+	class="countdown bg-surface"
+	aria-label="Wedding countdown"
+	data-countdown
+	data-target={targetDate}
+>
+	<div class="countdown__inner mx-auto flex w-full max-w-5xl flex-col items-center px-5 py-14 md:flex-row md:justify-center md:gap-5 md:px-8 md:py-16 lg:gap-7">
+		<p class="countdown__title-mobile mb-5 text-center font-serif text-[1.65rem] leading-tight text-accent md:hidden">
+			We will say ‘I do!’
+		</p>
+
+		<div class="countdown__row flex w-full items-center justify-center gap-3 sm:gap-4 md:w-auto md:gap-5 lg:gap-6">
+			<p class="countdown__title-desktop hidden font-serif text-[1.75rem] leading-none text-accent whitespace-nowrap md:block lg:text-[2rem]">
+				We will say ‘I do!’ in
+			</p>
+			<span
+				class="countdown__in-mobile shrink-0 font-serif text-[1.65rem] leading-none text-accent md:hidden"
+				aria-hidden="true"
+			>
+				in
+			</span>
+
+			<div
+				class="countdown__clock flex items-center gap-2 sm:gap-2.5 md:gap-3"
+				role="timer"
+				aria-live="polite"
+				aria-atomic="true"
+				data-clock
+			>
+				{
+					units.map(({ key, label }) => (
+						<div class="flip" data-flip={key}>
+							<span class="flip__label">{label}</span>
+							<div class="flip__card" data-flip-card>
+								<div class="flip__static flip__static--top">
+									<span data-static-top>00</span>
+								</div>
+								<div class="flip__static flip__static--bottom">
+									<span data-static-bottom>00</span>
+								</div>
+								<div class="flip__hinge" aria-hidden="true" />
+								<div class="flip__flap flip__flap--top" data-flap-top>
+									<span data-flap-top-value>00</span>
+								</div>
+								<div class="flip__flap flip__flap--bottom" data-flap-bottom>
+									<span data-flap-bottom-value>00</span>
+								</div>
+							</div>
+						</div>
+					))
+				}
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.flip {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.35rem;
+	}
+
+	.flip__label {
+		font-family: var(--font-sans);
+		font-size: 0.625rem;
+		font-weight: 500;
+		letter-spacing: 0.18em;
+		line-height: 1;
+		color: var(--color-accent);
+		opacity: 0.85;
+	}
+
+	.flip__card {
+		position: relative;
+		width: 3.75rem;
+		height: 3.75rem;
+		perspective: 420px;
+		border-radius: 0;
+		background: var(--color-white);
+		box-shadow: none;
+		overflow: hidden;
+	}
+
+	.flip__static,
+	.flip__flap {
+		position: absolute;
+		left: 0;
+		width: 100%;
+		height: 50%;
+		overflow: hidden;
+		background: var(--color-white);
+		border-radius: 0;
+	}
+
+	.flip__static--top,
+	.flip__flap--top {
+		top: 0;
+	}
+
+	.flip__static--bottom,
+	.flip__flap--bottom {
+		bottom: 0;
+	}
+
+	.flip__static span,
+	.flip__flap span {
+		position: absolute;
+		left: 0;
+		width: 100%;
+		height: 200%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: var(--font-sans);
+		font-size: 1.55rem;
+		font-weight: 700;
+		line-height: 1;
+		letter-spacing: -0.02em;
+		color: var(--color-accent);
+		user-select: none;
+	}
+
+	.flip__static--top span,
+	.flip__flap--top span {
+		top: 0;
+	}
+
+	.flip__static--bottom span,
+	.flip__flap--bottom span {
+		bottom: 0;
+	}
+
+	.flip__hinge {
+		position: absolute;
+		top: 50%;
+		left: 0;
+		z-index: 4;
+		width: 100%;
+		height: 1px;
+		background: rgb(26 48 18 / 12%);
+		transform: translateY(-50%);
+		pointer-events: none;
+	}
+
+	.flip__flap {
+		z-index: 2;
+		backface-visibility: hidden;
+		-webkit-backface-visibility: hidden;
+		transform-style: preserve-3d;
+		visibility: hidden;
+		pointer-events: none;
+	}
+
+	.flip__flap--top {
+		transform-origin: bottom center;
+		z-index: 3;
+	}
+
+	.flip__flap--bottom {
+		transform-origin: top center;
+		z-index: 2;
+		transform: rotateX(90deg);
+	}
+
+	.flip__card.is-flipping .flip__flap--top {
+		visibility: visible;
+		animation: flip-top 0.45s ease-in forwards;
+	}
+
+	.flip__card.is-flipping .flip__flap--bottom {
+		visibility: visible;
+		animation: flip-bottom 0.45s ease-out 0.45s forwards;
+	}
+
+	@keyframes flip-top {
+		0% {
+			transform: rotateX(0deg);
+		}
+		100% {
+			transform: rotateX(-90deg);
+		}
+	}
+
+	@keyframes flip-bottom {
+		0% {
+			transform: rotateX(90deg);
+		}
+		100% {
+			transform: rotateX(0deg);
+		}
+	}
+
+	@media (min-width: 640px) {
+		.flip__card {
+			width: 4.15rem;
+			height: 4.15rem;
+		}
+
+		.flip__static span,
+		.flip__flap span {
+			font-size: 1.9rem;
+		}
+
+		.flip__label {
+			font-size: 0.6875rem;
+		}
+	}
+
+	@media (min-width: 768px) {
+		.flip__card {
+			width: 4.5rem;
+			height: 4.5rem;
+		}
+
+		.flip__static span,
+		.flip__flap span {
+			font-size: 2.1rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.flip__card.is-flipping .flip__flap--top,
+		.flip__card.is-flipping .flip__flap--bottom {
+			animation: none;
+			visibility: hidden;
+		}
+	}
+</style>
+
+<script>
+	type UnitKey = 'days' | 'hours' | 'minutes' | 'seconds';
+
+	interface TimeParts {
+		days: string;
+		hours: string;
+		minutes: string;
+		seconds: string;
+	}
+
+	const FLIP_MS = 900;
+	const UNITS: UnitKey[] = ['days', 'hours', 'minutes', 'seconds'];
+
+	function pad(value: number, size = 2): string {
+		return String(Math.max(0, value)).padStart(size, '0');
+	}
+
+	function getTimeParts(targetMs: number): TimeParts {
+		const diff = Math.max(0, targetMs - Date.now());
+		const totalSeconds = Math.floor(diff / 1000);
+		const days = Math.floor(totalSeconds / 86400);
+		const hours = Math.floor((totalSeconds % 86400) / 3600);
+		const minutes = Math.floor((totalSeconds % 3600) / 60);
+		const seconds = totalSeconds % 60;
+
+		return {
+			days: pad(days, 3),
+			hours: pad(hours),
+			minutes: pad(minutes),
+			seconds: pad(seconds),
+		};
+	}
+
+	function setCardValue(card: HTMLElement, value: string) {
+		const staticTop = card.querySelector<HTMLElement>('[data-static-top]');
+		const staticBottom = card.querySelector<HTMLElement>('[data-static-bottom]');
+		const flapTop = card.querySelector<HTMLElement>('[data-flap-top-value]');
+		const flapBottom = card.querySelector<HTMLElement>('[data-flap-bottom-value]');
+
+		if (staticTop) staticTop.textContent = value;
+		if (staticBottom) staticBottom.textContent = value;
+		if (flapTop) flapTop.textContent = value;
+		if (flapBottom) flapBottom.textContent = value;
+	}
+
+	function flipTo(card: HTMLElement, nextValue: string, reduceMotion: boolean) {
+		const staticTop = card.querySelector<HTMLElement>('[data-static-top]');
+		const staticBottom = card.querySelector<HTMLElement>('[data-static-bottom]');
+		const flapTop = card.querySelector<HTMLElement>('[data-flap-top-value]');
+		const flapBottom = card.querySelector<HTMLElement>('[data-flap-bottom-value]');
+		if (!staticTop || !staticBottom || !flapTop || !flapBottom) return;
+
+		const current = staticTop.textContent ?? '00';
+		if (current === nextValue) return;
+
+		if (reduceMotion || card.classList.contains('is-flipping')) {
+			setCardValue(card, nextValue);
+			card.classList.remove('is-flipping');
+			return;
+		}
+
+		// Prepare flaps: top shows old, bottom shows new
+		flapTop.textContent = current;
+		flapBottom.textContent = nextValue;
+
+		// Under the flip: top already reveals new; bottom stays old until lower flap lands
+		staticTop.textContent = nextValue;
+		staticBottom.textContent = current;
+
+		card.classList.remove('is-flipping');
+		// Force reflow so the animation can restart on consecutive ticks
+		void card.offsetWidth;
+		card.classList.add('is-flipping');
+
+		window.setTimeout(() => {
+			staticBottom.textContent = nextValue;
+			flapTop.textContent = nextValue;
+			card.classList.remove('is-flipping');
+		}, FLIP_MS);
+	}
+
+	function initCountdown(root: HTMLElement) {
+		const targetAttr = root.dataset.target;
+		if (!targetAttr) return;
+
+		const targetMs = new Date(targetAttr).getTime();
+		if (Number.isNaN(targetMs)) return;
+
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const cards = Object.fromEntries(
+			UNITS.map((unit) => {
+				const el = root.querySelector<HTMLElement>(`[data-flip="${unit}"] [data-flip-card]`);
+				return [unit, el];
+			}),
+		) as Record<UnitKey, HTMLElement | null>;
+
+		let previous: TimeParts | null = null;
+
+		const tick = () => {
+			const next = getTimeParts(targetMs);
+
+			for (const unit of UNITS) {
+				const card = cards[unit];
+				if (!card) continue;
+
+				if (!previous) {
+					setCardValue(card, next[unit]);
+				} else if (previous[unit] !== next[unit]) {
+					flipTo(card, next[unit], reduceMotion);
+				}
+			}
+
+			previous = next;
+		};
+
+		tick();
+		window.setInterval(tick, 1000);
+	}
+
+	document.querySelectorAll<HTMLElement>('[data-countdown]').forEach(initCountdown);
+</script>
