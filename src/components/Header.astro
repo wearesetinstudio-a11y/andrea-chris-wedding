@@ -3,9 +3,9 @@ import ConfirmButton from './ConfirmButton.astro';
 
 const navLinks = [
 	{ href: '#boquete', label: 'Boquete' },
-	{ href: '#itinerary', label: 'Itinerary' },
-	{ href: '#faq', label: 'FAQ' },
-	{ href: '#contact', label: 'Contact' },
+	{ href: '#itinerary', label: 'Itinerario' },
+	{ href: '#faq', label: 'Preguntas frecuentes' },
+	{ href: '#contact', label: 'Contacto' },
 ];
 ---
 
@@ -44,7 +44,7 @@ const navLinks = [
 		<button
 			type="button"
 			class="site-header__menu"
-			aria-label="Open menu"
+			aria-label="Abrir menú"
 			aria-expanded="false"
 			aria-controls="mobile-menu"
 			data-menu-toggle
@@ -326,7 +326,7 @@ const navLinks = [
 			document.body.classList.toggle('menu-open', open);
 			drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
 			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-			toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+			toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
 		};
 
 		toggle.addEventListener('click', () => {
