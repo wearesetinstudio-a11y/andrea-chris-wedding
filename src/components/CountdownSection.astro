@@ -7,33 +7,33 @@ interface Props {
 const { targetDate = '2027-04-10T16:00:00' } = Astro.props;
 
 const units = [
-	{ key: 'days', label: 'DAYS' },
-	{ key: 'hours', label: 'HRS' },
+	{ key: 'days', label: 'DÍAS' },
+	{ key: 'hours', label: 'HORAS' },
 	{ key: 'minutes', label: 'MIN' },
-	{ key: 'seconds', label: 'SEC' },
+	{ key: 'seconds', label: 'SEG' },
 ] as const;
 ---
 
 <section
 	class="countdown bg-surface"
-	aria-label="Wedding countdown"
+	aria-label="Cuenta regresiva de la boda"
 	data-countdown
 	data-target={targetDate}
 >
 	<div class="countdown__inner mx-auto flex w-full max-w-5xl flex-col items-center px-5 py-14 md:flex-row md:justify-center md:gap-5 md:px-8 md:py-16 lg:gap-7">
 		<p class="countdown__title-mobile mb-5 text-center font-serif text-[1.65rem] leading-tight text-accent md:hidden">
-			We will say ‘I do!’
+			Nos diremos ‘¡Sí, acepto!’
 		</p>
 
 		<div class="countdown__row flex w-full items-center justify-center gap-3 sm:gap-4 md:w-auto md:gap-5 lg:gap-6">
 			<p class="countdown__title-desktop hidden font-serif text-[1.75rem] leading-none text-accent whitespace-nowrap md:block lg:text-[2rem]">
-				We will say ‘I do!’ in
+				Nos diremos ‘¡Sí, acepto!’ en
 			</p>
 			<span
 				class="countdown__in-mobile shrink-0 font-serif text-[1.65rem] leading-none text-accent md:hidden"
 				aria-hidden="true"
 			>
-				in
+				en
 			</span>
 
 			<div
@@ -80,12 +80,13 @@ const units = [
 
 	.flip__label {
 		font-family: var(--font-sans);
-		font-size: 0.625rem;
+		font-size: 0.5625rem;
 		font-weight: 500;
-		letter-spacing: 0.18em;
+		letter-spacing: 0.12em;
 		line-height: 1;
 		color: var(--color-accent);
 		opacity: 0.85;
+		text-transform: uppercase;
 	}
 
 	.flip__card {

@@ -8,12 +8,11 @@ interface Props {
 }
 
 const {
-	accessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY ?? '',
+	accessKey = import.meta.env.PUBLIC_WEB3FORMS_ACCESS_KEY ??
+		'd071f5f1-d99f-4e2d-9975-f15d2a033dd8',
 	imageSrc = '/contact_image.webp',
 	imageAlt = 'Andrea and Chris standing together outdoors',
 } = Astro.props;
-
-const notifyEmail = 'vega21andrea@gmail.com';
 ---
 
 <section class="rsvp" aria-label="Chat de confirmación" data-wedding-rsvp>
@@ -54,7 +53,6 @@ const notifyEmail = 'vega21andrea@gmail.com';
 <script
 	define:vars={{
 		accessKey,
-		notifyEmail,
 	}}
 >
 	(() => {
@@ -420,21 +418,19 @@ const notifyEmail = 'vega21andrea@gmail.com';
 		controls.appendChild(row);
 	}
 
-	async function submitPayload(payload) {
-		if (!accessKey) {
-			console.warn(
-				'[WeddingChatRSVP] Missing PUBLIC_WEB3FORMS_ACCESS_KEY — RSVP was not emailed. Add your Web3Forms key to .env',
-			);
-			return { ok: false, skipped: true };
-		}
+	function attendanceLabel() {
+		return state.attending ? '¡Sí! Claro :)' : 'No puedo :(';
+	}
 
+	async function submitRsvp() {
 		const body = {
 			access_key: accessKey,
-			subject: payload.status === 'Declined' ? 'Wedding RSVP — Declined' : 'Wedding RSVP — Confirmed',
-			from_name: payload.name || 'Wedding guest',
-			email: payload.email || notifyEmail,
-			to: notifyEmail,
-			...payload,
+			subject: '¡Nueva confirmación de asistencia - Boda Andrea & Chris!',
+			from_name: 'Boda Web RSVP',
+			Nombre: state.name,
+			Correo: state.email,
+			Asistencia: attendanceLabel(),
+			Invitados: guestLabel(state.guests),
 		};
 
 		try {
@@ -447,7 +443,7 @@ const notifyEmail = 'vega21andrea@gmail.com';
 				body: JSON.stringify(body),
 			});
 			const data = await res.json().catch(() => ({}));
-			return { ok: res.ok && data.success !== false, data };
+			return { ok: res.ok && data.success === true, data };
 		} catch (error) {
 			console.error('[WeddingChatRSVP] Submit failed', error);
 			return { ok: false, error };
@@ -458,16 +454,10 @@ const notifyEmail = 'vega21andrea@gmail.com';
 		busy = true;
 		renderIdleArrow();
 
-		const label = state.attending ? '¡Sí! Claro :)' : 'No puedo :(';
-		addUserBubble(label, 'attendance');
+		addUserBubble(attendanceLabel(), 'attendance');
 
 		if (!state.attending) {
 			await withTyping(['¡Qué mal :(', 'Bueno, ¡tenemos que vernos y celebrar antes!']);
-			await submitPayload({
-				status: 'Declined',
-				attending: 'no',
-				message: 'Invitado declinó la RSVP de la boda civil.',
-			});
 			busy = false;
 			return;
 		}
@@ -496,16 +486,14 @@ const notifyEmail = 'vega21andrea@gmail.com';
 		await wait(180);
 		addUserBubble(state.email, 'contact');
 
-		await submitPayload({
-			status: 'Confirmed',
-			attending: 'yes',
-			name: state.name,
-			email: state.email,
-			guests: state.guests,
-			guest_label: guestLabel(state.guests),
-			party_size: state.guests + 1,
-			message: `RSVP confirmada — ${guestLabel(state.guests)}`,
-		});
+		const result = await submitRsvp();
+
+		if (!result.ok) {
+			console.error('[WeddingChatRSVP] Web3Forms rejected submission', result);
+			busy = false;
+			renderContactControls();
+			return;
+		}
 
 		await withTyping(['¡Muchas gracias! ¡Tenemos muchas ganas de verte allí!']);
 		addBubble('signoff', 'Andrea & Chris');
