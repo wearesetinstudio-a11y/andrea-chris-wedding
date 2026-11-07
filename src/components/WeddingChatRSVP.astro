@@ -233,8 +233,8 @@ const notifyEmail = 'vega21andrea@gmail.com';
 		}
 
 		const options = [
-			{ value: 'yes', label: '¡Sí! Estaré allí' },
-			{ value: 'no', label: 'No podré estar' },
+			{ value: 'yes', label: '¡Sí! Claro :)' },
+			{ value: 'no', label: 'No puedo :(' },
 		];
 
 		options.forEach(({ value, label }) => {
@@ -458,7 +458,7 @@ const notifyEmail = 'vega21andrea@gmail.com';
 		busy = true;
 		renderIdleArrow();
 
-		const label = state.attending ? '¡Sí! Estaré allí' : 'No podré estar';
+		const label = state.attending ? '¡Sí! Claro :)' : 'No puedo :(';
 		addUserBubble(label, 'attendance');
 
 		if (!state.attending) {
