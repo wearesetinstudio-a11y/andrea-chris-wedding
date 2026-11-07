@@ -191,12 +191,8 @@ const notifyEmail = 'vega21andrea@gmail.com';
 		return btn;
 	}
 
-	function checkboxIcon(checked) {
-		return `<span class="rsvp__check${checked ? ' is-on' : ''}" aria-hidden="true">${
-			checked
-				? `<svg viewBox="0 0 12 10" fill="none"><path d="M1 5.2L4.2 8.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-				: ''
-		}</span>`;
+	function checkboxIcon() {
+		return `<span class="rsvp__check" aria-hidden="true"><svg class="rsvp__check-mark" viewBox="0 0 12 10" fill="none"><path d="M1 5.2L4.2 8.5L11 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
 	}
 
 	function renderAttendanceControls() {
@@ -232,8 +228,6 @@ const notifyEmail = 'vega21andrea@gmail.com';
 				const selected = btn.dataset.value === selectedValue;
 				btn.classList.toggle('is-selected', selected);
 				btn.setAttribute('aria-checked', selected ? 'true' : 'false');
-				const box = btn.querySelector('.rsvp__check');
-				if (box) box.outerHTML = checkboxIcon(selected);
 			});
 			syncArrow();
 		}
@@ -250,11 +244,14 @@ const notifyEmail = 'vega21andrea@gmail.com';
 			btn.dataset.value = value;
 			btn.setAttribute('role', 'radio');
 			btn.setAttribute('aria-checked', 'false');
-			btn.innerHTML = `<span class="rsvp__choice-label">${label}</span>${checkboxIcon(false)}`;
+			btn.innerHTML = `<span class="rsvp__choice-label">${label}</span>${checkboxIcon()}`;
 			btn.addEventListener('click', () => {
 				state.attending = value === 'yes';
 				paint();
 			});
+			btn.addEventListener('touchstart', () => btn.classList.add('is-pressed'), { passive: true });
+			btn.addEventListener('touchend', () => btn.classList.remove('is-pressed'));
+			btn.addEventListener('touchcancel', () => btn.classList.remove('is-pressed'));
 			optionBtns.push(btn);
 			group.appendChild(btn);
 		});
@@ -795,15 +792,35 @@ const notifyEmail = 'vega21andrea@gmail.com';
 	.rsvp__check {
 		display: grid;
 		place-items: center;
-		width: 1rem;
-		height: 1rem;
+		width: 1.125rem;
+		height: 1.125rem;
 		border: 1.5px solid currentColor;
 		flex-shrink: 0;
 	}
 
-	.rsvp__check svg {
-		width: 0.65rem;
-		height: 0.55rem;
+	.rsvp__check-mark {
+		width: 0.7rem;
+		height: 0.6rem;
+		opacity: 0;
+		transform: scale(0.7);
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.rsvp__choice:hover .rsvp__check-mark,
+		.rsvp__choice:focus-visible .rsvp__check-mark {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	.rsvp__choice:active .rsvp__check-mark,
+	.rsvp__choice.is-pressed .rsvp__check-mark,
+	.rsvp__choice.is-selected .rsvp__check-mark {
+		opacity: 1;
+		transform: scale(1);
 	}
 
 	.rsvp__arrow-wrap {
