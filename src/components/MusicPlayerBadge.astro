@@ -1,610 +1,180 @@
 ---
-const PLAYLIST_ID = '6Egvb4J04rPbTvBdkrv3rF';
-const PLAYLIST_URL = `https://open.spotify.com/playlist/${PLAYLIST_ID}`;
+import fs from 'node:fs';
+import path from 'node:path';
 
-type TrackMeta = {
-	uri: string;
-	title: string;
-	artist: string;
-	/** Local full track, if provided. Otherwise Spotify 30s preview is used. */
-	audioSrc?: string;
-	previewUrl?: string;
-};
+/** Full track (place file at public/music/szalona.mp3). Spotify preview is only ~30s. */
+const FULL_TRACK = '/music/szalona.mp3';
+const PREVIEW_URL = 'https://p.scdn.co/mp3-preview/3fc5db558b90195cb27abc546c46ae6fada2e0c2';
 
-/** Seeded from the live Wedding playlist. */
-const PLAYLIST_TRACKS: TrackMeta[] = [
-	{
-		uri: 'spotify:track:6UMOQta2CBNmKqAgQnGP7k',
-		title: 'Szalona',
-		artist: 'Boys',
-		previewUrl: 'https://p.scdn.co/mp3-preview/3fc5db558b90195cb27abc546c46ae6fada2e0c2',
-	},
-	{
-		uri: 'spotify:track:47Slg6LuqLaX0VodpSCvPt',
-		title: 'Just the Way You Are',
-		artist: 'Bruno Mars',
-		previewUrl: 'https://p.scdn.co/mp3-preview/a07348dd971de305f1fad11aaedf5bd2b10e8347',
-	},
-];
-
-function mergeTracks(base: TrackMeta[], incoming: TrackMeta[]): TrackMeta[] {
-	const byUri = new Map(base.map((track) => [track.uri, track]));
-	for (const track of incoming) {
-		const prev = byUri.get(track.uri);
-		byUri.set(track.uri, {
-			...prev,
-			...track,
-			previewUrl: track.previewUrl || prev?.previewUrl,
-			audioSrc: track.audioSrc || prev?.audioSrc,
-		});
-	}
-
-	const ordered: TrackMeta[] = [];
-	for (const track of base) {
-		ordered.push(byUri.get(track.uri)!);
-		byUri.delete(track.uri);
-	}
-	for (const track of byUri.values()) {
-		ordered.push(track);
-	}
-	return ordered;
-}
-
-async function fetchTrackPreview(uri: string): Promise<string | undefined> {
-	const trackId = uri.split(':').pop();
-	if (!trackId) return undefined;
-
-	try {
-		const response = await fetch(`https://open.spotify.com/embed/track/${trackId}`, {
-			headers: { Accept: 'text/html' },
-		});
-		if (!response.ok) return undefined;
-
-		const html = await response.text();
-		const match = html.match(
-			/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/,
-		);
-		if (!match?.[1]) return undefined;
-
-		const data = JSON.parse(match[1]) as {
-			props?: {
-				pageProps?: {
-					state?: {
-						data?: {
-							entity?: {
-								audioPreview?: { url?: string };
-							};
-						};
-					};
-				};
-			};
-		};
-
-		return data.props?.pageProps?.state?.data?.entity?.audioPreview?.url;
-	} catch {
-		return undefined;
-	}
-}
-
-async function fetchPlaylistTracks(id: string): Promise<TrackMeta[]> {
-	try {
-		const response = await fetch(`https://open.spotify.com/embed/playlist/${id}`, {
-			headers: { Accept: 'text/html' },
-		});
-		if (!response.ok) return [];
-
-		const html = await response.text();
-		const match = html.match(
-			/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/,
-		);
-		if (!match?.[1]) return [];
-
-		const data = JSON.parse(match[1]) as {
-			props?: {
-				pageProps?: {
-					state?: {
-						data?: {
-							entity?: {
-								trackList?: Array<{
-									uri?: string;
-									title?: string;
-									subtitle?: string;
-									audioPreview?: { url?: string };
-								}>;
-							};
-						};
-						settings?: {
-							session?: {
-								accessToken?: string;
-							};
-						};
-					};
-				};
-			};
-		};
-
-		const embedTracks = (data.props?.pageProps?.state?.data?.entity?.trackList ?? [])
-			.filter((track) => track.uri && track.title)
-			.map((track) => ({
-				uri: track.uri as string,
-				title: track.title as string,
-				artist: track.subtitle?.trim() || 'Unknown',
-				previewUrl: track.audioPreview?.url,
-			}));
-
-		const accessToken = data.props?.pageProps?.state?.settings?.session?.accessToken;
-		if (!accessToken) return embedTracks;
-
-		try {
-			const apiResponse = await fetch(
-				`https://api.spotify.com/v1/playlists/${id}/tracks?limit=50&market=PL&fields=items(track(uri,name,artists(name),preview_url))`,
-				{
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
-						Accept: 'application/json',
-					},
-				},
-			);
-			if (!apiResponse.ok) return embedTracks;
-
-			const apiData = (await apiResponse.json()) as {
-				items?: Array<{
-					track?: {
-						uri?: string;
-						name?: string;
-						preview_url?: string | null;
-						artists?: Array<{ name?: string }>;
-					} | null;
-				}>;
-			};
-
-			const apiTracks = (apiData.items ?? [])
-				.map((item) => item.track)
-				.filter((track): track is NonNullable<typeof track> => Boolean(track?.uri && track.name))
-				.map((track) => ({
-					uri: track.uri as string,
-					title: track.name as string,
-					artist:
-						track.artists
-							?.map((artist) => artist.name?.trim())
-							.filter(Boolean)
-							.join(', ') || 'Unknown',
-					previewUrl: track.preview_url || undefined,
-				}));
-
-			return apiTracks.length ? apiTracks : embedTracks;
-		} catch {
-			return embedTracks;
-		}
-	} catch {
-		return [];
-	}
-}
-
-let tracks = mergeTracks(PLAYLIST_TRACKS, await fetchPlaylistTracks(PLAYLIST_ID));
-
-tracks = await Promise.all(
-	tracks.map(async (track) => {
-		if (track.audioSrc || track.previewUrl) return track;
-		const previewUrl = await fetchTrackPreview(track.uri);
-		return previewUrl ? { ...track, previewUrl } : track;
-	}),
-);
-
-const initialTrack = tracks[0] ?? {
-	uri: '',
-	title: 'Wedding',
-	artist: 'Playlist',
-};
-
-const truncateTitle = (title: string, max = 14) =>
-	title.length > max ? `${title.slice(0, Math.max(0, max - 1)).trimEnd()}...` : title;
+const fullTrackPath = path.join(process.cwd(), 'public', 'music', 'szalona.mp3');
+const audioSrc = fs.existsSync(fullTrackPath) ? FULL_TRACK : PREVIEW_URL;
+const usingPreview = audioSrc === PREVIEW_URL;
 ---
 
-<div
-	class="music-player"
-	data-music-player
-	data-playlist-url={PLAYLIST_URL}
-	data-tracks={JSON.stringify(tracks)}
->
-	<div class="music-player__badge" data-music-badge>
-		<button
-			type="button"
-			class="music-player__nav"
-			aria-label="Canción anterior"
-			data-music-prev
-		>
-			<svg viewBox="0 0 8 12" fill="none" aria-hidden="true">
-				<path
-					d="M7 1L2 6l5 5"
-					stroke="currentColor"
-					stroke-width="1.4"
-					stroke-linecap="round"
-					stroke-linejoin="round"></path>
-			</svg>
-		</button>
+<div class="music-eq" data-music-player data-using-preview={usingPreview ? 'true' : 'false'}>
+	<button
+		type="button"
+		class="music-eq__toggle"
+		aria-pressed="false"
+		aria-label="Reproducir música"
+		data-music-toggle
+	>
+		<span class="music-eq__bars" aria-hidden="true" data-music-bars>
+			<span class="music-eq__bar" data-bar style="--bar-from: 35%; --bar-to: 100%; --bar-duration: 0.42s"></span>
+			<span class="music-eq__bar" data-bar style="--bar-from: 55%; --bar-to: 100%; --bar-duration: 0.56s"></span>
+			<span class="music-eq__bar" data-bar style="--bar-from: 40%; --bar-to: 90%; --bar-duration: 0.48s"></span>
+			<span class="music-eq__bar" data-bar style="--bar-from: 25%; --bar-to: 75%; --bar-duration: 0.38s"></span>
+			<span class="music-eq__bar" data-bar style="--bar-from: 45%; --bar-to: 95%; --bar-duration: 0.52s"></span>
+		</span>
+	</button>
 
-		<button
-			type="button"
-			class="music-player__main"
-			aria-pressed="false"
-			aria-label={`Reproducir música: ${initialTrack.title} — ${initialTrack.artist}`}
-			data-music-toggle
-		>
-			<span class="music-player__eq" aria-hidden="true">
-				<span class="music-player__bar" style="--bar-delay: 0ms; --bar-duration: 0.46s"></span>
-				<span class="music-player__bar" style="--bar-delay: 90ms; --bar-duration: 0.58s"></span>
-				<span class="music-player__bar" style="--bar-delay: 30ms; --bar-duration: 0.5s"></span>
-				<span class="music-player__bar" style="--bar-delay: 150ms; --bar-duration: 0.42s"></span>
-				<span class="music-player__bar" style="--bar-delay: 70ms; --bar-duration: 0.54s"></span>
-			</span>
-			<span class="music-player__meta">
-				<span class="music-player__title" data-music-title>{truncateTitle(initialTrack.title)}</span>
-				<span class="music-player__artist" data-music-artist>{initialTrack.artist}</span>
-			</span>
-		</button>
-
-		<button type="button" class="music-player__nav" aria-label="Siguiente canción" data-music-next>
-			<svg viewBox="0 0 8 12" fill="none" aria-hidden="true">
-				<path
-					d="M1 1l5 5-5 5"
-					stroke="currentColor"
-					stroke-width="1.4"
-					stroke-linecap="round"
-					stroke-linejoin="round"></path>
-			</svg>
-		</button>
-	</div>
-
-	<audio data-music-audio preload="metadata" playsinline></audio>
+	<audio data-music-audio src={audioSrc} preload="auto" playsinline loop={!usingPreview}></audio>
 </div>
 
 <style>
-	.music-player {
-		--music-ink: #1b3022;
+	.music-eq {
 		position: relative;
-		z-index: 2;
-		display: flex;
-		justify-content: center;
-		pointer-events: none;
-	}
-
-	.music-player__badge {
-		pointer-events: auto;
 		display: inline-flex;
 		align-items: center;
-		gap: 0.65rem;
-		padding: 0.45rem 0.55rem;
-		background: var(--color-white);
-		color: var(--music-ink);
-		font-family: var(--font-sans);
-		box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+		justify-content: center;
 	}
 
-	.music-player__nav,
-	.music-player__main {
+	.music-eq__toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.25rem;
+		height: 2.25rem;
 		margin: 0;
 		padding: 0;
 		border: 0;
+		border-radius: 0.25rem;
 		background: transparent;
-		color: inherit;
-		font: inherit;
+		color: var(--color-accent);
 		cursor: pointer;
 	}
 
-	.music-player__nav {
+	.music-eq__toggle:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 3px;
+	}
+
+	.music-eq__bars {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 1.1rem;
-		height: 1.1rem;
-		flex-shrink: 0;
-		opacity: 0.72;
-		transition: opacity 0.2s ease;
+		gap: 0.14rem;
+		height: 0.95rem;
 	}
 
-	.music-player__nav:hover,
-	.music-player__nav:focus-visible {
-		opacity: 1;
-	}
-
-	.music-player__nav:focus-visible,
-	.music-player__main:focus-visible {
-		outline: 2px solid var(--music-ink);
-		outline-offset: 2px;
-	}
-
-	.music-player__nav svg {
+	.music-eq__bar {
 		display: block;
-		width: 0.45rem;
-		height: 0.7rem;
-	}
-
-	.music-player__main {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.55rem;
-		min-width: 0;
-	}
-
-	.music-player__eq {
-		display: inline-flex;
-		align-items: flex-end;
-		justify-content: center;
-		gap: 0.12rem;
-		width: 1.05rem;
-		height: 0.78rem;
-		flex-shrink: 0;
-	}
-
-	.music-player__bar {
-		display: block;
-		width: 0.11rem;
-		height: 100%;
-		border-radius: 999px;
-		background: currentColor;
-		transform-origin: center bottom;
-		transform: scaleY(0.35);
-		animation: music-eq var(--bar-duration, 0.5s) ease-in-out var(--bar-delay, 0ms) infinite
-			alternate;
-	}
-
-	.music-player__bar:nth-child(1) {
-		transform: scaleY(0.5);
-	}
-
-	.music-player__bar:nth-child(2) {
-		transform: scaleY(1);
-	}
-
-	.music-player__bar:nth-child(3) {
-		transform: scaleY(0.65);
-	}
-
-	.music-player__bar:nth-child(4) {
-		transform: scaleY(0.35);
-	}
-
-	.music-player__bar:nth-child(5) {
-		transform: scaleY(0.55);
-	}
-
-	.music-player__badge:not(.is-playing) .music-player__bar {
-		animation: none;
-		align-self: center;
 		width: 0.18rem;
 		height: 0.18rem;
 		border-radius: 0.03rem;
-		transform: none;
+		background: currentColor;
+		transform-origin: center bottom;
+		will-change: height;
 	}
 
-	.music-player__meta {
-		display: inline-flex;
-		align-items: baseline;
-		gap: 0.85rem;
-		min-width: 0;
-		font-size: 0.8125rem;
-		font-weight: 500;
-		letter-spacing: 0.01em;
-		line-height: 1;
-		white-space: nowrap;
+	.music-eq:not(.is-playing) .music-eq__bar {
+		width: 0.18rem;
+		height: 0.18rem;
+		border-radius: 0.03rem;
+		animation: none;
 	}
 
-	.music-player audio {
-		display: none;
+	.music-eq.is-playing .music-eq__bars {
+		align-items: flex-end;
 	}
 
-	@keyframes music-eq {
+	.music-eq.is-playing .music-eq__bar {
+		width: 0.14rem;
+		border-radius: 999px;
+	}
+
+	.music-eq audio {
+		position: absolute;
+		width: 0;
+		height: 0;
+		opacity: 0;
+		pointer-events: none;
+	}
+</style>
+
+<style is:global>
+	@keyframes music-eq-bounce {
 		0% {
-			transform: scaleY(0.28);
+			height: var(--bar-from, 35%);
 		}
 		100% {
-			transform: scaleY(1);
+			height: var(--bar-to, 100%);
 		}
+	}
+
+	.music-eq-bar-animating {
+		animation: music-eq-bounce var(--bar-duration, 0.5s) ease-in-out infinite alternate;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.music-player__badge.is-playing .music-player__bar {
+		.music-eq-bar-animating {
 			animation: none;
-		}
-
-		.music-player__badge.is-playing .music-player__bar:nth-child(1) {
-			transform: scaleY(0.5);
-		}
-
-		.music-player__badge.is-playing .music-player__bar:nth-child(2) {
-			transform: scaleY(1);
-		}
-
-		.music-player__badge.is-playing .music-player__bar:nth-child(3) {
-			transform: scaleY(0.65);
-		}
-
-		.music-player__badge.is-playing .music-player__bar:nth-child(4) {
-			transform: scaleY(0.35);
-		}
-
-		.music-player__badge.is-playing .music-player__bar:nth-child(5) {
-			transform: scaleY(0.55);
-		}
-	}
-
-	@media (min-width: 900px) {
-		.music-player {
-			justify-content: flex-end;
-		}
-
-		.music-player__badge {
-			gap: 0.75rem;
-			padding: 0.5rem 0.65rem;
-		}
-
-		.music-player__main {
-			gap: 0.65rem;
-		}
-
-		.music-player__meta {
-			font-size: 0.875rem;
-			gap: 1rem;
+			height: var(--bar-to, 80%);
 		}
 	}
 </style>
 
 <script>
-	type TrackMeta = {
-		uri: string;
-		title: string;
-		artist: string;
-		audioSrc?: string;
-		previewUrl?: string;
-	};
-
 	const root = document.querySelector<HTMLElement>('[data-music-player]');
-	const badge = root?.querySelector<HTMLElement>('[data-music-badge]');
 	const toggle = root?.querySelector<HTMLButtonElement>('[data-music-toggle]');
-	const prevBtn = root?.querySelector<HTMLButtonElement>('[data-music-prev]');
-	const nextBtn = root?.querySelector<HTMLButtonElement>('[data-music-next]');
 	const audio = root?.querySelector<HTMLAudioElement>('[data-music-audio]');
-	const titleEl = root?.querySelector<HTMLElement>('[data-music-title]');
-	const artistEl = root?.querySelector<HTMLElement>('[data-music-artist]');
+	const bars = root ? Array.from(root.querySelectorAll<HTMLElement>('[data-bar]')) : [];
 
-	if (root && badge && toggle && prevBtn && nextBtn && audio && titleEl && artistEl) {
-		const playlistUrl =
-			root.dataset.playlistUrl ?? 'https://open.spotify.com/playlist/6Egvb4J04rPbTvBdkrv3rF';
-
-		let tracks: TrackMeta[] = [];
-		try {
-			tracks = JSON.parse(root.dataset.tracks || '[]') as TrackMeta[];
-		} catch {
-			tracks = [];
-		}
-
-		let isPlaying = false;
-		let trackIndex = 0;
-		let currentTrack: TrackMeta = tracks[0] ?? {
-			uri: '',
-			title: 'Wedding',
-			artist: 'Playlist',
-		};
-		let playRequestId = 0;
-
-		const truncateTitle = (title: string, max = 14) =>
-			title.length > max ? `${title.slice(0, Math.max(0, max - 1)).trimEnd()}...` : title;
-
-		const trackSrc = (track: TrackMeta) => track.audioSrc || track.previewUrl || '';
+	if (root && toggle && audio) {
+		const usingPreview = root.dataset.usingPreview === 'true';
 
 		const setPlaying = (next: boolean) => {
-			isPlaying = next;
-			badge.classList.toggle('is-playing', isPlaying);
-			toggle.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
-			toggle.setAttribute(
-				'aria-label',
-				`${isPlaying ? 'Pausar' : 'Reproducir'} música: ${currentTrack.title} — ${currentTrack.artist}`,
-			);
+			root.classList.toggle('is-playing', next);
+			toggle.setAttribute('aria-pressed', next ? 'true' : 'false');
+			toggle.setAttribute('aria-label', next ? 'Pausar música' : 'Reproducir música');
+
+			bars.forEach((bar, index) => {
+				if (next) {
+					bar.style.animationDelay = `${index * 70}ms`;
+					bar.style.height = '';
+					bar.classList.add('music-eq-bar-animating');
+				} else {
+					bar.classList.remove('music-eq-bar-animating');
+					bar.style.animationDelay = '';
+					bar.style.height = '';
+				}
+			});
 		};
-
-		const renderTrack = (track: TrackMeta, index = trackIndex) => {
-			currentTrack = track;
-			trackIndex = index;
-			titleEl.textContent = truncateTitle(track.title);
-			artistEl.textContent = track.artist;
-			setPlaying(isPlaying);
-		};
-
-		const loadTrack = (track: TrackMeta) => {
-			const src = trackSrc(track);
-			if (!src) return false;
-			if (audio.src !== src) {
-				audio.src = src;
-				audio.load();
-			}
-			return true;
-		};
-
-		const playCurrent = async () => {
-			if (!tracks.length) {
-				window.open(playlistUrl, '_blank', 'noopener,noreferrer');
-				return;
-			}
-
-			const track = tracks[trackIndex] ?? tracks[0];
-			renderTrack(track, trackIndex);
-
-			if (!loadTrack(track)) {
-				setPlaying(false);
-				window.open(playlistUrl, '_blank', 'noopener,noreferrer');
-				return;
-			}
-
-			const requestId = ++playRequestId;
-			try {
-				await audio.play();
-				if (requestId === playRequestId) setPlaying(true);
-			} catch {
-				if (requestId === playRequestId) setPlaying(false);
-			}
-		};
-
-		const pauseCurrent = () => {
-			audio.pause();
-			setPlaying(false);
-		};
-
-		const playTrackAt = async (index: number, autoplay = true) => {
-			if (!tracks.length) {
-				window.open(playlistUrl, '_blank', 'noopener,noreferrer');
-				return;
-			}
-
-			const nextIndex = ((index % tracks.length) + tracks.length) % tracks.length;
-			const track = tracks[nextIndex];
-			renderTrack(track, nextIndex);
-			loadTrack(track);
-			audio.currentTime = 0;
-
-			if (!autoplay) {
-				pauseCurrent();
-				return;
-			}
-
-			await playCurrent();
-		};
-
-		// Start ready on first track, but wait for a user gesture (autoplay policies).
-		if (tracks[0] && loadTrack(tracks[0])) {
-			renderTrack(tracks[0], 0);
-			setPlaying(false);
-		}
 
 		audio.addEventListener('play', () => setPlaying(true));
-		audio.addEventListener('pause', () => {
-			if (!audio.ended) setPlaying(false);
-		});
-		audio.addEventListener('ended', () => {
-			// Keep the playlist moving instead of dying mid-atmosphere.
-			void playTrackAt(trackIndex + 1, true);
-		});
+		audio.addEventListener('pause', () => setPlaying(false));
 
-		toggle.addEventListener('click', () => {
-			if (!tracks.length) {
-				window.open(playlistUrl, '_blank', 'noopener,noreferrer');
-				return;
+		// Spotify preview is ~30s — restart so the room doesn't go silent.
+		if (usingPreview) {
+			audio.addEventListener('ended', () => {
+				audio.currentTime = 0;
+				void audio.play().catch(() => setPlaying(false));
+			});
+		}
+
+		toggle.addEventListener('click', async () => {
+			try {
+				if (audio.paused) {
+					await audio.play();
+					setPlaying(true);
+				} else {
+					audio.pause();
+					setPlaying(false);
+				}
+			} catch (error) {
+				console.error('Music playback failed', error);
+				setPlaying(false);
 			}
-
-			if (isPlaying && !audio.paused) {
-				pauseCurrent();
-				return;
-			}
-
-			void playCurrent();
-		});
-
-		prevBtn.addEventListener('click', () => {
-			void playTrackAt(trackIndex - 1, true);
-		});
-
-		nextBtn.addEventListener('click', () => {
-			void playTrackAt(trackIndex + 1, true);
 		});
 	}
 </script>

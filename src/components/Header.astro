@@ -1,5 +1,6 @@
 ---
 import ConfirmButton from './ConfirmButton.astro';
+import MusicPlayerBadge from './MusicPlayerBadge.astro';
 
 const navLinks = [
 	{ href: '#boquete', label: 'Boquete' },
@@ -38,7 +39,10 @@ const navLinks = [
 					</a>
 				))
 			}
-			<ConfirmButton variant="header" />
+			<div class="site-header__music">
+				<MusicPlayerBadge />
+			</div>
+			<ConfirmButton variant="header" class="site-header__confirm" />
 		</nav>
 
 		<button
@@ -122,10 +126,10 @@ const navLinks = [
 	}
 
 	.site-header__bar {
-		display: flex;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
 		align-items: center;
-		justify-content: space-between;
-		gap: 1.5rem;
+		gap: 0.75rem;
 		padding: 0.95rem 1rem 1rem;
 		background: var(--color-white);
 	}
@@ -135,6 +139,7 @@ const navLinks = [
 		align-items: center;
 		gap: 1rem;
 		min-width: 0;
+		justify-self: start;
 	}
 
 	.site-header__logo {
@@ -164,9 +169,22 @@ const navLinks = [
 	}
 
 	.site-header__nav {
-		display: none;
+		display: flex;
 		align-items: center;
+		justify-content: center;
 		gap: 1.35rem;
+		justify-self: center;
+		grid-column: 2;
+	}
+
+	.site-header__link,
+	.site-header__nav :global(.site-header__confirm) {
+		display: none;
+	}
+
+	.site-header__music {
+		display: inline-flex;
+		align-items: center;
 	}
 
 	.site-header__link {
@@ -183,6 +201,8 @@ const navLinks = [
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
+		justify-self: end;
+		grid-column: 3;
 		width: 2rem;
 		height: 2rem;
 		padding: 0;
@@ -288,20 +308,38 @@ const navLinks = [
 		}
 
 		.site-header__bar {
+			display: flex;
+			justify-content: space-between;
+			gap: 1.5rem;
 			padding: 1.1rem 1.75rem;
 		}
 
 		.site-header__brand {
 			gap: 1.25rem;
+			justify-self: auto;
 		}
 
 		.site-header__logo img {
 			height: 1.05rem;
 		}
 
-		.site-header__pill,
-		.site-header__nav {
+		.site-header__pill {
 			display: flex;
+		}
+
+		.site-header__nav {
+			justify-self: auto;
+			grid-column: auto;
+		}
+
+		.site-header__link,
+		.site-header__nav :global(.site-header__confirm) {
+			display: inline-flex;
+		}
+
+		.site-header__menu {
+			justify-self: auto;
+			grid-column: auto;
 		}
 	}
 </style>

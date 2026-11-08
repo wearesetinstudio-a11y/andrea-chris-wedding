@@ -1,6 +1,5 @@
 ---
 import ConfirmButton from './ConfirmButton.astro';
-import MusicPlayerBadge from './MusicPlayerBadge.astro';
 ---
 
 <section class="hero" data-hero>
@@ -20,11 +19,7 @@ import MusicPlayerBadge from './MusicPlayerBadge.astro';
 		</div>
 
 		<div class="hero__content">
-			<div class="hero__music hero__enter" style="--enter-delay: 160ms">
-				<MusicPlayerBadge />
-			</div>
-
-			<p class="hero__eyebrow hero__eyebrow--mobile hero__enter" style="--enter-delay: 240ms">
+			<p class="hero__eyebrow hero__eyebrow--mobile hero__enter" style="--enter-delay: 120ms">
 				Invitándote a ser parte de<br />nuestra historia de amor
 			</p>
 
@@ -127,14 +122,6 @@ import MusicPlayerBadge from './MusicPlayerBadge.astro';
 		pointer-events: none;
 	}
 
-	.hero__music {
-		position: relative;
-		z-index: 2;
-		width: max-content;
-		max-width: 100%;
-		margin: 0 0 1.15rem;
-	}
-
 	.hero__content {
 		position: relative;
 		z-index: 1;
@@ -142,7 +129,7 @@ import MusicPlayerBadge from './MusicPlayerBadge.astro';
 		flex-direction: column;
 		align-items: center;
 		height: 100%;
-		padding: 1.15rem 1.25rem 60px;
+		padding: 2.1rem 1.25rem 60px;
 		color: var(--color-white);
 		text-align: center;
 	}
@@ -288,14 +275,6 @@ import MusicPlayerBadge from './MusicPlayerBadge.astro';
 
 		.hero__image {
 			object-position: center 32%;
-		}
-
-		.hero__music {
-			position: absolute;
-			top: 1.5rem;
-			right: 2.75rem;
-			left: auto;
-			margin: 0;
 		}
 
 		.hero__content {
