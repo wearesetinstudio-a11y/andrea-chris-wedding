@@ -5,9 +5,11 @@
  */
 const TRACK_URL = 'https://soundcloud.com/kiranpodmoremusic/heaven-bryan-adams-solo-piano';
 const WIDGET_SRC = `https://w.soundcloud.com/player/?url=${encodeURIComponent(TRACK_URL)}&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false`;
+/** Skip leading silence so sound starts immediately on intro tap / loop. */
+const START_OFFSET_MS = 1000;
 ---
 
-<div class="music-eq" data-music-player>
+<div class="music-eq" data-music-player data-start-offset-ms={START_OFFSET_MS}>
 	<button
 		type="button"
 		class="music-eq__toggle"
@@ -193,6 +195,8 @@ const WIDGET_SRC = `https://w.soundcloud.com/player/?url=${encodeURIComponent(TR
 			});
 		};
 
+		const startOffsetMs = Number(root.dataset.startOffsetMs) || 1000;
+
 		const playMusic = ({ fromStart = false }: { fromStart?: boolean } = {}) => {
 			if (!widget || !ready) {
 				playWhenReady = true;
@@ -200,8 +204,8 @@ const WIDGET_SRC = `https://w.soundcloud.com/player/?url=${encodeURIComponent(TR
 				return;
 			}
 
-			if (fromStart) widget.seekTo(0);
 			widget.play();
+			if (fromStart) widget.seekTo(startOffsetMs);
 			setPlaying(true);
 		};
 
