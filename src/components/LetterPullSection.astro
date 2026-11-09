@@ -1,0 +1,329 @@
+---
+/**
+ * Scroll-driven invitation: sticky two-column layout with a letter
+ * that pulls out from a layered envelope as the user scrolls.
+ */
+---
+
+<section
+	id="invitacion"
+	class="letter-pull"
+	aria-label="Invitación a la boda civil"
+	data-letter-pull
+>
+	<div class="letter-pull__sticky">
+		<div class="letter-pull__grid">
+			<div class="letter-pull__copy">
+				<h2 class="letter-pull__title" data-reveal>
+					<span class="letter-pull__title-line">Les invitamos</span>
+					<span class="letter-pull__title-line">a nuestra boda civil!</span>
+				</h2>
+				<a href="#rsvp" class="letter-pull__cta"> Confirma su presencia </a>
+			</div>
+
+			<div class="letter-pull__stage" aria-hidden="true">
+				<div class="letter-pull__clip">
+					<div class="letter-pull__assembly">
+						<img
+							class="letter-pull__back"
+							src="/images/envelope-back.png"
+							alt=""
+							width="940"
+							height="1024"
+							draggable="false"
+						/>
+
+						<img
+							class="letter-pull__letter"
+							src="/images/letter.webp"
+							alt=""
+							width="723"
+							height="1024"
+							draggable="false"
+							data-letter
+						/>
+
+						<img
+							class="letter-pull__front"
+							src="/images/envelope-front.png"
+							alt=""
+							width="940"
+							height="1024"
+							draggable="false"
+						/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.letter-pull {
+		position: relative;
+		height: 300vh;
+		background: var(--color-white);
+	}
+
+	.letter-pull__sticky {
+		position: sticky;
+		top: 0;
+		display: flex;
+		align-items: center;
+		height: 100svh;
+		width: 100%;
+		overflow: hidden;
+		/* Match FAQ / Footer / RSVP horizontal inset; keep clear space above next section */
+		padding: 1.25rem 1.15rem 4rem;
+	}
+
+	.letter-pull__grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		align-items: center;
+		justify-items: center;
+		gap: 1.25rem;
+		width: 100%;
+	}
+
+	/* Expose title + CTA as grid children so CTA can sit under the letter on mobile */
+	.letter-pull__copy {
+		display: contents;
+	}
+
+	.letter-pull__title {
+		order: 1;
+		margin: 0;
+		font-family: var(--font-serif);
+		font-weight: 400;
+		font-size: clamp(1.65rem, 4.5vw, 2.35rem);
+		line-height: 1.15;
+		letter-spacing: -0.01em;
+		color: var(--color-accent);
+		text-align: center;
+	}
+
+	.letter-pull__title-line {
+		display: block;
+		white-space: nowrap;
+	}
+
+	.letter-pull__cta {
+		order: 3;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.85rem 1.15rem;
+		background: var(--color-button);
+		color: var(--color-white);
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 300;
+		line-height: 1;
+		letter-spacing: 0.01em;
+		white-space: nowrap;
+		transition: opacity 0.2s ease;
+	}
+
+	.letter-pull__cta:hover,
+	.letter-pull__cta:focus-visible {
+		opacity: 0.88;
+	}
+
+	.letter-pull__stage {
+		order: 2;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		min-width: 0;
+	}
+
+	/* Extra headroom so the card can rise above the flap; bottom clips the tucked letter */
+	.letter-pull__clip {
+		position: relative;
+		width: min(100%, 24rem);
+		aspect-ratio: 940 / 1500;
+		overflow: hidden;
+		display: flex;
+		align-items: flex-end;
+		justify-content: center;
+	}
+
+	.letter-pull__assembly {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 940 / 1024;
+		isolation: isolate;
+	}
+
+	.letter-pull__back,
+	.letter-pull__front {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		pointer-events: none;
+		user-select: none;
+	}
+
+	.letter-pull__back {
+		z-index: 10;
+	}
+
+	.letter-pull__front {
+		z-index: 30;
+	}
+
+	/*
+	 * Letter sits between back (z-10) and front pocket (z-30).
+	 * --pull 1→0 maps tucked → drawn. End rests with PANAMONTE just
+	 * above the pocket lip (card bottom still tucked inside).
+	 */
+	.letter-pull__letter {
+		position: absolute;
+		z-index: 20;
+		left: 50%;
+		top: 0;
+		width: 90%;
+		height: auto;
+		transform: translate3d(-50%, calc(-40% + var(--pull, 1) * 62%), 0);
+		will-change: transform;
+		pointer-events: none;
+		user-select: none;
+	}
+
+	@media (min-width: 768px) {
+		.letter-pull__sticky {
+			padding: 1.5rem 1.5rem 5rem;
+		}
+
+		.letter-pull__grid {
+			/* Match FAQ two-column proportions */
+			grid-template-columns: minmax(12rem, 0.38fr) minmax(0, 0.62fr);
+			align-items: center;
+			justify-items: stretch;
+			column-gap: 3rem;
+			row-gap: 0;
+		}
+
+		.letter-pull__copy {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 1.5rem;
+			width: 100%;
+		}
+
+		.letter-pull__title {
+			order: unset;
+			text-align: left;
+		}
+
+		.letter-pull__cta {
+			order: unset;
+		}
+
+		.letter-pull__stage {
+			order: unset;
+			justify-content: center;
+		}
+
+		.letter-pull__letter {
+			transform: translate3d(-50%, calc(-40% + var(--pull, 1) * 62%), 0);
+		}
+
+		.letter-pull__clip {
+			width: min(100%, 34rem);
+		}
+	}
+
+	@media (min-width: 900px) {
+		.letter-pull__sticky {
+			padding-inline: max(1.5rem, 2.75vw);
+			padding-bottom: max(5.5rem, 10vh);
+		}
+
+		.letter-pull__grid {
+			column-gap: 4rem;
+		}
+
+		.letter-pull__title {
+			font-size: clamp(2.35rem, 3.2vw, 3.15rem);
+		}
+
+		.letter-pull__clip {
+			width: min(100%, 40rem);
+		}
+	}
+
+	@media (max-height: 700px) and (min-width: 768px) {
+		.letter-pull__clip {
+			width: min(100%, 26rem);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.letter-pull {
+			height: auto;
+		}
+
+		.letter-pull__sticky {
+			position: relative;
+			height: auto;
+			min-height: auto;
+			padding-block: 3.5rem;
+		}
+
+		.letter-pull__letter {
+			--pull: 0.15;
+			will-change: auto;
+		}
+	}
+</style>
+
+<script>
+	function clamp(value: number, min: number, max: number) {
+		return Math.min(max, Math.max(min, value));
+	}
+
+	function initLetterPull(root: HTMLElement) {
+		const letter = root.querySelector<HTMLElement>('[data-letter]');
+		if (!letter) return;
+
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+		if (reduceMotion.matches) {
+			letter.style.setProperty('--pull', '0.15');
+			return;
+		}
+
+		let ticking = false;
+
+		const update = () => {
+			ticking = false;
+			const rect = root.getBoundingClientRect();
+			const scrollable = root.offsetHeight - window.innerHeight;
+			if (scrollable <= 0) {
+				letter.style.setProperty('--pull', '0');
+				return;
+			}
+
+			const progress = clamp(-rect.top / scrollable, 0, 1);
+			// 1 = tucked, 0 = fully pulled
+			letter.style.setProperty('--pull', String(1 - progress));
+		};
+
+		const onScroll = () => {
+			if (ticking) return;
+			ticking = true;
+			requestAnimationFrame(update);
+		};
+
+		update();
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll, { passive: true });
+	}
+
+	document.querySelectorAll<HTMLElement>('[data-letter-pull]').forEach(initLetterPull);
+</script>

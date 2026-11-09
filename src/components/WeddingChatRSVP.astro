@@ -503,7 +503,7 @@ const {
 	async function boot() {
 		busy = true;
 		renderIdleArrow();
-		addBubble('bot', '¡Hola! ¿Qué xopa?');
+		addBubble('bot', '¡Hola! ¿Cómo estás?');
 		await withTyping(['¿Nos acompañaras en nuestra boda civil?']);
 		busy = false;
 		renderAttendanceControls();
@@ -540,7 +540,7 @@ const {
 <style is:global>
 	/* Global because bubbles/controls are created by the client state machine */
 	.rsvp {
-		--rsvp-bg: var(--color-accent);
+		--rsvp-bg: var(--color-section);
 		--rsvp-bubble: rgb(255 255 255 / 0.1);
 		--rsvp-bubble-user: rgb(255 255 255 / 0.2);
 		--rsvp-text: #f5f7f4;
