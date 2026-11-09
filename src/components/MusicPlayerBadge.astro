@@ -1,17 +1,10 @@
 ---
-import fs from 'node:fs';
-import path from 'node:path';
-
 /**
- * Spotify track: Heaven (Instrumental Piano)
- * https://open.spotify.com/track/2mObUHGH15TBKVL2VSxIkG
- * Prefer full local file at public/music/heaven.mp3 (Spotify preview is only ~30s).
+ * Heaven / Bryan Adams — Solo Piano (Kiran Podmore)
+ * https://soundcloud.com/kiranpodmoremusic/heaven-bryan-adams-solo-piano
  */
-const FULL_TRACK = '/music/heaven.mp3';
-const PREVIEW_URL = 'https://p.scdn.co/mp3-preview/2e5cb9a254dd7885811bea49d525affac396f4a0';
-
-const fullTrackPath = path.join(process.cwd(), 'public', 'music', 'heaven.mp3');
-const audioSrc = fs.existsSync(fullTrackPath) ? FULL_TRACK : PREVIEW_URL;
+const TRACK_URL = 'https://soundcloud.com/kiranpodmoremusic/heaven-bryan-adams-solo-piano';
+const WIDGET_SRC = `https://w.soundcloud.com/player/?url=${encodeURIComponent(TRACK_URL)}&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false`;
 ---
 
 <div class="music-eq" data-music-player>
@@ -22,16 +15,33 @@ const audioSrc = fs.existsSync(fullTrackPath) ? FULL_TRACK : PREVIEW_URL;
 		aria-label="Reproducir música"
 		data-music-toggle
 	>
-		<span class="music-eq__bars" aria-hidden="true" data-music-bars>
-			<span class="music-eq__bar" data-bar style="--bar-from: 35%; --bar-to: 100%; --bar-duration: 0.42s"></span>
-			<span class="music-eq__bar" data-bar style="--bar-from: 55%; --bar-to: 100%; --bar-duration: 0.56s"></span>
-			<span class="music-eq__bar" data-bar style="--bar-from: 40%; --bar-to: 90%; --bar-duration: 0.48s"></span>
-			<span class="music-eq__bar" data-bar style="--bar-from: 25%; --bar-to: 75%; --bar-duration: 0.38s"></span>
-			<span class="music-eq__bar" data-bar style="--bar-from: 45%; --bar-to: 95%; --bar-duration: 0.52s"></span>
-		</span>
+		<svg
+			class="music-eq__bars"
+			width="38"
+			height="16"
+			viewBox="0 0 38 16"
+			aria-hidden="true"
+			data-music-bars
+			shape-rendering="crispEdges"
+		>
+			<rect class="music-eq__bar" data-bar x="0" y="7" width="2" height="2" style="--bar-from: 4; --bar-to: 14; --bar-duration: 0.42s"></rect>
+			<rect class="music-eq__bar" data-bar x="5" y="7" width="2" height="2" style="--bar-from: 6; --bar-to: 16; --bar-duration: 0.56s"></rect>
+			<rect class="music-eq__bar" data-bar x="10" y="7" width="2" height="2" style="--bar-from: 4; --bar-to: 12; --bar-duration: 0.48s"></rect>
+			<rect class="music-eq__bar" data-bar x="15" y="7" width="2" height="2" style="--bar-from: 2; --bar-to: 10; --bar-duration: 0.38s"></rect>
+			<rect class="music-eq__bar" data-bar x="20" y="7" width="2" height="2" style="--bar-from: 6; --bar-to: 16; --bar-duration: 0.52s"></rect>
+			<rect class="music-eq__bar" data-bar x="25" y="7" width="2" height="2" style="--bar-from: 4; --bar-to: 12; --bar-duration: 0.44s"></rect>
+			<rect class="music-eq__bar" data-bar x="30" y="7" width="2" height="2" style="--bar-from: 8; --bar-to: 16; --bar-duration: 0.58s"></rect>
+			<rect class="music-eq__bar" data-bar x="35" y="7" width="2" height="2" style="--bar-from: 4; --bar-to: 14; --bar-duration: 0.46s"></rect>
+		</svg>
 	</button>
 
-	<audio data-music-audio src={audioSrc} preload="auto" playsinline loop></audio>
+	<iframe
+		class="music-eq__widget"
+		title="SoundCloud player"
+		allow="autoplay; encrypted-media"
+		src={WIDGET_SRC}
+		data-music-widget
+	></iframe>
 </div>
 
 <style>
@@ -63,84 +73,105 @@ const audioSrc = fs.existsSync(fullTrackPath) ? FULL_TRACK : PREVIEW_URL;
 	}
 
 	.music-eq__bars {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.14rem;
-		height: 0.95rem;
+		display: block;
+		width: 38px;
+		height: 16px;
+		overflow: visible;
+		flex-shrink: 0;
 	}
 
 	.music-eq__bar {
-		display: block;
-		width: 0.18rem;
-		height: 0.18rem;
-		border-radius: 0.03rem;
-		background: currentColor;
-		transform-origin: center bottom;
-		will-change: height;
+		fill: currentColor;
+		width: 2px;
+		transform: none;
 	}
 
 	.music-eq:not(.is-playing) .music-eq__bar {
-		width: 0.18rem;
-		height: 0.18rem;
-		border-radius: 0.03rem;
 		animation: none;
 	}
 
-	.music-eq.is-playing .music-eq__bars {
-		align-items: flex-end;
-	}
-
-	.music-eq.is-playing .music-eq__bar {
-		width: 0.14rem;
-		border-radius: 999px;
-	}
-
-	.music-eq audio {
-		position: absolute;
-		width: 0;
-		height: 0;
-		opacity: 0;
+	.music-eq__widget {
+		position: fixed;
+		left: 0;
+		bottom: 0;
+		width: 1px;
+		height: 1px;
+		opacity: 0.001;
 		pointer-events: none;
+		border: 0;
+		overflow: hidden;
+		z-index: -1;
 	}
 </style>
 
 <style is:global>
 	@keyframes music-eq-bounce {
 		0% {
-			height: var(--bar-from, 35%);
+			height: calc(var(--bar-from, 4) * 1px);
+			y: calc((16 - var(--bar-from, 4)) / 2 * 1px);
 		}
 		100% {
-			height: var(--bar-to, 100%);
+			height: calc(var(--bar-to, 16) * 1px);
+			y: calc((16 - var(--bar-to, 16)) / 2 * 1px);
 		}
 	}
 
 	.music-eq-bar-animating {
+		width: 2px;
+		transform: none;
 		animation: music-eq-bounce var(--bar-duration, 0.5s) ease-in-out infinite alternate;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
 		.music-eq-bar-animating {
 			animation: none;
-			height: var(--bar-to, 80%);
+			height: calc(var(--bar-to, 12) * 1px);
+			y: calc((16 - var(--bar-to, 12)) / 2 * 1px);
 		}
 	}
 </style>
 
 <script>
-	type WeddingMusicApi = {
-		play: () => Promise<void>;
+	type SoundCloudWidget = {
+		bind: (event: string, listener: (...args: unknown[]) => void) => void;
+		play: () => void;
 		pause: () => void;
-		toggle: () => Promise<void>;
+		toggle: () => void;
+		seekTo: (ms: number) => void;
+		isPaused: (callback: (paused: boolean) => void) => void;
+	};
+
+	type SoundCloudWidgetFactory = {
+		Widget: {
+			(iframe: HTMLIFrameElement): SoundCloudWidget;
+			Events: {
+				READY: string;
+				PLAY: string;
+				PAUSE: string;
+				FINISH: string;
+			};
+		};
+	};
+
+	type WeddingMusicApi = {
+		play: () => void;
+		pause: () => void;
+		toggle: () => void;
 	};
 
 	const root = document.querySelector<HTMLElement>('[data-music-player]');
 	const toggle = root?.querySelector<HTMLButtonElement>('[data-music-toggle]');
-	const audio = root?.querySelector<HTMLAudioElement>('[data-music-audio]');
-	const bars = root ? Array.from(root.querySelectorAll<HTMLElement>('[data-bar]')) : [];
+	const iframe = root?.querySelector<HTMLIFrameElement>('[data-music-widget]');
+	const bars = root ? Array.from(root.querySelectorAll<SVGRectElement>('[data-bar]')) : [];
 
-	if (root && toggle && audio) {
+	if (root && toggle && iframe) {
+		let widget: SoundCloudWidget | null = null;
+		let ready = false;
+		let playWhenReady = false;
+		let isPlaying = false;
+
 		const setPlaying = (next: boolean) => {
+			isPlaying = next;
 			root.classList.toggle('is-playing', next);
 			toggle.setAttribute('aria-pressed', next ? 'true' : 'false');
 			toggle.setAttribute('aria-label', next ? 'Pausar música' : 'Reproducir música');
@@ -149,63 +180,96 @@ const audioSrc = fs.existsSync(fullTrackPath) ? FULL_TRACK : PREVIEW_URL;
 				if (next) {
 					bar.style.animationDelay = `${index * 70}ms`;
 					bar.style.height = '';
+					bar.style.y = '';
 					bar.classList.add('music-eq-bar-animating');
 				} else {
 					bar.classList.remove('music-eq-bar-animating');
 					bar.style.animationDelay = '';
 					bar.style.height = '';
+					bar.style.y = '';
+					bar.setAttribute('height', '2');
+					bar.setAttribute('y', '7');
 				}
 			});
 		};
 
-		const playMusic = async ({ fromStart = false }: { fromStart?: boolean } = {}) => {
-			try {
-				audio.loop = true;
-				if (fromStart) {
-					try {
-						audio.currentTime = 0;
-					} catch {
-						// Ignore seek errors before media is ready
-					}
-				}
-				await audio.play();
-				if (fromStart && audio.currentTime > 0.25) {
-					audio.currentTime = 0;
-				}
+		const playMusic = ({ fromStart = false }: { fromStart?: boolean } = {}) => {
+			if (!widget || !ready) {
+				playWhenReady = true;
 				setPlaying(true);
-			} catch (error) {
-				console.error('Music playback failed', error);
-				setPlaying(false);
+				return;
 			}
+
+			if (fromStart) widget.seekTo(0);
+			widget.play();
+			setPlaying(true);
 		};
 
 		const pauseMusic = () => {
-			audio.pause();
+			playWhenReady = false;
+			widget?.pause();
 			setPlaying(false);
 		};
 
-		const toggleMusic = async () => {
-			if (audio.paused) await playMusic();
-			else pauseMusic();
+		const toggleMusic = () => {
+			if (!widget || !ready) {
+				playMusic({ fromStart: true });
+				return;
+			}
+
+			widget.isPaused((paused) => {
+				if (paused) playMusic();
+				else pauseMusic();
+			});
 		};
 
-		audio.addEventListener('play', () => setPlaying(true));
-		audio.addEventListener('pause', () => {
-			if (!audio.ended) setPlaying(false);
-		});
+		const bindWidget = (SC: SoundCloudWidgetFactory) => {
+			widget = SC.Widget(iframe);
 
-		// Always restart when a track ends so music keeps going.
-		audio.addEventListener('ended', () => {
-			void playMusic({ fromStart: true });
-		});
+			widget.bind(SC.Widget.Events.READY, () => {
+				ready = true;
+				if (playWhenReady) playMusic({ fromStart: true });
+			});
+
+			widget.bind(SC.Widget.Events.PLAY, () => setPlaying(true));
+			widget.bind(SC.Widget.Events.PAUSE, () => setPlaying(false));
+			widget.bind(SC.Widget.Events.FINISH, () => {
+				// Loop from the beginning when the track ends.
+				playMusic({ fromStart: true });
+			});
+		};
+
+		const ensureApi = () => {
+			const win = window as Window & { SC?: SoundCloudWidgetFactory };
+			if (win.SC?.Widget) {
+				bindWidget(win.SC);
+				return;
+			}
+
+			const existing = document.querySelector<HTMLScriptElement>('script[data-soundcloud-api]');
+			if (existing) {
+				existing.addEventListener('load', () => {
+					if (win.SC) bindWidget(win.SC);
+				});
+				return;
+			}
+
+			const script = document.createElement('script');
+			script.src = 'https://w.soundcloud.com/player/api.js';
+			script.async = true;
+			script.dataset.soundcloudApi = '';
+			script.addEventListener('load', () => {
+				if (win.SC) bindWidget(win.SC);
+			});
+			document.body.appendChild(script);
+		};
 
 		toggle.addEventListener('click', () => {
-			void toggleMusic();
+			toggleMusic();
 		});
 
-		// Start from the beginning when the envelope intro is tapped open.
 		window.addEventListener('wedding:start-music', () => {
-			void playMusic({ fromStart: true });
+			playMusic({ fromStart: true });
 		});
 
 		(window as Window & { __weddingMusic?: WeddingMusicApi }).__weddingMusic = {
@@ -213,5 +277,7 @@ const audioSrc = fs.existsSync(fullTrackPath) ? FULL_TRACK : PREVIEW_URL;
 			pause: pauseMusic,
 			toggle: toggleMusic,
 		};
+
+		ensureApi();
 	}
 </script>
