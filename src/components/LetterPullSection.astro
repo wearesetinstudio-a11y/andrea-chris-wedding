@@ -71,8 +71,8 @@
 		top: var(--header-height);
 		display: flex;
 		align-items: center;
+		/* svh only — dvh jumps when mobile browser chrome shows/hides mid-scroll */
 		height: calc(100svh - var(--header-height));
-		height: calc(100dvh - var(--header-height));
 		width: 100%;
 		overflow: hidden;
 		/* Match FAQ / Footer / RSVP horizontal inset; keep clear space above next section */
@@ -302,7 +302,8 @@
 
 	function initLetterPull(root: HTMLElement) {
 		const letter = root.querySelector<HTMLElement>('[data-letter]');
-		if (!letter) return;
+		const sticky = root.querySelector<HTMLElement>('.letter-pull__sticky');
+		if (!letter || !sticky) return;
 
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 		if (reduceMotion.matches) {
@@ -311,17 +312,38 @@
 		}
 
 		let ticking = false;
+		/** Locked while the section is sticky-active so URL-bar resize can't snap progress */
+		let lockedScrollable: number | null = null;
+
+		const measureScrollable = () => {
+			// Prefer sticky box height (svh-stable) over window.innerHeight (jumps on mobile)
+			return Math.max(1, root.offsetHeight - sticky.offsetHeight);
+		};
+
+		const headerOffset = () => {
+			const raw = getComputedStyle(document.documentElement)
+				.getPropertyValue('--header-height')
+				.trim();
+			const px = Number.parseFloat(raw);
+			return Number.isFinite(px) ? px : 0;
+		};
 
 		const update = () => {
 			ticking = false;
 			const rect = root.getBoundingClientRect();
-			const scrollable = root.offsetHeight - window.innerHeight;
-			if (scrollable <= 0) {
-				letter.style.setProperty('--pull', '0');
-				return;
+			const header = headerOffset();
+			const active = rect.top <= header && rect.bottom >= header + sticky.offsetHeight;
+
+			if (active) {
+				lockedScrollable ??= measureScrollable();
+			} else if (rect.top > header) {
+				// Reset before re-entering so a real resize can apply next time
+				lockedScrollable = null;
 			}
 
-			const progress = clamp(-rect.top / scrollable, 0, 1);
+			const scrollable = lockedScrollable ?? measureScrollable();
+			// Stick starts when section top hits the header offset (sticky top)
+			const progress = clamp((header - rect.top) / scrollable, 0, 1);
 			// 1 = tucked, 0 = fully pulled
 			letter.style.setProperty('--pull', String(1 - progress));
 		};
@@ -332,9 +354,15 @@
 			requestAnimationFrame(update);
 		};
 
+		const onResize = () => {
+			// Ignore visualViewport chrome show/hide; only remeasure on layout resize
+			lockedScrollable = null;
+			onScroll();
+		};
+
 		update();
 		window.addEventListener('scroll', onScroll, { passive: true });
-		window.addEventListener('resize', onScroll, { passive: true });
+		window.addEventListener('resize', onResize, { passive: true });
 	}
 
 	document.querySelectorAll<HTMLElement>('[data-letter-pull]').forEach(initLetterPull);
