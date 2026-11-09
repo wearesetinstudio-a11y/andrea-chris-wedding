@@ -158,10 +158,20 @@ const audioSrc = fs.existsSync(fullTrackPath) ? FULL_TRACK : PREVIEW_URL;
 			});
 		};
 
-		const playMusic = async () => {
+		const playMusic = async ({ fromStart = false }: { fromStart?: boolean } = {}) => {
 			try {
 				audio.loop = true;
+				if (fromStart) {
+					try {
+						audio.currentTime = 0;
+					} catch {
+						// Ignore seek errors before media is ready
+					}
+				}
 				await audio.play();
+				if (fromStart && audio.currentTime > 0.25) {
+					audio.currentTime = 0;
+				}
 				setPlaying(true);
 			} catch (error) {
 				console.error('Music playback failed', error);
@@ -186,21 +196,20 @@ const audioSrc = fs.existsSync(fullTrackPath) ? FULL_TRACK : PREVIEW_URL;
 
 		// Always restart when a track ends so music keeps going.
 		audio.addEventListener('ended', () => {
-			audio.currentTime = 0;
-			void playMusic();
+			void playMusic({ fromStart: true });
 		});
 
 		toggle.addEventListener('click', () => {
 			void toggleMusic();
 		});
 
-		// Start when the envelope intro is tapped open.
+		// Start from the beginning when the envelope intro is tapped open.
 		window.addEventListener('wedding:start-music', () => {
-			void playMusic();
+			void playMusic({ fromStart: true });
 		});
 
 		(window as Window & { __weddingMusic?: WeddingMusicApi }).__weddingMusic = {
-			play: playMusic,
+			play: () => playMusic({ fromStart: true }),
 			pause: pauseMusic,
 			toggle: toggleMusic,
 		};

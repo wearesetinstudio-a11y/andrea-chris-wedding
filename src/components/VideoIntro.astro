@@ -1,7 +1,7 @@
 ---
 /**
  * Full-screen silent envelope intro.
- * Starts on tap/click, fades out over the last 0.4s, then unmounts.
+ * Starts on tap/click, begins fade 2s before end (quick opacity drop), then unmounts.
  * Source: /videos/envelope.mp4
  */
 ---
@@ -26,7 +26,8 @@
 </div>
 
 <script>
-	const FADE_LEAD_MS = 400;
+	const FADE_LEAD_MS = 2000;
+	const FADE_DURATION_MS = 350;
 	const FAIL_FADE_MS = 500;
 
 	const root = document.querySelector<HTMLElement>('[data-video-intro]');
@@ -72,7 +73,7 @@
 			if (Number.isFinite(video.duration) && video.duration > 0) {
 				const remainingMs = (video.duration - video.currentTime) * 1000;
 				if (remainingMs <= FADE_LEAD_MS) {
-					dismissWithFade(FADE_LEAD_MS);
+					dismissWithFade(FADE_DURATION_MS);
 					return;
 				}
 			}
@@ -122,7 +123,7 @@
 			});
 
 			video.addEventListener('ended', () => {
-				if (!fading) dismissWithFade(FADE_LEAD_MS);
+				if (!fading) dismissWithFade(FADE_DURATION_MS);
 			});
 			video.addEventListener('error', failOpen);
 			video.querySelector('source')?.addEventListener('error', failOpen);

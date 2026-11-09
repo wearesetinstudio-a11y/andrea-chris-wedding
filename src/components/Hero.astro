@@ -15,17 +15,22 @@
 		</div>
 
 		<div class="hero__content">
+			<p class="hero__meta hero__enter" style="--enter-delay: 120ms">
+				<span>10 de abril, 2027</span>
+				<span>Boquete, Panama</span>
+			</p>
+
 			<div class="hero__stage">
 				<div class="hero__intro">
 					<h1 class="hero__title" aria-label="Andrea & Chris">
 						<span
 							class="hero__name hero__name--andrea hero__enter"
-							style="--enter-delay: 160ms"
+							style="--enter-delay: 280ms"
 							aria-hidden="true">Andrea</span
 						>
 						<span
 							class="hero__name-row hero__enter"
-							style="--enter-delay: 300ms"
+							style="--enter-delay: 420ms"
 							aria-hidden="true"
 						>
 							<span class="hero__amp">&</span>
@@ -33,14 +38,9 @@
 						</span>
 					</h1>
 				</div>
-
-				<p class="hero__meta hero__enter" style="--enter-delay: 460ms">
-					<span>10 de abril, 2027</span>
-					<span>Boquete, Panama</span>
-				</p>
 			</div>
 
-			<p class="hero__scroll hero__enter" style="--enter-delay: 600ms">(Desplaza hacia abajo ↓)</p>
+			<p class="hero__scroll hero__enter" style="--enter-delay: 580ms">(Desplaza hacia abajo ↓)</p>
 		</div>
 	</div>
 </section>
@@ -120,11 +120,27 @@
 		z-index: 1;
 		display: flex;
 		flex-direction: column;
-		align-items: stretch;
+		align-items: center;
 		height: 100%;
-		padding: 2.1rem 1.25rem 1.25rem;
+		padding: 1.75rem 1.25rem 1.35rem;
 		color: var(--color-white);
 		text-align: center;
+	}
+
+	.hero__meta {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.15rem;
+		margin: 0;
+		font-size: 0.9375rem;
+		font-weight: 400;
+		line-height: 1.4;
+		letter-spacing: 0.01em;
+	}
+
+	.hero__meta span {
+		display: block;
 	}
 
 	.hero__stage {
@@ -133,8 +149,8 @@
 		align-items: center;
 		justify-content: flex-end;
 		width: 100%;
-		margin-top: auto;
-		padding-bottom: 2.75rem;
+		flex: 1;
+		padding-bottom: 1.75rem;
 	}
 
 	.hero__intro {
@@ -147,7 +163,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 0.12em;
+		gap: 0.2em;
 		margin: 0;
 		font-family: var(--font-serif);
 		font-size: clamp(3.25rem, 13vw, 4.25rem);
@@ -172,31 +188,8 @@
 		transform: translateY(-0.06em);
 	}
 
-	.hero__meta {
-		position: absolute;
-		right: 1.25rem;
-		bottom: 1.25rem;
-		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-		gap: 0.15rem;
-		margin: 0;
-		font-size: 0.9375rem;
-		font-weight: 400;
-		line-height: 1.4;
-		letter-spacing: 0.01em;
-		text-align: right;
-	}
-
-	.hero__meta span {
-		display: block;
-	}
-
 	.hero__scroll {
-		position: absolute;
-		left: 1.25rem;
-		bottom: 1.25rem;
-		margin: 0;
+		margin: 0.35rem 0 0;
 		font-size: 0.9375rem;
 		letter-spacing: 0.01em;
 		opacity: 0.92;
@@ -220,14 +213,8 @@
 		transform: translate3d(0, 0, 0);
 	}
 
-	.hero__scroll.hero__enter {
-		transform: none;
-	}
-
 	.hero.is-entered .hero__scroll.hero__enter {
 		opacity: 0.92;
-		filter: blur(0);
-		transform: none;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -256,19 +243,28 @@
 		}
 
 		.hero__content {
-			justify-content: flex-end;
+			display: block;
 			height: 100%;
 			padding: 2.5rem 2.75rem 1.5rem;
 			text-align: left;
 		}
 
-		.hero__stage {
-			flex-direction: row;
+		.hero__meta {
+			position: absolute;
+			right: 2.75rem;
+			bottom: 3.85rem;
 			align-items: flex-end;
-			justify-content: space-between;
-			gap: 2rem;
-			margin-top: 0;
-			padding-bottom: 2.35rem;
+			text-align: right;
+		}
+
+		.hero__stage {
+			position: absolute;
+			left: 2.75rem;
+			bottom: 3.85rem;
+			display: block;
+			width: auto;
+			flex: none;
+			padding: 0;
 		}
 
 		.hero__intro {
@@ -285,13 +281,8 @@
 			font-size: 0.55em;
 		}
 
-		.hero__meta {
-			position: static;
-			right: auto;
-			bottom: auto;
-		}
-
 		.hero__scroll {
+			position: absolute;
 			left: 50%;
 			bottom: 1.35rem;
 			transform: translate3d(-50%, 0, 0);
