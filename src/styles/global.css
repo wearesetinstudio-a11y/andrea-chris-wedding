@@ -36,6 +36,8 @@ html {
 
 html.intro-active {
 	overflow: hidden;
+	overscroll-behavior: none;
+	height: 100%;
 }
 
 body {
@@ -66,7 +68,15 @@ button {
 body.menu-open,
 body.intro-active {
 	overflow: hidden;
+	overscroll-behavior: none;
 	padding-right: var(--scrollbar-compensation, 0px);
+}
+
+body.intro-active {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	touch-action: none;
 }
 
 /* Scroll-into-view blur reveal (section headlines) */

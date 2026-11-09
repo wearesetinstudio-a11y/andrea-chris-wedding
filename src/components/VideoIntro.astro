@@ -39,10 +39,53 @@
 		let started = false;
 		let rafId = 0;
 
+		const SCROLL_KEYS = new Set([
+			' ',
+			'Spacebar',
+			'ArrowUp',
+			'ArrowDown',
+			'ArrowLeft',
+			'ArrowRight',
+			'PageUp',
+			'PageDown',
+			'Home',
+			'End',
+		]);
+
+		const preventScrollEvent = (event: Event) => {
+			event.preventDefault();
+		};
+
+		const preventScrollKey = (event: KeyboardEvent) => {
+			if (!SCROLL_KEYS.has(event.key)) return;
+			// Allow Space/Enter on the intro itself to start playback
+			if ((event.key === ' ' || event.key === 'Spacebar' || event.key === 'Enter') && !started) {
+				return;
+			}
+			event.preventDefault();
+		};
+
+		const lockScroll = () => {
+			if ('scrollRestoration' in history) {
+				history.scrollRestoration = 'manual';
+			}
+			window.scrollTo(0, 0);
+			document.documentElement.classList.add('intro-active');
+			document.body.classList.add('intro-active');
+			window.addEventListener('wheel', preventScrollEvent, { passive: false });
+			window.addEventListener('touchmove', preventScrollEvent, { passive: false });
+			window.addEventListener('keydown', preventScrollKey, { passive: false });
+		};
+
 		const unlockScroll = () => {
+			window.removeEventListener('wheel', preventScrollEvent);
+			window.removeEventListener('touchmove', preventScrollEvent);
+			window.removeEventListener('keydown', preventScrollKey);
 			document.documentElement.classList.remove('intro-active');
 			document.body.classList.remove('intro-active');
 			document.documentElement.style.removeProperty('--scrollbar-compensation');
+			// Always reveal the site from the hero
+			window.scrollTo(0, 0);
 		};
 
 		const removeIntro = () => {
@@ -85,6 +128,7 @@
 		if (prefersReducedMotion) {
 			removeIntro();
 		} else {
+			lockScroll();
 			root.style.opacity = '1';
 
 			const failOpen = () => {
