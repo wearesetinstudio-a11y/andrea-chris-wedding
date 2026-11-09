@@ -12,24 +12,10 @@ const navLinks = [
 
 <div class="site-header-spacer" data-header-spacer hidden></div>
 <header class="site-header" data-header>
-	<div class="site-header__meta">
-		<span>Panamonte, Boquete</span>
-		<span class="site-header__meta-rule" aria-hidden="true"></span>
-		<span>10 | 04 | 2027</span>
-	</div>
-
 	<div class="site-header__bar">
-		<div class="site-header__brand">
-			<a href="/" class="site-header__logo" aria-label="Andrea & Chris">
-				<img src="/logo.svg" width="153" height="17" alt="Andrea & Chris" />
-			</a>
-
-			<div class="site-header__pill">
-				<span>Panamonte, Boquete</span>
-				<span class="site-header__pill-sep" aria-hidden="true">—</span>
-				<span>10 | 04 | 2027</span>
-			</div>
-		</div>
+		<a href="/" class="site-header__logo" aria-label="Andrea & Chris">
+			<img src="/logo.svg" width="153" height="17" alt="Andrea & Chris" />
+		</a>
 
 		<nav class="site-header__nav" aria-label="Primary">
 			{
@@ -39,25 +25,27 @@ const navLinks = [
 					</a>
 				))
 			}
+		</nav>
+
+		<div class="site-header__actions">
 			<div class="site-header__music">
 				<MusicPlayerBadge />
 			</div>
 			<ConfirmButton variant="header" class="site-header__confirm" />
-		</nav>
-
-		<button
-			type="button"
-			class="site-header__menu"
-			aria-label="Abrir menú"
-			aria-expanded="false"
-			aria-controls="mobile-menu"
-			data-menu-toggle
-		>
-			<span class="site-header__menu-icon" aria-hidden="true">
-				<span class="site-header__menu-line site-header__menu-line--top"></span>
-				<span class="site-header__menu-line site-header__menu-line--bottom"></span>
-			</span>
-		</button>
+			<button
+				type="button"
+				class="site-header__menu"
+				aria-label="Abrir menú"
+				aria-expanded="false"
+				aria-controls="mobile-menu"
+				data-menu-toggle
+			>
+				<span class="site-header__menu-icon" aria-hidden="true">
+					<span class="site-header__menu-line site-header__menu-line--top"></span>
+					<span class="site-header__menu-line site-header__menu-line--bottom"></span>
+				</span>
+			</button>
+		</div>
 	</div>
 
 	<nav
@@ -99,47 +87,14 @@ const navLinks = [
 		background: var(--color-white);
 	}
 
-	.site-header__meta {
+	.site-header__bar {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 0.5rem;
-		padding: 0.55rem 1rem;
-		background: var(--color-surface);
-		color: var(--color-accent);
-		font-size: 0.8125rem;
-		font-weight: 500;
-		letter-spacing: 0.02em;
-	}
-
-	.site-header__meta > span:not(.site-header__meta-rule) {
-		flex-shrink: 0;
-		white-space: nowrap;
-	}
-
-	.site-header__meta-rule {
-		flex: 0 1 1.25rem;
-		width: 1.25rem;
-		min-width: 0.5rem;
-		height: 1px;
-		background: color-mix(in srgb, var(--color-accent) 28%, transparent);
-	}
-
-	.site-header__bar {
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
-		align-items: center;
-		gap: 0.75rem;
-		padding: 0.95rem 1rem 1rem;
-		background: var(--color-white);
-	}
-
-	.site-header__brand {
-		display: flex;
-		align-items: center;
 		gap: 1rem;
-		min-width: 0;
-		justify-self: start;
+		min-height: var(--header-height);
+		padding: 0.85rem var(--page-inset);
+		background: var(--color-white);
 	}
 
 	.site-header__logo {
@@ -152,39 +107,10 @@ const navLinks = [
 		height: 0.95rem;
 	}
 
-	.site-header__pill {
-		display: none;
-		align-items: center;
-		gap: 0.55rem;
-		padding: 0.55rem 1rem;
-		background: var(--color-surface);
-		font-size: 0.875rem;
-		font-weight: 500;
-		letter-spacing: 0.01em;
-		white-space: nowrap;
-	}
-
-	.site-header__pill-sep {
-		opacity: 0.55;
-	}
-
 	.site-header__nav {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 1.35rem;
-		justify-self: center;
-		grid-column: 2;
-	}
-
-	.site-header__link,
-	.site-header__nav :global(.site-header__confirm) {
 		display: none;
-	}
-
-	.site-header__music {
-		display: inline-flex;
 		align-items: center;
+		gap: 1.5rem;
 	}
 
 	.site-header__link {
@@ -197,12 +123,27 @@ const navLinks = [
 		opacity: 0.65;
 	}
 
+	.site-header__actions {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 0.85rem;
+		min-width: 0;
+	}
+
+	.site-header__music {
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.site-header__actions :global(.site-header__confirm) {
+		display: none;
+	}
+
 	.site-header__menu {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		justify-self: end;
-		grid-column: 3;
 		width: 2rem;
 		height: 2rem;
 		padding: 0;
@@ -261,7 +202,7 @@ const navLinks = [
 		display: none;
 		flex: 1;
 		flex-direction: column;
-		padding: 1.75rem 1.25rem 1.5rem;
+		padding: 1.75rem var(--page-inset) 1.5rem;
 		background: var(--color-white);
 		overflow: auto;
 	}
@@ -297,49 +238,36 @@ const navLinks = [
 			display: block;
 		}
 
-		.site-header__meta,
-		.site-header__menu,
-		.site-header__drawer {
-			display: none;
-		}
-
-		.site-header.is-open .site-header__drawer {
-			display: none;
-		}
-
 		.site-header__bar {
-			display: flex;
-			justify-content: space-between;
+			display: grid;
+			grid-template-columns: 1fr auto 1fr;
+			align-items: center;
 			gap: 1.5rem;
-			padding: 1.1rem 1.75rem;
-		}
-
-		.site-header__brand {
-			gap: 1.25rem;
-			justify-self: auto;
+			padding-block: 1rem;
 		}
 
 		.site-header__logo img {
 			height: 1.05rem;
 		}
 
-		.site-header__pill {
-			display: flex;
-		}
-
 		.site-header__nav {
-			justify-self: auto;
-			grid-column: auto;
+			display: flex;
+			justify-self: center;
 		}
 
-		.site-header__link,
-		.site-header__nav :global(.site-header__confirm) {
+		.site-header__actions {
+			justify-self: end;
+			gap: 1.1rem;
+		}
+
+		.site-header__actions :global(.site-header__confirm) {
 			display: inline-flex;
 		}
 
-		.site-header__menu {
-			justify-self: auto;
-			grid-column: auto;
+		.site-header__menu,
+		.site-header__drawer,
+		.site-header.is-open .site-header__drawer {
+			display: none;
 		}
 	}
 </style>

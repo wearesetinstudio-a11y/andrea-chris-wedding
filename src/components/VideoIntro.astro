@@ -1,0 +1,152 @@
+---
+/**
+ * Full-screen silent envelope intro.
+ * Starts on tap/click, fades out over the last 0.4s, then unmounts.
+ * Source: /videos/envelope.mp4
+ */
+---
+
+<div
+	id="video-intro"
+	class="fixed inset-0 z-50 cursor-pointer bg-white"
+	role="dialog"
+	aria-label="Introducción"
+	aria-modal="true"
+	data-video-intro
+>
+	<video
+		class="h-full w-full object-cover"
+		muted
+		playsinline
+		preload="auto"
+		data-video-intro-media
+	>
+		<source src="/videos/envelope.mp4" type="video/mp4" />
+	</video>
+</div>
+
+<script>
+	const FADE_LEAD_MS = 400;
+	const FAIL_FADE_MS = 500;
+
+	const root = document.querySelector<HTMLElement>('[data-video-intro]');
+	const video = document.querySelector<HTMLVideoElement>('[data-video-intro-media]');
+
+	if (root && video) {
+		let dismissed = false;
+		let fading = false;
+		let started = false;
+		let rafId = 0;
+
+		const unlockScroll = () => {
+			document.documentElement.classList.remove('intro-active');
+			document.body.classList.remove('intro-active');
+			document.documentElement.style.removeProperty('--scrollbar-compensation');
+		};
+
+		const removeIntro = () => {
+			if (dismissed) return;
+			dismissed = true;
+			cancelAnimationFrame(rafId);
+			unlockScroll();
+			root.style.pointerEvents = 'none';
+			root.setAttribute('aria-hidden', 'true');
+			root.remove();
+		};
+
+		const dismissWithFade = (durationMs = FAIL_FADE_MS) => {
+			if (dismissed || fading) return;
+			fading = true;
+			cancelAnimationFrame(rafId);
+			// Force a style flush so the transition always runs from opacity 1
+			root.style.transition = 'none';
+			root.style.opacity = '1';
+			void root.offsetWidth;
+			root.style.transition = `opacity ${durationMs}ms ease-in`;
+			root.style.opacity = '0';
+			window.setTimeout(removeIntro, durationMs);
+		};
+
+		const watchFadePoint = () => {
+			if (dismissed || fading) return;
+			if (Number.isFinite(video.duration) && video.duration > 0) {
+				const remainingMs = (video.duration - video.currentTime) * 1000;
+				if (remainingMs <= FADE_LEAD_MS) {
+					dismissWithFade(FADE_LEAD_MS);
+					return;
+				}
+			}
+			rafId = requestAnimationFrame(watchFadePoint);
+		};
+
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		if (prefersReducedMotion) {
+			removeIntro();
+		} else {
+			root.style.opacity = '1';
+
+			const failOpen = () => {
+				dismissWithFade();
+			};
+
+			const PLAYBACK_RATE = 2;
+
+			const startPlayback = async () => {
+				if (dismissed || fading || started) return;
+				started = true;
+				root.classList.remove('cursor-pointer');
+				root.style.cursor = 'default';
+
+				// Same user gesture — start site music with the envelope video.
+				window.dispatchEvent(new CustomEvent('wedding:start-music'));
+
+				try {
+					video.playbackRate = PLAYBACK_RATE;
+					await video.play();
+					rafId = requestAnimationFrame(watchFadePoint);
+				} catch {
+					failOpen();
+				}
+			};
+
+			root.addEventListener('click', () => {
+				void startPlayback();
+			});
+
+			root.addEventListener('keydown', (event) => {
+				if (event.key === 'Enter' || event.key === ' ') {
+					event.preventDefault();
+					void startPlayback();
+				}
+			});
+
+			video.addEventListener('ended', () => {
+				if (!fading) dismissWithFade(FADE_LEAD_MS);
+			});
+			video.addEventListener('error', failOpen);
+			video.querySelector('source')?.addEventListener('error', failOpen);
+
+			// Show the first frame while waiting for tap
+			const showPosterFrame = () => {
+				try {
+					video.currentTime = 0.001;
+				} catch {
+					// Ignore seek errors before metadata is ready
+				}
+			};
+
+			if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+				showPosterFrame();
+			} else {
+				video.addEventListener('loadedmetadata', showPosterFrame, { once: true });
+			}
+
+			window.setTimeout(() => {
+				if (!dismissed && !fading && video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+					failOpen();
+				}
+			}, 8000);
+		}
+	}
+</script>

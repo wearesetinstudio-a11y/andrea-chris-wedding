@@ -9,6 +9,18 @@
 	--font-sans: "Inter", system-ui, sans-serif;
 }
 
+:root {
+	--page-inset: 0.75rem;
+	--header-height: 3.75rem;
+}
+
+@media (min-width: 900px) {
+	:root {
+		--page-inset: 1.5rem;
+		--header-height: 4.25rem;
+	}
+}
+
 *,
 *::before,
 *::after {
@@ -17,6 +29,10 @@
 
 html {
 	scroll-behavior: smooth;
+}
+
+html.intro-active {
+	overflow: hidden;
 }
 
 body {
@@ -44,8 +60,10 @@ button {
 	cursor: pointer;
 }
 
-body.menu-open {
+body.menu-open,
+body.intro-active {
 	overflow: hidden;
+	padding-right: var(--scrollbar-compensation, 0px);
 }
 
 /* Scroll-into-view blur reveal (section headlines) */

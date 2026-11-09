@@ -2,16 +2,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-/** Full track (place file at public/music/szalona.mp3). Spotify preview is only ~30s. */
-const FULL_TRACK = '/music/szalona.mp3';
-const PREVIEW_URL = 'https://p.scdn.co/mp3-preview/3fc5db558b90195cb27abc546c46ae6fada2e0c2';
+/**
+ * Spotify track: Heaven (Instrumental Piano)
+ * https://open.spotify.com/track/2mObUHGH15TBKVL2VSxIkG
+ * Prefer full local file at public/music/heaven.mp3 (Spotify preview is only ~30s).
+ */
+const FULL_TRACK = '/music/heaven.mp3';
+const PREVIEW_URL = 'https://p.scdn.co/mp3-preview/2e5cb9a254dd7885811bea49d525affac396f4a0';
 
-const fullTrackPath = path.join(process.cwd(), 'public', 'music', 'szalona.mp3');
+const fullTrackPath = path.join(process.cwd(), 'public', 'music', 'heaven.mp3');
 const audioSrc = fs.existsSync(fullTrackPath) ? FULL_TRACK : PREVIEW_URL;
-const usingPreview = audioSrc === PREVIEW_URL;
 ---
 
-<div class="music-eq" data-music-player data-using-preview={usingPreview ? 'true' : 'false'}>
+<div class="music-eq" data-music-player>
 	<button
 		type="button"
 		class="music-eq__toggle"
@@ -28,7 +31,7 @@ const usingPreview = audioSrc === PREVIEW_URL;
 		</span>
 	</button>
 
-	<audio data-music-audio src={audioSrc} preload="auto" playsinline loop={!usingPreview}></audio>
+	<audio data-music-audio src={audioSrc} preload="auto" playsinline loop></audio>
 </div>
 
 <style>
@@ -125,14 +128,18 @@ const usingPreview = audioSrc === PREVIEW_URL;
 </style>
 
 <script>
+	type WeddingMusicApi = {
+		play: () => Promise<void>;
+		pause: () => void;
+		toggle: () => Promise<void>;
+	};
+
 	const root = document.querySelector<HTMLElement>('[data-music-player]');
 	const toggle = root?.querySelector<HTMLButtonElement>('[data-music-toggle]');
 	const audio = root?.querySelector<HTMLAudioElement>('[data-music-audio]');
 	const bars = root ? Array.from(root.querySelectorAll<HTMLElement>('[data-bar]')) : [];
 
 	if (root && toggle && audio) {
-		const usingPreview = root.dataset.usingPreview === 'true';
-
 		const setPlaying = (next: boolean) => {
 			root.classList.toggle('is-playing', next);
 			toggle.setAttribute('aria-pressed', next ? 'true' : 'false');
@@ -151,30 +158,51 @@ const usingPreview = audioSrc === PREVIEW_URL;
 			});
 		};
 
-		audio.addEventListener('play', () => setPlaying(true));
-		audio.addEventListener('pause', () => setPlaying(false));
-
-		// Spotify preview is ~30s — restart so the room doesn't go silent.
-		if (usingPreview) {
-			audio.addEventListener('ended', () => {
-				audio.currentTime = 0;
-				void audio.play().catch(() => setPlaying(false));
-			});
-		}
-
-		toggle.addEventListener('click', async () => {
+		const playMusic = async () => {
 			try {
-				if (audio.paused) {
-					await audio.play();
-					setPlaying(true);
-				} else {
-					audio.pause();
-					setPlaying(false);
-				}
+				audio.loop = true;
+				await audio.play();
+				setPlaying(true);
 			} catch (error) {
 				console.error('Music playback failed', error);
 				setPlaying(false);
 			}
+		};
+
+		const pauseMusic = () => {
+			audio.pause();
+			setPlaying(false);
+		};
+
+		const toggleMusic = async () => {
+			if (audio.paused) await playMusic();
+			else pauseMusic();
+		};
+
+		audio.addEventListener('play', () => setPlaying(true));
+		audio.addEventListener('pause', () => {
+			if (!audio.ended) setPlaying(false);
 		});
+
+		// Always restart when a track ends so music keeps going.
+		audio.addEventListener('ended', () => {
+			audio.currentTime = 0;
+			void playMusic();
+		});
+
+		toggle.addEventListener('click', () => {
+			void toggleMusic();
+		});
+
+		// Start when the envelope intro is tapped open.
+		window.addEventListener('wedding:start-music', () => {
+			void playMusic();
+		});
+
+		(window as Window & { __weddingMusic?: WeddingMusicApi }).__weddingMusic = {
+			play: playMusic,
+			pause: pauseMusic,
+			toggle: toggleMusic,
+		};
 	}
 </script>

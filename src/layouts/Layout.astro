@@ -1,15 +1,17 @@
 ---
 import '../styles/global.css';
+import VideoIntro from '../components/VideoIntro.astro';
 
 interface Props {
 	title?: string;
+	showIntro?: boolean;
 }
 
-const { title = 'Andrea & Chris — Boda' } = Astro.props;
+const { title = 'Andrea & Chris — Boda', showIntro = true } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es" class:list={[showIntro && 'intro-active']}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -24,8 +26,27 @@ const { title = 'Andrea & Chris — Boda' } = Astro.props;
 			href="https://fonts.googleapis.com/css2?family=Headland+One&family=Inter:wght@300;400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
+		{showIntro && (
+			<script is:inline>
+				(() => {
+					const probe = document.createElement('div');
+					probe.style.cssText =
+						'position:absolute;top:-9999px;width:100px;height:100px;overflow:scroll;visibility:hidden';
+					document.documentElement.appendChild(probe);
+					const width = probe.offsetWidth - probe.clientWidth;
+					probe.remove();
+					if (width > 0) {
+						document.documentElement.style.setProperty(
+							'--scrollbar-compensation',
+							`${width}px`,
+						);
+					}
+				})();
+			</script>
+		)}
 	</head>
-	<body>
+	<body class:list={[showIntro && 'intro-active']}>
+		{showIntro && <VideoIntro />}
 		<slot />
 		<script>
 			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
