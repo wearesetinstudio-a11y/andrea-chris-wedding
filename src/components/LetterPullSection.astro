@@ -361,9 +361,8 @@
 		let ticking = false;
 		/** Locked while the section is sticky-active so URL-bar resize can't snap progress */
 		let lockedScrollable: number | null = null;
-		/** When set, scroll updates pause while a tap-driven animation runs */
-		let tapAnimating = false;
-		let pull = 1;
+		/** Ignore duplicate tap/click while a smooth scroll-open is in flight */
+		let tapLockUntil = 0;
 
 		const isMobile = () => window.matchMedia('(max-width: 767px)').matches;
 
@@ -380,12 +379,7 @@
 			return Number.isFinite(px) ? px : 0;
 		};
 
-		const applyPull = (value: number) => {
-			pull = clamp(value, 0, 1);
-			letter.style.setProperty('--pull', String(pull));
-		};
-
-		const scrollProgress = () => {
+		const getProgress = () => {
 			const rect = root.getBoundingClientRect();
 			const header = headerOffset();
 			const active = rect.top <= header && rect.bottom >= header + sticky.offsetHeight;
@@ -397,55 +391,23 @@
 			}
 
 			const scrollable = lockedScrollable ?? measureScrollable();
-			return clamp((header - rect.top) / scrollable, 0, 1);
-		};
-
-		/** Keep page scroll aligned with the animated pull so later scrolling doesn't jump */
-		const syncScrollToPull = (pullValue: number) => {
-			const progress = 1 - pullValue;
-			const scrollable = measureScrollable();
-			const header = headerOffset();
-			const sectionTop = window.scrollY + root.getBoundingClientRect().top;
-			const target = sectionTop - header + progress * scrollable;
-			window.scrollTo(0, target);
-		};
-
-		const animatePullTo = (target: number, duration = 1100) => {
-			if (tapAnimating) return;
-			tapAnimating = true;
-			const from = pull;
-			const start = performance.now();
-
-			const tick = (now: number) => {
-				const t = clamp((now - start) / duration, 0, 1);
-				const eased = 1 - (1 - t) ** 3;
-				applyPull(from + (target - from) * eased);
-				if (t < 1) {
-					requestAnimationFrame(tick);
-					return;
-				}
-				syncScrollToPull(pull);
-				lockedScrollable = measureScrollable();
-				tapAnimating = false;
+			return {
+				progress: clamp((header - rect.top) / scrollable, 0, 1),
+				scrollable,
+				header,
+				rect,
 			};
-
-			requestAnimationFrame(tick);
-		};
-
-		const onEnvelopeActivate = () => {
-			if (!isMobile() || tapAnimating) return;
-			// Tap pulls the letter out; tap again tucks it back
-			animatePullTo(pull > 0.08 ? 0 : 1);
 		};
 
 		const update = () => {
 			ticking = false;
-			if (tapAnimating) return;
-			applyPull(1 - scrollProgress());
+			const { progress } = getProgress();
+			// 1 = tucked, 0 = fully pulled
+			letter.style.setProperty('--pull', String(1 - progress));
 		};
 
 		const onScroll = () => {
-			if (ticking || tapAnimating) return;
+			if (ticking) return;
 			ticking = true;
 			requestAnimationFrame(update);
 		};
@@ -453,6 +415,28 @@
 		const onResize = () => {
 			lockedScrollable = null;
 			onScroll();
+		};
+
+		/**
+		 * Drive the existing scroll-linked animation with one smooth scroll.
+		 * Avoids a separate --pull tween + scroll sync that replayed the open.
+		 */
+		const onEnvelopeActivate = () => {
+			if (!isMobile()) return;
+			const now = performance.now();
+			if (now < tapLockUntil) return;
+
+			const { progress, scrollable, header, rect } = getProgress();
+			const sectionTop = window.scrollY + rect.top;
+			tapLockUntil = now + 1200;
+
+			if (progress < 0.92) {
+				const target = sectionTop - header + scrollable;
+				window.scrollTo({ top: target, behavior: 'smooth' });
+			} else {
+				// Already open — tuck by scrolling back to the start of the sticky runway
+				window.scrollTo({ top: sectionTop - header, behavior: 'smooth' });
+			}
 		};
 
 		if (stage) {
