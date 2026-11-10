@@ -305,9 +305,9 @@ const cards = [
 	.where-to-eat__link {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) auto;
-		align-items: start;
+		align-items: end;
 		gap: 0.55rem;
-		padding: 0.65rem 0.2rem;
+		padding: 0.65rem 0.2rem 0.4rem;
 		color: inherit;
 		text-decoration: none;
 		transition: background-color 0.2s ease;
@@ -340,7 +340,8 @@ const cards = [
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		margin-top: 0.15rem;
+		align-self: end;
+		margin: 0 0 0.05rem;
 		width: 1.15rem;
 		height: 1.15rem;
 		transition: transform 0.2s ease;
@@ -436,7 +437,7 @@ const cards = [
 		.where-to-eat__card--coffee {
 			z-index: 2;
 			margin-top: 0;
-			margin-left: -1.25rem;
+			margin-left: 0.2rem;
 		}
 
 		.where-to-eat__card-title {
