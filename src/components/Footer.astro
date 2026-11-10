@@ -28,7 +28,7 @@ const contacts = [
 ---
 
 <footer id="contact" class="footer bg-section text-white" aria-labelledby="footer-heading">
-	<div class="footer__inner footer__main">
+	<div class="footer__inner">
 		<h2
 			id="footer-heading"
 			class="font-serif text-[1.85rem] leading-tight text-white md:text-3xl lg:text-[2.15rem]"
@@ -51,7 +51,7 @@ const contacts = [
 				{
 					contacts.map((item) => (
 						<li class="footer__item border-b border-white/10 py-4 first:pt-0 last:border-b-0 last:pb-0 md:border-b-0 md:border-l md:border-white/20 md:px-5 md:py-0 lg:px-7">
-							<span class="mb-1 block font-sans text-xs text-muted">{item.label}</span>
+							<span class="mb-1 block font-sans text-xs text-white/60">{item.label}</span>
 							<a
 								href={item.href}
 								class="font-sans text-sm font-medium text-white transition-opacity hover:underline"
@@ -66,25 +66,32 @@ const contacts = [
 				}
 			</ul>
 		</div>
-	</div>
 
-	<div class="footer__bar bg-footer">
-		<div class="footer__inner footer__bar-inner">
-			<p
-				class="m-0 font-sans text-[0.65rem] uppercase tracking-[0.14em] text-muted sm:text-xs"
-			>
-				TODOS LOS DERECHOS RESERVADOS POR ANDREA &amp; CHRIS&nbsp;&nbsp;&nbsp;2026
+		{/* Divider spans the content grid only */}
+		<hr class="footer__rule" />
+
+		<div class="footer__meta">
+			<p class="m-0 font-sans text-xs text-white/60">
+				©2026 Andrea &amp; Chris&nbsp;&nbsp;&nbsp;All Rights Reserved
 			</p>
 
-			<p class="m-0 flex items-center gap-1.5 font-sans text-xs text-muted">
-				<span>Diseñado por</span>
-				<img
-					src="/setin-studio-logo.svg"
-					alt="setin studio"
-					width="71"
-					height="12"
-					class="h-3 w-auto"
-				/>
+			<p class="footer__credit m-0 inline-flex items-center gap-2 font-sans text-xs leading-none text-white/60">
+				<span>Crafted with Love by</span>
+				<a
+					href="https://www.wearesetin.com/"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="footer__logo-link opacity-60 transition-opacity hover:opacity-100"
+					aria-label="setin studio"
+				>
+					<img
+						src="/setin-studio-logo.svg"
+						alt=""
+						width="71"
+						height="12"
+						class="footer__logo"
+					/>
+				</a>
 			</p>
 		</div>
 	</div>
@@ -94,35 +101,57 @@ const contacts = [
 	/* Match FAQ / RSVP horizontal inset */
 	.footer__inner {
 		width: 100%;
-		padding-inline: 1.15rem;
+		padding: 4.5rem 1.15rem 3.5rem;
 	}
 
-	.footer__main {
-		padding-block: 4.5rem 3.5rem;
+	.footer__rule {
+		margin: 2.75rem 0;
+		border: 0;
+		border-top: 1px solid rgb(255 255 255 / 0.18);
+		width: 100%;
 	}
 
-	.footer__bar-inner {
+	.footer__meta {
 		display: flex;
 		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
 		gap: 0.75rem;
-		padding-block: 1rem;
+		text-align: center;
+	}
+
+	.footer__logo-link {
+		display: inline-flex;
+		align-items: center;
+		line-height: 0;
+	}
+
+	/* Slightly taller than text-xs, nudged up for optical baseline match */
+	.footer__logo {
+		display: block;
+		height: 0.875rem;
+		width: auto;
+		translate: 0 -0.06em;
 	}
 
 	@media (min-width: 768px) {
 		.footer__inner {
-			padding-inline: 1.5rem;
+			padding: 6rem 1.5rem 4.5rem;
 		}
 
-		.footer__main {
-			padding-block: 6rem 5rem;
+		.footer__rule {
+			margin: 3.8rem 0;
 		}
 
-		.footer__bar-inner {
+		.footer__meta {
 			flex-direction: row;
 			align-items: center;
 			justify-content: space-between;
 			gap: 1rem;
+			text-align: left;
+		}
+
+		.footer__logo {
+			height: 0.9375rem;
 		}
 	}
 

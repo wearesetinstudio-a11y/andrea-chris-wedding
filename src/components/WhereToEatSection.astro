@@ -1,0 +1,443 @@
+---
+/**
+ * “¿Qué comer en Boquete?” — paper-menu cards for restaurants & coffee spots.
+ * Desktop: side-by-side overlapping cards. Mobile: sticky stack with safe title overlap.
+ */
+type PlaceItem = {
+	name: string;
+	desc: string;
+	mapUrl: string;
+};
+
+const gastronomiaItems: PlaceItem[] = [
+	{
+		name: 'RetroGusto',
+		desc: 'Cocina italiana y mediterránea - Pastas, risottos y pizzas artesanales.',
+		mapUrl: 'https://maps.google.com/?q=RetroGusto+Boquete',
+	},
+	{
+		name: 'Dónde Giselle',
+		desc: 'Cocina panameña contemporánea - Sabores típicos panameños con un toque sofisticado.',
+		mapUrl: 'https://maps.google.com/?q=Donde+Giselle+Boquete',
+	},
+	{
+		name: 'Restaurante Sabrosón',
+		desc: 'Comida típica panameña - Estilo fonda. Platos tradicionales, caseros y auténticos.',
+		mapUrl: 'https://maps.google.com/?q=Sabroson+Boquete',
+	},
+	{
+		name: 'El Pianista',
+		desc: 'Cocina italiana - Pastas y pizzas en un entorno rodeado de naturaleza.',
+		mapUrl: 'https://maps.google.com/?q=El+Pianista+Boquete',
+	},
+	{
+		name: 'Punto de Encuentro',
+		desc: 'Desayunos & Brunch - Desayunos caseros, pancakes, omelettes y café.',
+		mapUrl: 'https://maps.google.com/?q=Punto+de+Encuentro+Boquete',
+	},
+	{
+		name: 'Blue Fin',
+		desc: 'Cocina japonesa - Sushi, sashimi y especialidades asiáticas.',
+		mapUrl: 'https://maps.google.com/?q=Blue+Fin+Boquete',
+	},
+	{
+		name: 'Tomate Loco',
+		desc: 'Pizzería italiana - Pizzas artesanales y opciones para compartir.',
+		mapUrl: 'https://maps.google.com/?q=Tomate+Loco+Boquete',
+	},
+	{
+		name: 'Tre Scalini',
+		desc: 'Cocina italiana tradicional - Pastas, risottos y especialidades italianas.',
+		mapUrl: 'https://maps.google.com/?q=Tre+Scalini+Boquete',
+	},
+];
+
+const coffeeBrunchItems: PlaceItem[] = [
+	{
+		name: 'Rebequet',
+		desc: 'Café & Brunch - Desayunos, café de especialidad y opciones dulces para acompañar.',
+		mapUrl: 'https://maps.google.com/?q=Rebequet+Boquete',
+	},
+	{
+		name: 'La Pastelería Alemana',
+		desc: 'German Bakery & Pastries - Repostería alemana, pasteles tradicionales y café.',
+		mapUrl: 'https://maps.google.com/?q=La+Pasteleria+Alemana+Boquete',
+	},
+	{
+		name: 'Altieri Specialty Coffee',
+		desc: 'Specialty Coffee - Café de especialidad de Boquete, ideal para los amantes del buen café.',
+		mapUrl: 'https://maps.google.com/?q=Altieri+Specialty+Coffee+Boquete',
+	},
+	{
+		name: 'Los Molinos',
+		desc: 'Breakfast & Scenic Views - Desayunos y café con vistas a las montañas y al paisaje de Boquete.',
+		mapUrl: 'https://maps.google.com/?q=Los+Molinos+Boquete',
+	},
+	{
+		name: 'Boquete Baking Project',
+		desc: 'Artisan Bakery & Brunch - Panadería artesanal, repostería y opciones de desayuno.',
+		mapUrl: 'https://maps.google.com/?q=Boquete+Baking+Project',
+	},
+	{
+		name: 'La Casita',
+		desc: 'Coffee & Homemade Breakfast - Desayunos caseros, café y opciones dulces en un ambiente acogedor.',
+		mapUrl: 'https://maps.google.com/?q=La+Casita+Boquete',
+	},
+	{
+		name: 'Sugar & Spice',
+		desc: 'Bakery & Breakfast - Panes artesanales, sándwiches, desayunos y deliciosos postres caseros.',
+		mapUrl: 'https://maps.google.com/?q=Sugar+and+Spice+Boquete',
+	},
+];
+
+const cards = [
+	{
+		id: 'gastronomia',
+		title: 'Gastronomía',
+		rotation: '-1.75deg',
+		items: gastronomiaItems,
+	},
+	{
+		id: 'coffee',
+		title: 'Coffee & Brunch',
+		rotation: '1.5deg',
+		items: coffeeBrunchItems,
+	},
+] as const;
+---
+
+<section
+	id="donde-comer"
+	class="where-to-eat"
+	aria-labelledby="where-to-eat-title"
+	data-where-to-eat
+>
+	<div class="where-to-eat__inner">
+		<div class="where-to-eat__divider">
+			<hr class="where-to-eat__rule" />
+		</div>
+
+		<header
+			class="where-to-eat__header flex flex-col items-center gap-4 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-12 lg:text-left"
+		>
+			<h2
+				id="where-to-eat-title"
+				class="where-to-eat__title m-0 font-serif font-normal text-[clamp(2rem,4.8vw,3.15rem)] leading-[1.08] tracking-[-0.01em] text-[#f7f2ea]"
+				data-reveal
+			>
+				<span class="where-to-eat__title-line">¿Qué comer</span>
+				<span class="where-to-eat__title-line">en Boquete?</span>
+			</h2>
+
+			<p
+				class="where-to-eat__subtitle m-0 max-w-[26rem] font-sans text-[0.9375rem] leading-relaxed text-[#f7f2ea]/90 lg:max-w-[28rem] lg:pt-2 lg:text-left"
+				data-reveal
+				data-reveal-group="where-to-eat"
+				style="--reveal-delay: 80ms"
+			>
+				Nosotros verificamos algunos lugares para recomendar les a disfrutar todos sus
+				momentos en Boquete. Si nos confían, pueden visitar estos lugares.
+			</p>
+		</header>
+
+		<div class="where-to-eat__cards">
+			{
+				cards.map((card) => (
+					<article
+						class:list={[
+							'where-to-eat__card',
+							`where-to-eat__card--${card.id}`,
+						]}
+						style={`--rot: ${card.rotation}`}
+					>
+						<h3 class="where-to-eat__card-title">{card.title}</h3>
+						<ul class="where-to-eat__list" role="list">
+							{card.items.map((item) => (
+								<li class="where-to-eat__item">
+									<a
+										class="where-to-eat__link group"
+										href={item.mapUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										<span class="where-to-eat__link-copy">
+											<span class="where-to-eat__name">{item.name}</span>
+											<span class="where-to-eat__desc">{item.desc}</span>
+										</span>
+										<span class="where-to-eat__arrow" aria-hidden="true">
+											<img
+												src="/Arrow.svg"
+												alt=""
+												width="24"
+												height="24"
+												draggable="false"
+											/>
+										</span>
+									</a>
+								</li>
+							))}
+						</ul>
+					</article>
+				))
+			}
+		</div>
+	</div>
+</section>
+
+<style>
+	.where-to-eat {
+		position: relative;
+		padding: 0 0 5.5rem;
+		background: var(--color-section);
+		/* Contain layout so divider spacing never collapses into page white */
+		display: flow-root;
+		overflow: clip;
+		/* Overlap the previous green section by 1px to kill subpixel seam hairlines */
+		margin-top: -1px;
+	}
+
+	.where-to-eat__inner {
+		width: 100%;
+		max-width: 90rem;
+		margin-inline: auto;
+		padding-inline: var(--page-inset);
+	}
+
+	.where-to-eat__divider {
+		padding-block: 4rem;
+	}
+
+	.where-to-eat__rule {
+		margin: 0;
+		border: 0;
+		border-top: 1px solid rgb(255 255 255 / 0.18);
+		width: 100%;
+	}
+
+	.where-to-eat__header {
+		margin-bottom: 2.5rem;
+	}
+
+	.where-to-eat__title-line {
+		display: block;
+	}
+
+	.where-to-eat__cards {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0;
+		/* Bleed a little past the section inset so cards feel larger */
+		width: calc(100% + (var(--page-inset) * 0.7));
+		margin-inline: calc(var(--page-inset) * -0.35);
+		padding-bottom: 1.25rem;
+	}
+
+	.where-to-eat__card {
+		position: relative;
+		width: 100%;
+		padding: 1.25rem 0.95rem 0.85rem;
+		background-color: #f6f3ec;
+		background-image:
+			radial-gradient(rgb(90 70 40 / 4%) 0.6px, transparent 0.6px),
+			linear-gradient(180deg, #faf7f1 0%, #f3efe6 100%);
+		background-size:
+			3px 3px,
+			auto;
+		box-shadow:
+			0 1px 2px rgb(0 0 0 / 6%),
+			0 18px 40px rgb(0 0 0 / 22%);
+		/* Softer tilt on mobile so text stays readable */
+		transform: rotate(var(--rot-mobile, 0deg));
+		color: var(--color-accent);
+	}
+
+	.where-to-eat__card--gastronomia {
+		z-index: 1;
+		position: sticky;
+		top: calc(var(--header-height) + 0.75rem);
+		--rot-mobile: -0.65deg;
+	}
+
+	.where-to-eat__card--coffee {
+		z-index: 2;
+		position: sticky;
+		/* Sit just under the Gastronomía title so the header never gets covered */
+		top: calc(var(--header-height) + 4.35rem);
+		/*
+		 * Push Coffee down ~half viewport so it only starts entering
+		 * when the end of Gastronomía sits around mid-screen.
+		 */
+		margin-top: 50vh;
+		--rot-mobile: 0.5deg;
+	}
+
+	.where-to-eat__card-title {
+		margin: 0 0 0.75rem;
+		padding-bottom: 0.1rem;
+		font-family: var(--font-serif);
+		font-weight: 400;
+		font-size: clamp(1.35rem, 4vw, 1.55rem);
+		line-height: 1.15;
+		text-align: center;
+		color: color-mix(in srgb, var(--color-accent) 92%, #000);
+	}
+
+	.where-to-eat__list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.where-to-eat__item + .where-to-eat__item {
+		border-top: 1px solid rgb(52 64 40 / 18%);
+	}
+
+	.where-to-eat__link {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: start;
+		gap: 0.55rem;
+		padding: 0.65rem 0.2rem;
+		color: inherit;
+		text-decoration: none;
+		transition: background-color 0.2s ease;
+	}
+
+	.where-to-eat__link-copy {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+		min-width: 0;
+	}
+
+	.where-to-eat__name {
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 600;
+		line-height: 1.25;
+		color: color-mix(in srgb, var(--color-accent) 94%, #000);
+	}
+
+	.where-to-eat__desc {
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		font-weight: 400;
+		line-height: 1.45;
+		color: color-mix(in srgb, var(--color-accent) 58%, #fff);
+	}
+
+	.where-to-eat__arrow {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin-top: 0.15rem;
+		width: 1.15rem;
+		height: 1.15rem;
+		transition: transform 0.2s ease;
+	}
+
+	.where-to-eat__arrow img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		/* Arrow.svg is white + left-facing; flip + tint for paper cards */
+		transform: scaleX(-1);
+		filter: brightness(0) saturate(100%) opacity(0.45);
+		pointer-events: none;
+		user-select: none;
+	}
+
+	.where-to-eat__link:active {
+		background: rgb(52 64 40 / 6%);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.where-to-eat__link:hover {
+			background: rgb(52 64 40 / 6%);
+		}
+
+		.where-to-eat__link:hover .where-to-eat__arrow {
+			transform: translateX(0.2rem);
+		}
+
+		.where-to-eat__link:hover .where-to-eat__arrow img {
+			filter: brightness(0) saturate(100%) opacity(0.75);
+		}
+
+		.where-to-eat__link:hover .where-to-eat__name {
+			color: var(--color-accent);
+		}
+	}
+
+	.where-to-eat__link:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 2px;
+	}
+
+	@media (min-width: 1024px) {
+		.where-to-eat {
+			padding: 0 0 7rem;
+			overflow: visible;
+		}
+
+		.where-to-eat__divider {
+			padding-block: 5rem;
+		}
+
+		.where-to-eat__header {
+			margin-bottom: 3.25rem;
+		}
+
+		.where-to-eat__title-line {
+			display: inline;
+		}
+
+		.where-to-eat__title-line + .where-to-eat__title-line::before {
+			content: ' ';
+		}
+
+		.where-to-eat__cards {
+			flex-direction: row;
+			align-items: flex-start;
+			justify-content: center;
+			gap: 0;
+			width: 100%;
+			margin-inline: 0;
+			padding: 1.5rem 0 2rem;
+		}
+
+		.where-to-eat__card {
+			position: relative;
+			top: auto;
+			width: min(100%, 33rem);
+			padding: 2rem 1.85rem 1.35rem;
+			flex: 1 1 30rem;
+			max-width: 34rem;
+			transform: rotate(var(--rot, 0deg));
+		}
+
+		.where-to-eat__card--gastronomia {
+			position: relative;
+			top: auto;
+			z-index: 1;
+			margin-top: 1.25rem;
+		}
+
+		.where-to-eat__card--coffee {
+			z-index: 2;
+			margin-top: 0;
+			margin-left: -1.25rem;
+		}
+
+		.where-to-eat__card-title {
+			margin: 0 0 1.35rem;
+			font-size: 1.65rem;
+		}
+
+		.where-to-eat__link {
+			gap: 0.75rem;
+			padding: 0.95rem 0.45rem;
+		}
+	}
+</style>

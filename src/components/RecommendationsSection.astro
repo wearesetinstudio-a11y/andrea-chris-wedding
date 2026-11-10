@@ -1,0 +1,433 @@
+---
+/**
+ * “Descubre Boquete!” — horizontal polaroid recommendations carousel.
+ * Desktop: title | subtitle | arrow controls. Mobile: centered copy, touch scroll.
+ */
+const rotations = ['-1.5deg', '2deg', '-1deg', '1.5deg', '-2deg', '1deg', '-0.75deg', '1.75deg'] as const;
+
+const recommendations = [
+	{
+		title: 'Volcán Barú',
+		image: '/bg_image.webp',
+		mapUrl: 'https://maps.google.com/?q=Volcan+Baru',
+	},
+	{
+		title: 'Las Tres Cascadas',
+		image: '/contact_image.webp',
+		mapUrl: 'https://maps.google.com/?q=Las+Tres+Cascadas+Boquete',
+	},
+	{
+		title: 'Elida Estate Coffee',
+		image: '/og.jpg',
+		mapUrl: 'https://maps.google.com/?q=Elida+Estate+Coffee',
+	},
+	{
+		title: 'Nature',
+		image: '/bg_image.webp',
+		mapUrl: 'https://maps.google.com/?q=Boquete+Nature',
+	},
+	{
+		title: 'Callejón Seco',
+		image: '/contact_image.webp',
+		mapUrl: 'https://maps.google.com/?q=Callejon+Seco+Boquete',
+	},
+	{
+		title: 'Lost & Found Waterfall',
+		image: '/og.jpg',
+		mapUrl: 'https://maps.google.com/?q=Lost+and+Found+Waterfall+Boquete',
+	},
+	{
+		title: 'Kotowa Coffee Estate',
+		image: '/bg_image.webp',
+		mapUrl: 'https://maps.google.com/?q=Kotowa+Coffee+Boquete',
+	},
+	{
+		title: 'Pipeline Trail',
+		image: '/contact_image.webp',
+		mapUrl: 'https://maps.google.com/?q=Pipeline+Trail+Boquete',
+	},
+].map((item, index) => ({
+	...item,
+	rotation: rotations[index % rotations.length],
+}));
+---
+
+<section
+	id="boquete"
+	class="recommendations"
+	aria-labelledby="recommendations-title"
+	data-recommendations
+>
+	<div class="recommendations__inner">
+		<header
+			class="recommendations__header flex flex-col items-center gap-4 text-center lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.35fr)_auto] lg:items-start lg:gap-8 lg:text-left"
+		>
+			<h2
+				id="recommendations-title"
+				class="recommendations__title m-0 whitespace-nowrap font-serif font-normal text-[clamp(2rem,5vw,3.25rem)] leading-[1.05] tracking-[-0.01em] text-[#f7f2ea]"
+				data-reveal
+			>
+				Descubre Boquete!
+			</h2>
+
+			<p
+				class="recommendations__subtitle m-0 max-w-[22rem] font-sans text-[0.9375rem] leading-relaxed text-[#f7f2ea]/90 lg:max-w-[21rem] lg:justify-self-center lg:pt-1 lg:text-left"
+				data-reveal
+				data-reveal-group="recommendations"
+				style="--reveal-delay: 80ms"
+			>
+				¿Vienen antes a Boquete, o quedan más tiempo? ¡Ver nuestras recomendaciones para
+				disfrutar este paraíso!
+			</p>
+
+			<div
+				class="recommendations__nav hidden items-center gap-3 lg:flex lg:justify-self-end lg:pt-1"
+				role="group"
+				aria-label="Navegar recomendaciones"
+			>
+				<button
+					type="button"
+					class="recommendations__arrow"
+					aria-label="Anterior"
+					data-rec-prev
+				>
+					<img src="/Arrow.svg" alt="" width="24" height="24" aria-hidden="true" />
+				</button>
+				<button
+					type="button"
+					class="recommendations__arrow recommendations__arrow--next"
+					aria-label="Siguiente"
+					data-rec-next
+				>
+					<img src="/Arrow.svg" alt="" width="24" height="24" aria-hidden="true" />
+				</button>
+			</div>
+		</header>
+
+		<div
+			class="recommendations__track"
+			data-rec-track
+			tabindex="0"
+			role="region"
+			aria-label="Lugares recomendados en Boquete"
+		>
+			<ul class="recommendations__list" role="list">
+				{
+					recommendations.map((item) => (
+						<li class="recommendations__item" style={`--rot: ${item.rotation}`}>
+							<article class="recommendations__polaroid">
+								<div class="recommendations__photo">
+									<img
+										src={item.image}
+										alt={item.title}
+										width="640"
+										height="800"
+										loading="lazy"
+										draggable="false"
+									/>
+								</div>
+								<p class="recommendations__caption font-handlee">{item.title}</p>
+								<a
+									class="recommendations__map text-xs text-stone-500"
+									href={item.mapUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Ver en el mapa →
+								</a>
+							</article>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</div>
+</section>
+
+<style>
+	.recommendations {
+		position: relative;
+		overflow-x: clip;
+		overflow-y: visible;
+		padding: 5.5rem 0 0;
+		background: var(--color-section);
+	}
+
+	.recommendations__inner {
+		display: flex;
+		flex-direction: column;
+		gap: 3.5rem;
+		width: 100%;
+		max-width: 90rem;
+		margin-inline: auto;
+		padding-inline: var(--page-inset);
+	}
+
+	.recommendations__arrow {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: rgb(255 255 255 / 8%);
+		transition: background 0.2s ease;
+	}
+
+	.recommendations__arrow img {
+		display: block;
+		width: 1.25rem;
+		height: 1.25rem;
+		pointer-events: none;
+		user-select: none;
+	}
+
+	.recommendations__arrow--next img {
+		transform: scaleX(-1);
+	}
+
+	.recommendations__arrow:hover:not(:disabled) {
+		background: rgb(255 255 255 / 20%);
+	}
+
+	.recommendations__arrow:focus-visible {
+		outline: 2px solid #fff;
+		outline-offset: 3px;
+	}
+
+	.recommendations__arrow:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+
+	.recommendations__track {
+		margin-inline: calc(var(--page-inset) * -1);
+		padding-inline: var(--page-inset);
+		/* Keep shadows inside the scrollport so overflow doesn't cut a full-bleed hairline */
+		padding-top: 0.35rem;
+		padding-bottom: 2.75rem;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scroll-snap-type: x mandatory;
+		scroll-padding-inline: var(--page-inset);
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+		outline: none;
+		border: 0;
+		background: transparent;
+		cursor: grab;
+		touch-action: pan-x;
+	}
+
+	.recommendations__track.is-dragging {
+		cursor: grabbing;
+		scroll-snap-type: none;
+		user-select: none;
+	}
+
+	.recommendations__track.is-dragging a {
+		pointer-events: none;
+	}
+
+	.recommendations__track::-webkit-scrollbar {
+		display: none;
+		width: 0;
+		height: 0;
+		background: transparent;
+	}
+
+	.recommendations__list {
+		display: flex;
+		align-items: flex-start;
+		gap: clamp(1.1rem, 2.5vw, 1.75rem);
+		margin: 0;
+		padding: 1rem 0 0.25rem;
+		list-style: none;
+		width: max-content;
+		min-width: 100%;
+	}
+
+	.recommendations__item {
+		flex: 0 0 auto;
+		scroll-snap-align: center;
+		width: min(72vw, 16.75rem);
+	}
+
+	.recommendations__polaroid {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.55rem;
+		padding: 0.75rem 0.75rem 1.15rem;
+		background: var(--color-white);
+		/* Softer / shorter shadow on small screens to avoid overflow clip lines */
+		box-shadow:
+			0 1px 2px rgb(0 0 0 / 6%),
+			0 8px 18px rgb(0 0 0 / 14%);
+		transform: rotate(var(--rot, 0deg));
+		transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.recommendations__polaroid:hover {
+		transform: rotate(0deg) translateY(-0.2rem);
+	}
+
+	.recommendations__photo {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 4 / 5;
+		overflow: hidden;
+		background: color-mix(in srgb, var(--color-muted) 35%, var(--color-surface));
+	}
+
+	.recommendations__photo img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		user-select: none;
+	}
+
+	.recommendations__caption {
+		margin: 0.15rem 0 0;
+		text-align: center;
+		font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+		line-height: 1.15;
+		color: color-mix(in srgb, var(--color-accent) 82%, #6b5a4a);
+	}
+
+	.recommendations__map {
+		display: inline-flex;
+		align-items: center;
+		margin: 0;
+		font-family: var(--font-sans);
+		font-weight: 400;
+		line-height: 1.2;
+		letter-spacing: 0.01em;
+		transition: color 0.2s ease;
+	}
+
+	.recommendations__map:hover {
+		color: var(--color-accent);
+	}
+
+	.recommendations__map:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 3px;
+	}
+
+	@media (min-width: 1024px) {
+		.recommendations {
+			padding: 7rem 0 0;
+		}
+
+		.recommendations__inner {
+			gap: 4.25rem;
+		}
+
+		.recommendations__item {
+			scroll-snap-align: start;
+			width: min(20vw, 17.5rem);
+		}
+
+		.recommendations__polaroid {
+			padding: 0.9rem 0.9rem 1.35rem;
+			gap: 0.65rem;
+			box-shadow:
+				0 1px 2px rgb(0 0 0 / 8%),
+				0 14px 28px rgb(0 0 0 / 18%);
+		}
+	}
+</style>
+
+<script>
+	function initRecommendations(root: HTMLElement) {
+		const track = root.querySelector<HTMLElement>('[data-rec-track]');
+		const prev = root.querySelector<HTMLButtonElement>('[data-rec-prev]');
+		const next = root.querySelector<HTMLButtonElement>('[data-rec-next]');
+		const items = root.querySelectorAll<HTMLElement>('.recommendations__item');
+
+		if (!track || !prev || !next || items.length === 0) return;
+
+		const scrollAmount = () => {
+			const first = items[0];
+			const styles = getComputedStyle(track.querySelector('.recommendations__list')!);
+			const gap = Number.parseFloat(styles.columnGap || styles.gap || '24') || 24;
+			return first.getBoundingClientRect().width + gap;
+		};
+
+		const updateButtons = () => {
+			const maxScroll = track.scrollWidth - track.clientWidth;
+			const atStart = track.scrollLeft <= 4;
+			const atEnd = track.scrollLeft >= maxScroll - 4;
+			prev.disabled = atStart;
+			next.disabled = atEnd || maxScroll <= 0;
+		};
+
+		const scrollByDir = (dir: -1 | 1) => {
+			track.scrollBy({ left: dir * scrollAmount(), behavior: 'smooth' });
+		};
+
+		prev.addEventListener('click', () => scrollByDir(-1));
+		next.addEventListener('click', () => scrollByDir(1));
+		track.addEventListener('scroll', updateButtons, { passive: true });
+		window.addEventListener('resize', updateButtons, { passive: true });
+
+		/** Mouse drag-to-scroll on desktop; touch keeps native pan. */
+		let dragPointerId: number | null = null;
+		let dragStartX = 0;
+		let dragStartScroll = 0;
+		let dragMoved = false;
+
+		const endDrag = (event: PointerEvent) => {
+			if (dragPointerId !== event.pointerId) return;
+			dragPointerId = null;
+			track.classList.remove('is-dragging');
+			try {
+				track.releasePointerCapture(event.pointerId);
+			} catch {
+				/* already released */
+			}
+		};
+
+		track.addEventListener('pointerdown', (event) => {
+			if (event.pointerType !== 'mouse' || event.button !== 0) return;
+			dragPointerId = event.pointerId;
+			dragStartX = event.clientX;
+			dragStartScroll = track.scrollLeft;
+			dragMoved = false;
+			track.classList.add('is-dragging');
+			track.setPointerCapture(event.pointerId);
+		});
+
+		track.addEventListener('pointermove', (event) => {
+			if (dragPointerId !== event.pointerId) return;
+			const delta = event.clientX - dragStartX;
+			if (Math.abs(delta) > 3) dragMoved = true;
+			track.scrollLeft = dragStartScroll - delta;
+		});
+
+		track.addEventListener('pointerup', endDrag);
+		track.addEventListener('pointercancel', endDrag);
+		track.addEventListener('lostpointercapture', () => {
+			dragPointerId = null;
+			track.classList.remove('is-dragging');
+		});
+
+		track.addEventListener('click', (event) => {
+			if (!dragMoved) return;
+			event.preventDefault();
+			event.stopPropagation();
+			dragMoved = false;
+		}, true);
+
+		updateButtons();
+	}
+
+	document
+		.querySelectorAll<HTMLElement>('[data-recommendations]')
+		.forEach(initRecommendations);
+</script>

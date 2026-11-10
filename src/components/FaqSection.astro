@@ -145,6 +145,10 @@ const faqItems = [
 		border-bottom: 1px solid #e5e5e5;
 	}
 
+	.faq__item.is-open {
+		cursor: pointer;
+	}
+
 	.faq__trigger {
 		display: flex;
 		align-items: center;
@@ -156,6 +160,7 @@ const faqItems = [
 		border: 0;
 		text-align: left;
 		color: inherit;
+		cursor: pointer;
 	}
 
 	.faq__question {
@@ -238,12 +243,12 @@ const faqItems = [
 	}
 
 	@media (hover: hover) and (pointer: fine) {
-		.faq__trigger:hover .faq__question,
+		.faq__item:hover .faq__question,
 		.faq__trigger:focus-visible .faq__question {
 			opacity: 0.65;
 		}
 
-		.faq__trigger:hover .faq__chevron,
+		.faq__item:hover .faq__chevron,
 		.faq__trigger:focus-visible .faq__chevron {
 			color: var(--color-accent);
 		}
@@ -274,11 +279,14 @@ const faqItems = [
 		const items = Array.from(root.querySelectorAll<HTMLElement>('[data-faq-item]'));
 
 		items.forEach((item) => {
-			const trigger = item.querySelector<HTMLButtonElement>('[data-faq-trigger]');
-			if (!trigger) return;
+			item.addEventListener('click', (event) => {
+				const isOpen = item.classList.contains('is-open');
+				const onTrigger = (event.target as Element | null)?.closest?.('[data-faq-trigger]');
 
-			trigger.addEventListener('click', () => {
-				const willOpen = !item.classList.contains('is-open');
+				/* Collapsed rows only open via the title button; open rows close from anywhere */
+				if (!isOpen && !onTrigger) return;
+
+				const willOpen = !isOpen;
 				items.forEach((other) => setOpen(other, other === item && willOpen));
 			});
 		});
