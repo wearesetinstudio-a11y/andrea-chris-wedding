@@ -62,7 +62,7 @@
 	.letter-pull {
 		position: relative;
 		height: 300vh;
-		background: var(--color-white);
+		background: var(--color-surface);
 	}
 
 	.letter-pull__sticky {
@@ -203,6 +203,7 @@
 		width: 90%;
 		height: auto;
 		transform: translate3d(-50%, calc(-40% + var(--pull, 1) * 62%), 0);
+		filter: drop-shadow(0 6px 10px rgb(16 30 11 / 10%));
 		will-change: transform;
 		pointer-events: none;
 		user-select: none;

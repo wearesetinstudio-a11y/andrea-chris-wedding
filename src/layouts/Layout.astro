@@ -23,7 +23,7 @@ const { title = 'Andrea & Chris — Boda', showIntro = true } = Astro.props;
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=Headland+One&family=Inter:wght@300;400;500;600;700&display=swap"
+			href="https://fonts.googleapis.com/css2?family=Handlee&family=Headland+One&family=Inter:wght@300;400;500;600;700&display=swap"
 			rel="stylesheet"
 		/>
 		{showIntro && (
@@ -64,22 +64,32 @@ const { title = 'Andrea & Chris — Boda', showIntro = true } = Astro.props;
 				observer?.unobserve(el);
 			};
 
-			if (reduceMotion.matches) {
-				targets.forEach((el) => reveal(el));
-			} else if (targets.length && 'IntersectionObserver' in window) {
-				const observer = new IntersectionObserver(
-					(entries) => {
-						entries.forEach((entry) => {
-							if (!entry.isIntersecting) return;
-							reveal(entry.target, observer);
-						});
-					},
-					{ threshold: 0.35, rootMargin: '0px 0px -8% 0px' },
-				);
+			const startReveals = () => {
+				if (reduceMotion.matches) {
+					targets.forEach((el) => reveal(el));
+				} else if (targets.length && 'IntersectionObserver' in window) {
+					const observer = new IntersectionObserver(
+						(entries) => {
+							entries.forEach((entry) => {
+								if (!entry.isIntersecting) return;
+								reveal(entry.target, observer);
+							});
+						},
+						{ threshold: 0.35, rootMargin: '0px 0px -8% 0px' },
+					);
 
-				targets.forEach((el) => observer.observe(el));
+					targets.forEach((el) => observer.observe(el));
+				} else {
+					targets.forEach((el) => reveal(el));
+				}
+			};
+
+			const intro = document.querySelector('[data-video-intro]');
+
+			if (!intro || reduceMotion.matches) {
+				startReveals();
 			} else {
-				targets.forEach((el) => reveal(el));
+				window.addEventListener('wedding:intro-finished', startReveals, { once: true });
 			}
 		</script>
 	</body>

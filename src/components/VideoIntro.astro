@@ -37,7 +37,14 @@
 		let dismissed = false;
 		let fading = false;
 		let started = false;
+		let introFinished = false;
 		let rafId = 0;
+
+		const signalIntroFinished = () => {
+			if (introFinished) return;
+			introFinished = true;
+			window.dispatchEvent(new CustomEvent('wedding:intro-finished'));
+		};
 
 		const SCROLL_KEYS = new Set([
 			' ',
@@ -93,6 +100,7 @@
 			dismissed = true;
 			cancelAnimationFrame(rafId);
 			unlockScroll();
+			signalIntroFinished();
 			root.style.pointerEvents = 'none';
 			root.setAttribute('aria-hidden', 'true');
 			root.remove();
@@ -102,6 +110,8 @@
 			if (dismissed || fading) return;
 			fading = true;
 			cancelAnimationFrame(rafId);
+			// Start page enter animations as the envelope begins to fade out
+			signalIntroFinished();
 			// Force a style flush so the transition always runs from opacity 1
 			root.style.transition = 'none';
 			root.style.opacity = '1';

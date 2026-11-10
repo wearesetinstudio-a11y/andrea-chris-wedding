@@ -166,7 +166,7 @@
 		gap: 0.2em;
 		margin: 0;
 		font-family: var(--font-serif);
-		font-size: clamp(3.25rem, 13vw, 4.25rem);
+		font-size: 5.2rem;
 		font-weight: 400;
 		line-height: 0.92;
 		letter-spacing: -0.02em;
@@ -306,15 +306,19 @@
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 		const playEnter = () => {
-			hero.classList.add('is-entered');
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					hero.classList.add('is-entered');
+				});
+			});
 		};
 
-		if (reduceMotion.matches) {
+		const intro = document.querySelector('[data-video-intro]');
+
+		if (reduceMotion.matches || !intro) {
 			playEnter();
 		} else {
-			requestAnimationFrame(() => {
-				requestAnimationFrame(playEnter);
-			});
+			window.addEventListener('wedding:intro-finished', playEnter, { once: true });
 		}
 
 		if (parallax) {
