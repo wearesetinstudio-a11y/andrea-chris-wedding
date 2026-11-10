@@ -255,15 +255,22 @@ const cards = [
 	.where-to-eat__card--gastronomia {
 		z-index: 1;
 		position: sticky;
-		top: calc(var(--header-height) + 0.75rem);
+		/*
+		 * Stick high under the header; when the card is taller than the
+		 * viewport, allow a negative top so it can slide up and reveal
+		 * the last list items before Coffee enters.
+		 */
+		top: min(
+			calc(var(--header-height) + 0.15rem),
+			calc(100dvh - 100% - 0.5rem)
+		);
 		--rot-mobile: -0.65deg;
 	}
 
 	.where-to-eat__card--coffee {
 		z-index: 2;
 		position: sticky;
-		/* Sit just under the Gastronomía title so the header never gets covered */
-		top: calc(var(--header-height) + 4.35rem);
+		top: calc(var(--header-height) + 0.75rem);
 		/*
 		 * Push Coffee down ~half viewport so it only starts entering
 		 * when the end of Gastronomía sits around mid-screen.

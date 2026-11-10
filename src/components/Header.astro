@@ -10,7 +10,7 @@ const navLinks = [
 ];
 ---
 
-<div class="site-header-spacer" data-header-spacer hidden></div>
+<div class="site-header-spacer" data-header-spacer aria-hidden="true"></div>
 <header class="site-header" data-header>
 	<div class="site-header__bar">
 		<a href="/" class="site-header__logo" aria-label="Andrea & Chris">
@@ -69,21 +69,32 @@ const navLinks = [
 </header>
 
 <style>
-	.site-header-spacer[hidden] {
-		display: none;
+	.site-header-spacer {
+		height: var(--header-height);
+		pointer-events: none;
 	}
 
 	.site-header {
-		position: relative;
+		position: fixed;
+		inset-inline: 0;
+		top: 0;
 		z-index: 20;
 		background: var(--color-white);
+		transform: translateY(0);
+		transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+		will-change: transform;
+	}
+
+	.site-header.is-hidden {
+		transform: translateY(-100%);
+		pointer-events: none;
 	}
 
 	.site-header.is-open {
-		position: fixed;
 		inset: 0;
 		display: flex;
 		flex-direction: column;
+		transform: none;
 		background: var(--color-white);
 	}
 
@@ -234,8 +245,7 @@ const navLinks = [
 
 	@media (min-width: 900px) {
 		.site-header.is-open {
-			position: relative;
-			inset: auto;
+			bottom: auto;
 			display: block;
 		}
 
@@ -281,19 +291,12 @@ const navLinks = [
 
 <script>
 	const header = document.querySelector<HTMLElement>('[data-header]');
-	const spacer = document.querySelector<HTMLElement>('[data-header-spacer]');
 	const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
 	const drawer = document.querySelector<HTMLElement>('[data-menu-drawer]');
 
-	if (header && toggle && drawer && spacer) {
+	if (header && toggle && drawer) {
 		const setOpen = (open: boolean) => {
-			if (open) {
-				spacer.style.height = `${header.offsetHeight}px`;
-				spacer.hidden = false;
-			} else {
-				spacer.hidden = true;
-				spacer.style.height = '';
-			}
+			if (open) header.classList.remove('is-hidden');
 
 			header.classList.toggle('is-open', open);
 			document.body.classList.toggle('menu-open', open);
@@ -315,5 +318,37 @@ const navLinks = [
 				setOpen(false);
 			}
 		});
+
+		let lastY = window.scrollY;
+		let ticking = false;
+		const delta = 6;
+		const topShow = 8;
+
+		const onScroll = () => {
+			if (ticking) return;
+			ticking = true;
+
+			requestAnimationFrame(() => {
+				ticking = false;
+				const y = window.scrollY;
+
+				if (header.classList.contains('is-open')) {
+					lastY = y;
+					return;
+				}
+
+				if (y <= topShow) {
+					header.classList.remove('is-hidden');
+				} else if (y > lastY + delta) {
+					header.classList.add('is-hidden');
+				} else if (y < lastY - delta) {
+					header.classList.remove('is-hidden');
+				}
+
+				lastY = y;
+			});
+		};
+
+		window.addEventListener('scroll', onScroll, { passive: true });
 	}
 </script>
