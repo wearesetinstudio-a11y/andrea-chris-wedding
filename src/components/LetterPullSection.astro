@@ -21,7 +21,13 @@
 				<a href="#rsvp" class="letter-pull__cta" data-btn-press> Confirma su presencia </a>
 			</div>
 
-			<div class="letter-pull__stage" aria-hidden="true">
+			<div
+				class="letter-pull__stage"
+				data-envelope-tap
+				role="button"
+				tabindex="0"
+				aria-label="Abrir la invitación"
+			>
 				<div class="letter-pull__clip">
 					<div class="letter-pull__assembly">
 						<img
@@ -158,6 +164,14 @@
 		z-index: 3;
 		/* Pull envelope up so the letter travels over the title while scrolling */
 		margin-top: -5rem;
+		-webkit-tap-highlight-color: transparent;
+		outline: none;
+	}
+
+	@media (max-width: 767px) {
+		.letter-pull__stage {
+			cursor: pointer;
+		}
 	}
 
 	/* Extra headroom so the card can rise above the flap; bottom clips the tucked letter */
@@ -335,6 +349,7 @@
 	function initLetterPull(root: HTMLElement) {
 		const letter = root.querySelector<HTMLElement>('[data-letter]');
 		const sticky = root.querySelector<HTMLElement>('.letter-pull__sticky');
+		const stage = root.querySelector<HTMLElement>('[data-envelope-tap]');
 		if (!letter || !sticky) return;
 
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -346,6 +361,11 @@
 		let ticking = false;
 		/** Locked while the section is sticky-active so URL-bar resize can't snap progress */
 		let lockedScrollable: number | null = null;
+		/** When set, scroll updates pause while a tap-driven animation runs */
+		let tapAnimating = false;
+		let pull = 1;
+
+		const isMobile = () => window.matchMedia('(max-width: 767px)').matches;
 
 		const measureScrollable = () => {
 			// Prefer sticky box height (svh-stable) over window.innerHeight (jumps on mobile)
@@ -360,8 +380,12 @@
 			return Number.isFinite(px) ? px : 0;
 		};
 
-		const update = () => {
-			ticking = false;
+		const applyPull = (value: number) => {
+			pull = clamp(value, 0, 1);
+			letter.style.setProperty('--pull', String(pull));
+		};
+
+		const scrollProgress = () => {
 			const rect = root.getBoundingClientRect();
 			const header = headerOffset();
 			const active = rect.top <= header && rect.bottom >= header + sticky.offsetHeight;
@@ -369,28 +393,81 @@
 			if (active) {
 				lockedScrollable ??= measureScrollable();
 			} else if (rect.top > header) {
-				// Reset before re-entering so a real resize can apply next time
 				lockedScrollable = null;
 			}
 
 			const scrollable = lockedScrollable ?? measureScrollable();
-			// Stick starts when section top hits the header offset (sticky top)
-			const progress = clamp((header - rect.top) / scrollable, 0, 1);
-			// 1 = tucked, 0 = fully pulled
-			letter.style.setProperty('--pull', String(1 - progress));
+			return clamp((header - rect.top) / scrollable, 0, 1);
+		};
+
+		/** Keep page scroll aligned with the animated pull so later scrolling doesn't jump */
+		const syncScrollToPull = (pullValue: number) => {
+			const progress = 1 - pullValue;
+			const scrollable = measureScrollable();
+			const header = headerOffset();
+			const sectionTop = window.scrollY + root.getBoundingClientRect().top;
+			const target = sectionTop - header + progress * scrollable;
+			window.scrollTo(0, target);
+		};
+
+		const animatePullTo = (target: number, duration = 1100) => {
+			if (tapAnimating) return;
+			tapAnimating = true;
+			const from = pull;
+			const start = performance.now();
+
+			const tick = (now: number) => {
+				const t = clamp((now - start) / duration, 0, 1);
+				const eased = 1 - (1 - t) ** 3;
+				applyPull(from + (target - from) * eased);
+				if (t < 1) {
+					requestAnimationFrame(tick);
+					return;
+				}
+				syncScrollToPull(pull);
+				lockedScrollable = measureScrollable();
+				tapAnimating = false;
+			};
+
+			requestAnimationFrame(tick);
+		};
+
+		const onEnvelopeActivate = () => {
+			if (!isMobile() || tapAnimating) return;
+			// Tap pulls the letter out; tap again tucks it back
+			animatePullTo(pull > 0.08 ? 0 : 1);
+		};
+
+		const update = () => {
+			ticking = false;
+			if (tapAnimating) return;
+			applyPull(1 - scrollProgress());
 		};
 
 		const onScroll = () => {
-			if (ticking) return;
+			if (ticking || tapAnimating) return;
 			ticking = true;
 			requestAnimationFrame(update);
 		};
 
 		const onResize = () => {
-			// Ignore visualViewport chrome show/hide; only remeasure on layout resize
 			lockedScrollable = null;
 			onScroll();
 		};
+
+		if (stage) {
+			stage.addEventListener('click', (event) => {
+				if (!isMobile()) return;
+				event.preventDefault();
+				onEnvelopeActivate();
+			});
+			stage.addEventListener('keydown', (event) => {
+				if (!isMobile()) return;
+				if (event.key !== 'Enter' && event.key !== ' ') return;
+				event.preventDefault();
+				onEnvelopeActivate();
+			});
+		}
 
 		update();
 		window.addEventListener('scroll', onScroll, { passive: true });
