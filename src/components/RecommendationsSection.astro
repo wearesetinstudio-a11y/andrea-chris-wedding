@@ -141,6 +141,26 @@ const recommendations = [
 				}
 			</ul>
 		</div>
+
+		<div
+			class="recommendations__dots"
+			role="tablist"
+			aria-label="Posición del carrusel"
+			data-rec-dots
+		>
+			{
+				recommendations.map((item, index) => (
+					<button
+						type="button"
+						class:list={['recommendations__dot', index === 0 && 'is-active']}
+						role="tab"
+						aria-label={`Ir a ${item.title}`}
+						aria-selected={index === 0 ? 'true' : 'false'}
+						data-rec-dot={index}
+					/>
+				))
+			}
+		</div>
 	</div>
 </section>
 
@@ -208,7 +228,7 @@ const recommendations = [
 		padding-inline: var(--page-inset);
 		/* Keep shadows inside the scrollport so overflow doesn't cut a full-bleed hairline */
 		padding-top: 0.35rem;
-		padding-bottom: 2.75rem;
+		padding-bottom: 1.35rem;
 		overflow-x: auto;
 		overflow-y: hidden;
 		scroll-snap-type: x mandatory;
@@ -318,6 +338,44 @@ const recommendations = [
 		outline-offset: 3px;
 	}
 
+	.recommendations__dots {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.45rem;
+		margin-top: -0.15rem;
+	}
+
+	.recommendations__dot {
+		box-sizing: border-box;
+		display: block;
+		flex: 0 0 auto;
+		width: 4px;
+		height: 4px;
+		min-width: 4px;
+		min-height: 4px;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		aspect-ratio: 1;
+		appearance: none;
+		font-size: 0;
+		line-height: 0;
+		background: rgb(255 255 255 / 10%);
+		cursor: pointer;
+		transition: background 0.2s ease;
+	}
+
+	.recommendations__dot.is-active {
+		background: rgb(255 255 255 / 100%);
+	}
+
+	.recommendations__dot:focus-visible {
+		outline: 2px solid #fff;
+		outline-offset: 3px;
+	}
+
 	@media (min-width: 1024px) {
 		.recommendations {
 			padding: 7rem 0 0;
@@ -325,6 +383,10 @@ const recommendations = [
 
 		.recommendations__inner {
 			gap: 4.25rem;
+		}
+
+		.recommendations__dots {
+			display: none;
 		}
 
 		.recommendations__item {
@@ -347,7 +409,8 @@ const recommendations = [
 		const track = root.querySelector<HTMLElement>('[data-rec-track]');
 		const prev = root.querySelector<HTMLButtonElement>('[data-rec-prev]');
 		const next = root.querySelector<HTMLButtonElement>('[data-rec-next]');
-		const items = root.querySelectorAll<HTMLElement>('.recommendations__item');
+		const items = Array.from(root.querySelectorAll<HTMLElement>('.recommendations__item'));
+		const dots = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-rec-dot]'));
 
 		if (!track || !prev || !next || items.length === 0) return;
 
@@ -358,20 +421,49 @@ const recommendations = [
 			return first.getBoundingClientRect().width + gap;
 		};
 
+		const activeIndex = () => {
+			const amount = scrollAmount();
+			if (amount <= 0) return 0;
+			const maxScroll = track.scrollWidth - track.clientWidth;
+			if (maxScroll <= 0) return 0;
+			if (track.scrollLeft >= maxScroll - 4) return items.length - 1;
+			return Math.min(items.length - 1, Math.max(0, Math.round(track.scrollLeft / amount)));
+		};
+
+		const updateDots = () => {
+			const index = activeIndex();
+			dots.forEach((dot, i) => {
+				const on = i === index;
+				dot.classList.toggle('is-active', on);
+				dot.setAttribute('aria-selected', on ? 'true' : 'false');
+			});
+		};
+
 		const updateButtons = () => {
 			const maxScroll = track.scrollWidth - track.clientWidth;
 			const atStart = track.scrollLeft <= 4;
 			const atEnd = track.scrollLeft >= maxScroll - 4;
 			prev.disabled = atStart;
 			next.disabled = atEnd || maxScroll <= 0;
+			updateDots();
 		};
 
 		const scrollByDir = (dir: -1 | 1) => {
 			track.scrollBy({ left: dir * scrollAmount(), behavior: 'smooth' });
 		};
 
+		const scrollToIndex = (index: number) => {
+			track.scrollTo({ left: index * scrollAmount(), behavior: 'smooth' });
+		};
+
 		prev.addEventListener('click', () => scrollByDir(-1));
 		next.addEventListener('click', () => scrollByDir(1));
+		dots.forEach((dot) => {
+			dot.addEventListener('click', () => {
+				const index = Number(dot.dataset.recDot);
+				if (Number.isFinite(index)) scrollToIndex(index);
+			});
+		});
 		track.addEventListener('scroll', updateButtons, { passive: true });
 		window.addEventListener('resize', updateButtons, { passive: true });
 
