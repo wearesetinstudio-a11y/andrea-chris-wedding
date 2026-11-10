@@ -39,12 +39,12 @@ const placeholderSrc = '/bg_image.webp';
 			</h2>
 
 			<div class="our-story__stage" aria-hidden="true">
-				<div class="our-story__stack" data-stack>
+				<div class="our-story__stack" data-stack style="--entered: 1">
 					{
 						milestones.map((item, index) => (
 							<article
 								class="our-story__polaroid"
-								style={`--rot: ${item.rotation}; --enter: ${index === 0 ? 1 : 0}; z-index: ${index + 1};`}
+								style={`--rot: ${item.rotation}; --enter: ${index === 0 ? 1 : 0}; --fan: ${index}; --active: ${index === 0 ? 1 : 0};`}
 								data-polaroid={index}
 							>
 								<div class="our-story__photo">
@@ -94,23 +94,27 @@ const placeholderSrc = '/bg_image.webp';
 		top: var(--header-height);
 		display: flex;
 		align-items: center;
+		justify-content: center;
 		height: calc(100svh - var(--header-height));
 		width: 100%;
 		overflow: hidden;
 		box-sizing: border-box;
-		padding: 1rem var(--page-inset) 1.25rem;
+		/* Smaller section padding — match mobile reference frames */
+		padding: 0.7rem 1.15rem 0.85rem;
 	}
 
 	.our-story__layout {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 0.35rem;
+		align-items: stretch;
+		justify-content: flex-start;
+		/* Bigger gaps between title / photos / text */
+		gap: 1.55rem;
 		width: 100%;
 		max-width: 90rem;
 		margin-inline: auto;
-		height: 100%;
+		height: auto;
+		max-height: 100%;
 		min-height: 0;
 	}
 
@@ -119,7 +123,7 @@ const placeholderSrc = '/bg_image.webp';
 		flex-shrink: 0;
 		font-family: var(--font-serif);
 		font-weight: 400;
-		font-size: clamp(1.65rem, 6vw, 2.15rem);
+		font-size: clamp(1.55rem, 5.5vw, 1.85rem);
 		line-height: 1.1;
 		letter-spacing: -0.01em;
 		color: var(--color-accent);
@@ -138,37 +142,44 @@ const placeholderSrc = '/bg_image.webp';
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		flex: 0 1 auto;
+		flex: 0 0 auto;
 		min-height: 0;
 		width: 100%;
-		/* Let settled cards + shadows breathe; sticky clips the screen edges */
 		overflow: visible;
-		padding: 0.5rem 0.75rem 0.15rem;
+		padding: 0.15rem 0;
 	}
 
 	.our-story__stack {
 		position: relative;
-		width: min(100%, 13.75rem);
-		/* Match polaroid content height (square photo + caption band) */
-		aspect-ratio: 4 / 4.85;
+		/* Wide enough for a 3-card fan like the mobile reference */
+		width: min(100%, 18.75rem);
+		aspect-ratio: 2.15 / 1;
+		/* Keep the visible card group centered as cards enter one by one */
+		--entered: 1;
+		transform: translateX(calc((3 - var(--entered, 1)) * 13.5%));
+		transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 	}
 
 	.our-story__polaroid {
 		position: absolute;
-		left: 0;
-		right: 0;
 		top: 0;
+		/* Fan slots — partial overlap, not full cover */
+		left: calc(var(--fan, 0) * 27.5%);
+		width: 44%;
+		right: auto;
 		display: flex;
 		flex-direction: column;
-		gap: 0.55rem;
-		padding: 0.7rem 0.7rem 0.85rem;
+		gap: 0.3rem;
+		padding: 0.4rem 0.4rem 0.5rem;
 		background: var(--color-white);
 		box-shadow:
 			0 1px 2px rgb(52 64 40 / 6%),
-			0 12px 28px rgb(52 64 40 / 12%);
-		/* Slide in from off-screen right on mobile — always fully opaque */
+			0 10px 22px rgb(52 64 40 / 12%);
+		/* Slide in one-by-one from the right into the fan */
 		opacity: 1;
-		transform: translate3d(calc((1 - var(--enter, 0)) * 100vw), 0, 0) rotate(var(--rot, 0deg));
+		transform: translate3d(calc((1 - var(--enter, 0)) * 110vw), 0, 0)
+			rotate(var(--rot, 0deg)) scale(calc(0.97 + var(--active, 0) * 0.03));
+		z-index: calc(1 + var(--fan, 0) + var(--active, 0) * 3);
 		will-change: transform;
 		pointer-events: none;
 		user-select: none;
@@ -191,30 +202,31 @@ const placeholderSrc = '/bg_image.webp';
 	.our-story__caption {
 		margin: 0;
 		text-align: center;
-		font-size: clamp(1.15rem, 3.5vw, 1.35rem);
+		font-size: clamp(0.95rem, 2.8vw, 1.1rem);
 		line-height: 1;
 		color: color-mix(in srgb, var(--color-accent) 78%, #6b5a4a);
 	}
 
 	.our-story__narrative {
 		position: relative;
-		flex: 1 1 auto;
-		width: min(100%, 22rem);
+		display: grid;
+		align-items: start;
+		flex: 0 1 auto;
+		width: 100%;
 		min-height: 0;
-		max-height: 42%;
-		margin-top: 0;
+		max-height: none;
 	}
 
 	.our-story__text {
-		position: absolute;
-		inset: 0;
+		grid-area: 1 / 1;
+		position: relative;
 		margin: 0;
-		overflow: auto;
-		/* Match FAQ open-answer type, tighter leading for long story copy */
+		overflow: visible;
+		/* Match FAQ open-answer typography exactly */
 		font-family: var(--font-sans);
 		font-size: 0.9375rem;
 		font-weight: 400;
-		line-height: 1.45;
+		line-height: 1.7;
 		color: color-mix(in srgb, var(--color-accent) 72%, #fff);
 		text-align: left;
 		opacity: var(--text-active, 0);
@@ -232,6 +244,8 @@ const placeholderSrc = '/bg_image.webp';
 
 	@media (min-width: 1024px) {
 		.our-story__sticky {
+			align-items: center;
+			justify-content: center;
 			padding: 1.5rem 3rem 2rem;
 		}
 
@@ -267,12 +281,19 @@ const placeholderSrc = '/bg_image.webp';
 
 		.our-story__stack {
 			width: min(100%, 20.5rem);
+			aspect-ratio: 4 / 4.85;
 			margin-inline: auto;
+			transform: none;
+			transition: none;
 		}
 
 		.our-story__polaroid {
+			left: 0;
+			right: 0;
+			width: auto;
 			padding: 0.85rem 0.85rem 1rem;
 			gap: 0.7rem;
+			z-index: calc(1 + var(--fan, 0));
 			/* Rise from below the viewport so cards feel like they enter the screen */
 			transform: translate3d(0, calc((1 - var(--enter, 0)) * 110vh), 0) rotate(var(--rot, 0deg));
 		}
@@ -282,25 +303,14 @@ const placeholderSrc = '/bg_image.webp';
 		}
 
 		.our-story__narrative {
-			/* Stack all paragraphs in one cell so the column height = tallest text,
-			   then center shorter copy with the polaroid / title */
-			display: grid;
 			align-items: center;
 			flex: unset;
 			width: 100%;
 			max-width: 28rem;
-			max-height: none;
-			min-height: 0;
 			justify-self: start;
 			align-self: center;
 		}
 
-		.our-story__text {
-			position: relative;
-			inset: auto;
-			grid-area: 1 / 1;
-			overflow: visible;
-		}
 	}
 
 	@media (min-width: 1280px) {
@@ -314,13 +324,21 @@ const placeholderSrc = '/bg_image.webp';
 	}
 
 	@media (max-height: 720px) and (max-width: 1023px) {
-		.our-story__stack {
-			width: min(100%, 12rem);
+		.our-story__layout {
+			gap: 1.15rem;
 		}
 
-		.our-story__narrative {
-			max-height: 34%;
+		.our-story__stack {
+			width: min(100%, 16.5rem);
+			aspect-ratio: 2.2 / 1;
 		}
+
+		.our-story__polaroid {
+			width: 42%;
+			left: calc(var(--fan, 0) * 29%);
+			padding: 0.35rem 0.35rem 0.45rem;
+		}
+
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -357,7 +375,8 @@ const placeholderSrc = '/bg_image.webp';
 		.our-story__polaroid {
 			position: relative;
 			inset: auto;
-			width: min(100%, 13.75rem);
+			left: auto;
+			width: min(100%, 8.5rem);
 			opacity: 1;
 			transform: rotate(var(--rot, 0deg));
 			will-change: auto;
@@ -428,6 +447,7 @@ const placeholderSrc = '/bg_image.webp';
 
 	function initOurStory(root: HTMLElement) {
 		const sticky = root.querySelector<HTMLElement>('.our-story__sticky');
+		const stack = root.querySelector<HTMLElement>('[data-stack]');
 		const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-polaroid]'));
 		const texts = Array.from(root.querySelectorAll<HTMLElement>('[data-story-text]'));
 		if (!sticky || !cards.length || !texts.length) return;
@@ -477,11 +497,19 @@ const placeholderSrc = '/bg_image.webp';
 			const progress = clamp((header - rect.top) / scrollable, 0, 1);
 			const count = cards.length;
 
+			const textIndex = activeTextIndex(progress, count);
+			let entered = 1;
+			for (let i = 1; i < count; i++) {
+				if (cardEnter(progress, i, count) >= 0.45) entered = i + 1;
+			}
+
+			stack?.style.setProperty('--entered', String(entered));
+
 			cards.forEach((card, index) => {
 				card.style.setProperty('--enter', String(cardEnter(progress, index, count)));
+				card.style.setProperty('--active', index === textIndex ? '1' : '0');
 			});
 
-			const textIndex = activeTextIndex(progress, count);
 			texts.forEach((text, index) => {
 				const on = index === textIndex ? 1 : 0;
 				text.style.setProperty('--text-active', String(on));
