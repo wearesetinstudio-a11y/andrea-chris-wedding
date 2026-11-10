@@ -85,7 +85,8 @@
 		grid-template-columns: 1fr;
 		align-items: center;
 		justify-items: center;
-		gap: 0.85rem;
+		/* Tight title→envelope so the rising letter can pass over the title */
+		gap: 0.15rem;
 		width: 100%;
 		max-height: 100%;
 	}
@@ -105,9 +106,9 @@
 		letter-spacing: -0.01em;
 		color: var(--color-accent);
 		text-align: center;
-		/* Keep both lines above the envelope / below the fixed header */
+		/* Sit under the letter layer as it rises */
 		position: relative;
-		z-index: 2;
+		z-index: 1;
 		flex-shrink: 0;
 	}
 
@@ -146,6 +147,10 @@
 		align-items: center;
 		width: 100%;
 		min-width: 0;
+		position: relative;
+		z-index: 3;
+		/* Pull envelope up so the letter travels over the title while scrolling */
+		margin-top: -5rem;
 	}
 
 	/* Extra headroom so the card can rise above the flap; bottom clips the tucked letter */
@@ -205,7 +210,8 @@
 
 	@media (min-width: 768px) {
 		.letter-pull__sticky {
-			padding: 1.5rem 1.5rem 16rem;
+			/* Keep large bottom clearance for the envelope; top stays modest */
+			padding: 2.5rem 1.5rem 16rem 3.5rem;
 		}
 
 		.letter-pull__grid {
@@ -224,12 +230,16 @@
 			align-items: flex-start;
 			gap: 1.5rem;
 			width: 100%;
+			/* Midway between prior “too high” (2.5rem) and “too low” (align-end) */
+			align-self: center;
+			margin-top: 5.5rem;
 		}
 
 		.letter-pull__title {
 			order: unset;
 			text-align: left;
 			font-size: clamp(1.65rem, 4.5vw, 2.35rem);
+			z-index: auto;
 		}
 
 		.letter-pull__cta {
@@ -240,6 +250,8 @@
 		.letter-pull__stage {
 			order: unset;
 			justify-content: center;
+			z-index: auto;
+			margin-top: 0;
 		}
 
 		.letter-pull__letter {
@@ -253,8 +265,14 @@
 
 	@media (min-width: 900px) {
 		.letter-pull__sticky {
-			padding-inline: max(1.5rem, 2.75vw);
+			padding-right: max(1.5rem, 2.75vw);
+			padding-left: max(4.5rem, 7vw);
+			padding-top: 2.5rem;
 			padding-bottom: 16rem;
+		}
+
+		.letter-pull__copy {
+			margin-top: 6.5rem;
 		}
 
 		.letter-pull__grid {
