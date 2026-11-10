@@ -1,0 +1,201 @@
+---
+/**
+ * Soft ring cursor for fine pointers.
+ * White (#FFF 100%) on dark areas · olive accent on light sections.
+ */
+---
+
+<div class="custom-cursor" data-custom-cursor aria-hidden="true"></div>
+
+<style>
+	.custom-cursor {
+		--cursor-size: 0.875rem;
+		--cursor-stroke: #ffffff;
+		--cursor-fill: rgb(255 255 255 / 12%);
+		--cursor-fill-pressed: rgb(255 255 255 / 18%);
+		--cursor-glow-outer-a: rgb(255 255 255 / 45%);
+		--cursor-glow-outer-b: rgb(255 255 255 / 22%);
+		--cursor-glow-inner-a: rgb(255 255 255 / 35%);
+		--cursor-glow-inner-b: rgb(255 255 255 / 18%);
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 10000;
+		width: var(--cursor-size);
+		height: var(--cursor-size);
+		margin: 0;
+		padding: 0;
+		border: 2px solid var(--cursor-stroke);
+		border-radius: 50%;
+		background: var(--cursor-fill);
+		box-shadow:
+			0 0 6px 1px var(--cursor-glow-outer-a),
+			0 0 14px 4px var(--cursor-glow-outer-b),
+			inset 0 0 6px 1px var(--cursor-glow-inner-a),
+			inset 0 0 12px 3px var(--cursor-glow-inner-b);
+		pointer-events: none;
+		opacity: 0;
+		transform: translate3d(-100px, -100px, 0);
+		will-change: transform, opacity;
+		transition:
+			opacity 0.2s ease,
+			border-color 0.18s ease,
+			background-color 0.18s ease,
+			box-shadow 0.18s ease;
+	}
+
+	.custom-cursor.is-on-light {
+		--cursor-stroke: var(--color-accent);
+		--cursor-fill: color-mix(in srgb, var(--color-accent) 12%, transparent);
+		--cursor-fill-pressed: color-mix(in srgb, var(--color-accent) 18%, transparent);
+		--cursor-glow-outer-a: color-mix(in srgb, var(--color-accent) 45%, transparent);
+		--cursor-glow-outer-b: color-mix(in srgb, var(--color-accent) 22%, transparent);
+		--cursor-glow-inner-a: color-mix(in srgb, var(--color-accent) 35%, transparent);
+		--cursor-glow-inner-b: color-mix(in srgb, var(--color-accent) 18%, transparent);
+	}
+
+	.custom-cursor.is-visible {
+		opacity: 1;
+	}
+
+	.custom-cursor.is-pressed {
+		background: var(--cursor-fill-pressed);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		:global(html.has-custom-cursor),
+		:global(html.has-custom-cursor *) {
+			cursor: none !important;
+		}
+
+		:global(html.has-custom-cursor input),
+		:global(html.has-custom-cursor textarea),
+		:global(html.has-custom-cursor select),
+		:global(html.has-custom-cursor [contenteditable='true']) {
+			cursor: text !important;
+		}
+	}
+
+	@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+		.custom-cursor {
+			display: none;
+		}
+	}
+</style>
+
+<script>
+	const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+	const cursor = document.querySelector<HTMLElement>('[data-custom-cursor]');
+
+	if (cursor && finePointer.matches && !reduceMotion.matches) {
+		document.documentElement.classList.add('has-custom-cursor');
+
+		let x = -100;
+		let y = -100;
+		let visible = false;
+		let pressed = false;
+		let onLight = false;
+		let raf = 0;
+		let sampleTick = 0;
+
+		const parseRgb = (value: string) => {
+			const match = value.match(/rgba?\(([^)]+)\)/i);
+			if (!match) return null;
+			const parts = match[1].split(',').map((part) => part.trim());
+			if (parts.length < 3) return null;
+			const r = Number(parts[0]);
+			const g = Number(parts[1]);
+			const b = Number(parts[2]);
+			const a = parts[3] === undefined ? 1 : Number(parts[3]);
+			if ([r, g, b, a].some((n) => Number.isNaN(n))) return null;
+			return { r, g, b, a };
+		};
+
+		const luminance = (r: number, g: number, b: number) =>
+			(0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+
+		const isLightUnderPoint = (clientX: number, clientY: number) => {
+			const el = document.elementFromPoint(clientX, clientY);
+			if (!(el instanceof Element)) return true;
+
+			let node: Element | null = el;
+
+			while (node && node !== document.documentElement) {
+				if (node instanceof HTMLImageElement || node instanceof HTMLVideoElement) {
+					return false;
+				}
+
+				const style = getComputedStyle(node);
+				const bgImage = style.backgroundImage;
+
+				if (bgImage && bgImage !== 'none') {
+					return false;
+				}
+
+				const bg = parseRgb(style.backgroundColor);
+				if (bg && bg.a > 0.6) {
+					return luminance(bg.r, bg.g, bg.b) > 0.62;
+				}
+
+				node = node.parentElement;
+			}
+
+			const rootBg = parseRgb(getComputedStyle(document.body).backgroundColor);
+			if (rootBg) return luminance(rootBg.r, rootBg.g, rootBg.b) > 0.62;
+			return true;
+		};
+
+		const render = () => {
+			raf = 0;
+			cursor.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)${
+				pressed ? ' scale(0.88)' : ''
+			}`;
+			cursor.classList.toggle('is-visible', visible);
+			cursor.classList.toggle('is-pressed', pressed);
+			cursor.classList.toggle('is-on-light', onLight);
+		};
+
+		const schedule = () => {
+			if (raf) return;
+			raf = requestAnimationFrame(render);
+		};
+
+		const onMove = (event: PointerEvent) => {
+			x = event.clientX;
+			y = event.clientY;
+			visible = true;
+
+			// Sample background every few moves to keep it cheap
+			sampleTick = (sampleTick + 1) % 3;
+			if (sampleTick === 0) {
+				onLight = isLightUnderPoint(x, y);
+			}
+
+			schedule();
+		};
+
+		const onLeave = () => {
+			visible = false;
+			pressed = false;
+			schedule();
+		};
+
+		const onDown = () => {
+			pressed = true;
+			onLight = isLightUnderPoint(x, y);
+			schedule();
+		};
+
+		const onUp = () => {
+			pressed = false;
+			schedule();
+		};
+
+		window.addEventListener('pointermove', onMove, { passive: true });
+		window.addEventListener('pointerdown', onDown, { passive: true });
+		window.addEventListener('pointerup', onUp, { passive: true });
+		document.documentElement.addEventListener('pointerleave', onLeave);
+		window.addEventListener('blur', onLeave);
+	}
+</script>

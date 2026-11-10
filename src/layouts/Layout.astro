@@ -1,13 +1,22 @@
 ---
 import '../styles/global.css';
+import CustomCursor from '../components/CustomCursor.astro';
 import VideoIntro from '../components/VideoIntro.astro';
 
 interface Props {
 	title?: string;
+	description?: string;
 	showIntro?: boolean;
 }
 
-const { title = 'Andrea & Chris — Boda', showIntro = true } = Astro.props;
+const {
+	title = 'Andrea & Chris — Boda',
+	description = 'Les invitamos a nuestra boda! Panamonte, Boquete - 4.30 PM - 10 de abril 2027',
+	showIntro = true,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
+const ogImageURL = new URL('/og.jpg', canonicalURL);
 ---
 
 <!doctype html>
@@ -20,6 +29,19 @@ const { title = 'Andrea & Chris — Boda', showIntro = true } = Astro.props;
 		<link rel="icon" href="/favicon-white.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonicalURL} />
+		<meta property="og:type" content="website" />
+		<meta property="og:locale" content="es_PA" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonicalURL} />
+		<meta property="og:image" content={ogImageURL} />
+		<meta property="og:image:alt" content="Andrea y Chris" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImageURL} />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
@@ -46,6 +68,7 @@ const { title = 'Andrea & Chris — Boda', showIntro = true } = Astro.props;
 		)}
 	</head>
 	<body class:list={[showIntro && 'intro-active']}>
+		<CustomCursor />
 		{showIntro && <VideoIntro />}
 		<slot />
 		<script>

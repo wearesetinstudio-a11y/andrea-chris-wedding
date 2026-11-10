@@ -18,7 +18,7 @@
 					<span class="letter-pull__title-line">Les invitamos</span>
 					<span class="letter-pull__title-line">a nuestra boda civil!</span>
 				</h2>
-				<a href="#rsvp" class="letter-pull__cta"> Confirma su presencia </a>
+				<a href="#rsvp" class="letter-pull__cta" data-btn-press> Confirma su presencia </a>
 			</div>
 
 			<div class="letter-pull__stage" aria-hidden="true">
@@ -132,12 +132,19 @@
 		line-height: 1;
 		letter-spacing: 0.01em;
 		white-space: nowrap;
-		transition: opacity 0.2s ease;
+		transition: background-color 0.2s ease;
 	}
 
-	.letter-pull__cta:hover,
-	.letter-pull__cta:focus-visible {
-		opacity: 0.88;
+	@media (hover: hover) and (pointer: fine) {
+		.letter-pull__cta:hover,
+		.letter-pull__cta:focus-visible {
+			background: var(--color-button-hover);
+		}
+	}
+
+	.letter-pull__cta:active,
+	.letter-pull__cta.is-pressed {
+		background: var(--color-button-hover);
 	}
 
 	.letter-pull__stage {
@@ -315,6 +322,12 @@
 </style>
 
 <script>
+	document.querySelectorAll<HTMLElement>('[data-btn-press]').forEach((btn) => {
+		btn.addEventListener('touchstart', () => btn.classList.add('is-pressed'), { passive: true });
+		btn.addEventListener('touchend', () => btn.classList.remove('is-pressed'));
+		btn.addEventListener('touchcancel', () => btn.classList.remove('is-pressed'));
+	});
+
 	function clamp(value: number, min: number, max: number) {
 		return Math.min(max, Math.max(min, value));
 	}

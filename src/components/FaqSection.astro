@@ -164,6 +164,7 @@ const faqItems = [
 		font-weight: 500;
 		line-height: 1.4;
 		color: #1a1a1a;
+		transition: opacity 0.2s ease;
 	}
 
 	.faq__chevron {
@@ -171,7 +172,9 @@ const faqItems = [
 		width: 0.875rem;
 		height: 0.5rem;
 		color: var(--color-muted);
-		transition: transform 0.3s ease;
+		transition:
+			transform 0.3s ease,
+			color 0.2s ease;
 	}
 
 	.faq__item.is-open .faq__chevron {
@@ -231,6 +234,18 @@ const faqItems = [
 
 		.faq__answer {
 			padding-bottom: 1.5rem;
+		}
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.faq__trigger:hover .faq__question,
+		.faq__trigger:focus-visible .faq__question {
+			opacity: 0.65;
+		}
+
+		.faq__trigger:hover .faq__chevron,
+		.faq__trigger:focus-visible .faq__chevron {
+			color: var(--color-accent);
 		}
 	}
 

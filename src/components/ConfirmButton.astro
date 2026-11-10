@@ -90,11 +90,21 @@ const showCheckbox = variant === 'hero';
 	}
 
 	@media (hover: hover) and (pointer: fine) {
+		.confirm-btn:hover,
+		.confirm-btn:focus-visible {
+			background: var(--color-button-hover);
+		}
+
 		.confirm-btn--hero:hover .confirm-btn__check,
 		.confirm-btn--hero:focus-visible .confirm-btn__check {
 			opacity: 1;
 			transform: scale(1);
 		}
+	}
+
+	.confirm-btn:active,
+	.confirm-btn.is-pressed {
+		background: var(--color-button-hover);
 	}
 
 	.confirm-btn--hero:active .confirm-btn__check,
@@ -105,7 +115,7 @@ const showCheckbox = variant === 'hero';
 </style>
 
 <script>
-	const buttons = document.querySelectorAll<HTMLElement>('[data-confirm-btn].confirm-btn--hero');
+	const buttons = document.querySelectorAll<HTMLElement>('[data-confirm-btn]');
 
 	buttons.forEach((btn) => {
 		btn.addEventListener('touchstart', () => btn.classList.add('is-pressed'), { passive: true });
