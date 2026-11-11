@@ -9,7 +9,7 @@ type OrientationPermission = {
 };
 
 const MAX_TILT = 4.5;
-const LERP = 0.14;
+const LERP = 0.16;
 const SHADOW = 14;
 /** Typical upright phone pitch treated as neutral */
 const BETA_REST = 45;
@@ -38,7 +38,6 @@ const applyVars = (el: HTMLElement, x: number, y: number) => {
 export function initTiltEffect() {
 	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 	const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-	const coarsePointer = window.matchMedia('(pointer: coarse)');
 
 	if (reduceMotion.matches) return;
 
@@ -57,7 +56,8 @@ export function initTiltEffect() {
 	let gyroX = 0;
 	let gyroY = 0;
 	let gyroActive = false;
-	let permissionAsked = false;
+	let orientationListening = false;
+	let permissionBusy = false;
 	let rafId = 0;
 	let running = false;
 
@@ -65,7 +65,8 @@ export function initTiltEffect() {
 		let busy = false;
 
 		for (const state of states) {
-			const useGyro = gyroActive && !state.hovering && !finePointer.matches;
+			/* Mouse hover wins on that card; otherwise use gyro when available */
+			const useGyro = gyroActive && !state.hovering;
 			const tx = useGyro ? gyroX : state.targetX;
 			const ty = useGyro ? gyroY : state.targetY;
 
@@ -116,14 +117,16 @@ export function initTiltEffect() {
 		startLoop();
 	};
 
-	/** Desktop / fine pointer: per-card cursor tilt */
+	/** Desktop cursor tilt (mouse only — never steal touch) */
 	for (const state of states) {
 		state.el.addEventListener('pointermove', (event) => {
-			if (!finePointer.matches || event.pointerType !== 'mouse') return;
+			if (event.pointerType !== 'mouse') return;
+			if (!finePointer.matches) return;
 			setFromPointer(state, event.clientX, event.clientY);
 		});
 
 		state.el.addEventListener('pointerleave', () => {
+			if (!state.hovering) return;
 			state.hovering = false;
 			state.targetX = 0;
 			state.targetY = 0;
@@ -131,52 +134,69 @@ export function initTiltEffect() {
 		});
 	}
 
-	/** Mobile gyro → same ±MAX_TILT range */
 	const onOrientation = (event: DeviceOrientationEvent) => {
-		if (finePointer.matches) return;
+		const beta = event.beta;
+		const gamma = event.gamma;
+		if (beta == null && gamma == null) return;
 
-		const beta = event.beta ?? BETA_REST;
-		const gamma = event.gamma ?? 0;
+		const b = beta ?? BETA_REST;
+		const g = gamma ?? 0;
 
-		/* Neutral around a natural handheld pitch; gamma is left/right */
-		gyroX = clamp((beta - BETA_REST) / 12, -MAX_TILT, MAX_TILT);
-		gyroY = clamp(gamma / 12, -MAX_TILT, MAX_TILT);
+		/* Map handheld motion into the same ±MAX_TILT window as cursor tilt */
+		gyroX = clamp((b - BETA_REST) / 8, -MAX_TILT, MAX_TILT);
+		gyroY = clamp(g / 8, -MAX_TILT, MAX_TILT);
 		gyroActive = true;
 		startLoop();
 	};
 
+	const startOrientationListener = () => {
+		if (orientationListening) return;
+		orientationListening = true;
+		window.addEventListener('deviceorientation', onOrientation, { passive: true });
+		/* Some Android WebViews expose this absolute variant instead */
+		window.addEventListener('deviceorientationabsolute', onOrientation as EventListener, {
+			passive: true,
+		});
+	};
+
 	const enableGyro = async () => {
-		if (permissionAsked || finePointer.matches) return;
-		permissionAsked = true;
+		if (orientationListening || permissionBusy) return;
+		permissionBusy = true;
 
 		const Orientation = DeviceOrientationEvent as unknown as OrientationPermission;
 		try {
 			if (typeof Orientation.requestPermission === 'function') {
 				const state = await Orientation.requestPermission();
+				permissionBusy = false;
 				if (state !== 'granted') return;
+				startOrientationListener();
+				return;
 			}
-			window.addEventListener('deviceorientation', onOrientation, { passive: true });
+
+			permissionBusy = false;
+			startOrientationListener();
 		} catch {
-			/* denied / unavailable */
+			permissionBusy = false;
 		}
 	};
 
-	const unlock = () => {
+	/**
+	 * Keep asking on interaction until listening starts.
+	 * (A single once-listener often fires during intro and gets skipped.)
+	 */
+	const onInteract = () => {
 		void enableGyro();
 	};
-	window.addEventListener('pointerdown', unlock, { once: true, passive: true });
-	window.addEventListener('touchstart', unlock, { once: true, passive: true });
+	window.addEventListener('touchstart', onInteract, { passive: true });
+	window.addEventListener('touchend', onInteract, { passive: true });
+	window.addEventListener('click', onInteract, { passive: true });
 
-	/* Non-iOS: listen immediately on coarse pointers */
+	/* Non-iOS: start immediately (no permission API) */
 	const Orientation = DeviceOrientationEvent as unknown as OrientationPermission;
-	if (
-		coarsePointer.matches &&
-		typeof Orientation.requestPermission !== 'function'
-	) {
-		window.addEventListener('deviceorientation', onOrientation, { passive: true });
+	if (typeof Orientation.requestPermission !== 'function') {
+		startOrientationListener();
 	}
 
-	/* Seed neutral vars */
 	states.forEach((state) => applyVars(state.el, 0, 0));
 
 	window.addEventListener(

@@ -184,7 +184,7 @@ const {
 		btn.className = `rsvp__arrow${enabled ? ' is-ready' : ''}`;
 		btn.setAttribute('aria-label', 'Continuar');
 		btn.disabled = !enabled;
-		btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+		btn.innerHTML = `<img src="/Arrow.svg" alt="" width="24" height="24" draggable="false" aria-hidden="true" />`;
 		if (enabled && onClick) btn.addEventListener('click', onClick);
 		return btn;
 	}
@@ -540,12 +540,16 @@ const {
 <style is:global>
 	/* Global because bubbles/controls are created by the client state machine */
 	.rsvp {
-		--rsvp-bg: var(--color-section);
-		--rsvp-bubble: rgb(255 255 255 / 0.1);
-		--rsvp-bubble-user: rgb(255 255 255 / 0.2);
-		--rsvp-text: #f5f7f4;
-		--rsvp-muted: rgb(255 255 255 / 0.55);
-		--rsvp-line: rgb(255 255 255 / 0.85);
+		--rsvp-bg: var(--color-white);
+		--rsvp-ink: var(--color-accent);
+		--rsvp-bubble: color-mix(in srgb, var(--color-accent) 8%, white);
+		--rsvp-bubble-user: color-mix(in srgb, var(--color-accent) 14%, white);
+		--rsvp-bubble-user-hover: color-mix(in srgb, var(--color-accent) 20%, white);
+		--rsvp-text: var(--color-accent);
+		--rsvp-muted: color-mix(in srgb, var(--color-accent) 45%, white);
+		--rsvp-line: color-mix(in srgb, var(--color-accent) 28%, white);
+		--rsvp-control-border: color-mix(in srgb, var(--color-accent) 55%, white);
+		--rsvp-arrow-idle: color-mix(in srgb, var(--color-accent) 10%, white);
 		position: relative;
 		background: var(--rsvp-bg);
 		color: var(--rsvp-text);
@@ -662,7 +666,7 @@ const {
 
 	.rsvp__bubble--user:hover,
 	.rsvp__bubble--user:focus-visible {
-		background: rgb(255 255 255 / 0.28);
+		background: var(--rsvp-bubble-user-hover);
 		outline: none;
 	}
 
@@ -752,7 +756,7 @@ const {
 		flex: 1;
 		min-width: 0;
 		padding: 0.85rem 0.85rem;
-		border: 1px solid rgb(255 255 255 / 0.85);
+		border: 1px solid var(--rsvp-control-border);
 		background: transparent;
 		color: var(--rsvp-text);
 		font-family: var(--font-sans);
@@ -772,8 +776,8 @@ const {
 	}
 
 	.rsvp__choice.is-selected {
-		background: #fff;
-		border-color: #fff;
+		background: var(--rsvp-ink);
+		border-color: var(--rsvp-ink);
 		color: var(--rsvp-bg);
 	}
 
@@ -824,22 +828,32 @@ const {
 		align-self: stretch;
 		min-height: 3.1rem;
 		border: 0;
-		background: rgb(255 255 255 / 0.12);
-		color: #fff;
+		background: var(--rsvp-arrow-idle);
+		color: var(--rsvp-ink);
 		transition:
 			background-color 0.2s ease,
 			color 0.2s ease,
 			opacity 0.2s ease;
 	}
 
-	.rsvp__arrow svg {
-		width: 1.15rem;
-		height: 1.15rem;
+	.rsvp__arrow img {
+		display: block;
+		width: 1.25rem;
+		height: 1.25rem;
+		/* Arrow.svg faces left + white; flip + tint for white RSVP */
+		transform: scaleX(-1);
+		filter: brightness(0) saturate(100%) opacity(0.72);
+		pointer-events: none;
+		user-select: none;
 	}
 
 	.rsvp__arrow.is-ready {
-		background: #fff;
+		background: var(--rsvp-ink);
 		color: var(--rsvp-bg);
+	}
+
+	.rsvp__arrow.is-ready img {
+		filter: none;
 	}
 
 	.rsvp__arrow:disabled {
@@ -855,7 +869,7 @@ const {
 		flex: 1;
 		min-width: 0;
 		padding: 0.85rem 1rem;
-		border: 1px solid rgb(255 255 255 / 0.85);
+		border: 1px solid var(--rsvp-control-border);
 		background: transparent;
 		color: var(--rsvp-text);
 		font-family: var(--font-sans);
@@ -874,7 +888,7 @@ const {
 		place-items: center;
 		width: 3.1rem;
 		min-height: 3.1rem;
-		border: 1px solid rgb(255 255 255 / 0.85);
+		border: 1px solid var(--rsvp-control-border);
 		background: var(--rsvp-bubble);
 		color: var(--rsvp-text);
 		font-size: 1.15rem;
@@ -916,7 +930,7 @@ const {
 		font-weight: 400;
 		line-height: 1.2;
 		letter-spacing: 0.01em;
-		color: rgb(255 255 255 / 0.5);
+		color: var(--rsvp-muted);
 		max-height: 0;
 		opacity: 0;
 		overflow: hidden;
@@ -940,23 +954,23 @@ const {
 		width: 100%;
 		padding: 0.05rem 0 0.55rem;
 		border: 0;
-		border-bottom: 1px solid #fff;
+		border-bottom: 1px solid var(--rsvp-ink);
 		border-radius: 0;
 		background: transparent;
-		color: #fff;
+		color: var(--rsvp-ink);
 		font-family: var(--font-sans);
 		font-size: 0.9375rem;
 		font-weight: 400;
 		line-height: 1.35;
 		outline: none;
-		caret-color: #fff;
+		caret-color: var(--rsvp-ink);
 		box-shadow: none;
 		-webkit-appearance: none;
 		appearance: none;
 	}
 
 	.rsvp__field input::placeholder {
-		color: rgb(255 255 255 / 0.5);
+		color: var(--rsvp-muted);
 		opacity: 1;
 		font-weight: 400;
 		transition: opacity 0.15s ease;
@@ -968,17 +982,17 @@ const {
 	}
 
 	.rsvp__field input:focus {
-		border-bottom-color: #fff;
+		border-bottom-color: var(--rsvp-ink);
 	}
 
 	.rsvp__field input:-webkit-autofill,
 	.rsvp__field input:-webkit-autofill:hover,
 	.rsvp__field input:-webkit-autofill:focus {
-		-webkit-text-fill-color: #fff;
-		caret-color: #fff;
+		-webkit-text-fill-color: var(--rsvp-ink);
+		caret-color: var(--rsvp-ink);
 		transition: background-color 99999s ease-out;
 		box-shadow: 0 0 0 1000px var(--rsvp-bg) inset;
-		border-bottom: 1px solid #fff;
+		border-bottom: 1px solid var(--rsvp-ink);
 	}
 
 	.rsvp__form .rsvp__arrow {
@@ -988,13 +1002,14 @@ const {
 		align-self: flex-end;
 		margin-bottom: 0;
 		flex-shrink: 0;
-		background: #fff;
+		background: var(--rsvp-ink);
 		color: var(--rsvp-bg);
 	}
 
-	.rsvp__form .rsvp__arrow svg {
-		width: 1.05rem;
-		height: 1.05rem;
+	.rsvp__form .rsvp__arrow img {
+		width: 1.15rem;
+		height: 1.15rem;
+		filter: none;
 	}
 
 	@keyframes rsvp-blink {
