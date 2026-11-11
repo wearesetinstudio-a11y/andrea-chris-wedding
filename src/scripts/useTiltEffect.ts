@@ -9,7 +9,7 @@ type OrientationPermission = {
 };
 
 const MAX_TILT_MOUSE = 4.5;
-const MAX_TILT_GYRO = 15;
+const MAX_TILT_GYRO = 20;
 const LERP = 0.16;
 const SHADOW = 14;
 /** Typical upright phone pitch treated as neutral */

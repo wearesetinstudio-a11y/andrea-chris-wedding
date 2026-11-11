@@ -189,7 +189,7 @@
 		box-sizing: border-box;
 		padding: 1.75rem;
 		transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-		filter: drop-shadow(var(--shadow-x) var(--shadow-y) 20px rgb(16 30 11 / 16%));
+		filter: drop-shadow(var(--shadow-x) var(--shadow-y) 22px rgb(16 30 11 / 22%));
 		will-change: transform, filter;
 	}
 
@@ -208,29 +208,31 @@
 	@media (max-width: 767px) {
 		.letter-pull__stage {
 			cursor: pointer;
-			/* Less pull-up so title + envelope + CTA fit in the sticky viewport */
-			margin-top: -2.5rem;
 		}
 
 		.letter-pull__sticky {
-			padding: 0.5rem 1.15rem 1.25rem;
+			/* Pack from the top so the large envelope doesn't clip the CTA */
+			align-items: flex-start;
+			padding: 0.65rem 1.15rem 1.35rem;
 		}
 
 		.letter-pull__grid {
-			gap: 0.35rem;
+			gap: 0.2rem;
 		}
 
-		/*
-		 * Cap clip height so the CTA isn't shaved into a solid olive bar
-		 * by sticky overflow:hidden on short mobile viewports.
-		 */
 		.letter-pull__clip {
-			width: min(72vw, 19rem, calc(42svh * 940 / 1500));
+			/* Same visual size as before; slightly less empty headroom above */
+			width: min(88vw, 24rem);
+			aspect-ratio: 940 / 1320;
 		}
 
 		.letter-pull__tilt {
-			padding: 0.45rem 0.55rem 0.65rem;
-			filter: drop-shadow(0 10px 16px rgb(16 30 11 / 12%));
+			padding: 1.1rem 1.2rem 1.35rem;
+			filter: drop-shadow(0 14px 22px rgb(16 30 11 / 22%));
+		}
+
+		.letter-pull__front {
+			filter: drop-shadow(0 4px 7px rgb(16 30 11 / 9%));
 		}
 
 		.letter-pull__letter {
@@ -238,7 +240,7 @@
 		}
 
 		.letter-pull__cta {
-			margin-top: 0.65rem;
+			margin-top: 0.85rem;
 			flex-shrink: 0;
 		}
 	}
@@ -270,7 +272,7 @@
 	.letter-pull__front {
 		z-index: 30;
 		/* Softer than the letter shadow — just enough lift under the pocket */
-		filter: drop-shadow(0 3px 5px rgb(16 30 11 / 6%));
+		filter: drop-shadow(0 4px 7px rgb(16 30 11 / 9%));
 	}
 
 	/*
