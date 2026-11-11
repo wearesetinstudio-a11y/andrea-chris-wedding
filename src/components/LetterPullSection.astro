@@ -170,30 +170,6 @@
 		outline: none;
 	}
 
-	@media (max-width: 767px) {
-		.letter-pull__stage {
-			cursor: pointer;
-		}
-
-		/*
-		 * Sticky uses overflow:hidden — a strong olive drop-shadow gets
-		 * clipped into a hard hairline under the envelope on mobile.
-		 */
-		.letter-pull__tilt {
-			padding: 0.65rem 0.75rem 0.9rem;
-			filter: none;
-		}
-
-		.letter-pull__assembly {
-			/* Cover subpixel gap / letter fringe at the pocket bottom */
-			margin-bottom: -2px;
-		}
-
-		.letter-pull__letter {
-			filter: drop-shadow(0 4px 8px rgb(16 30 11 / 8%));
-		}
-	}
-
 	/*
 	 * Tilt shell sits outside the letter clip so drop-shadow isn't cut,
 	 * and the whole flat envelope+letter sandwich rotates as one piece
@@ -229,6 +205,44 @@
 		justify-content: center;
 	}
 
+	@media (max-width: 767px) {
+		.letter-pull__stage {
+			cursor: pointer;
+			/* Less pull-up so title + envelope + CTA fit in the sticky viewport */
+			margin-top: -2.5rem;
+		}
+
+		.letter-pull__sticky {
+			padding: 0.5rem 1.15rem 1.25rem;
+		}
+
+		.letter-pull__grid {
+			gap: 0.35rem;
+		}
+
+		/*
+		 * Cap clip height so the CTA isn't shaved into a solid olive bar
+		 * by sticky overflow:hidden on short mobile viewports.
+		 */
+		.letter-pull__clip {
+			width: min(72vw, 19rem, calc(42svh * 940 / 1500));
+		}
+
+		.letter-pull__tilt {
+			padding: 0.45rem 0.55rem 0.65rem;
+			filter: drop-shadow(0 10px 16px rgb(16 30 11 / 12%));
+		}
+
+		.letter-pull__letter {
+			filter: drop-shadow(0 4px 8px rgb(16 30 11 / 8%));
+		}
+
+		.letter-pull__cta {
+			margin-top: 0.65rem;
+			flex-shrink: 0;
+		}
+	}
+
 	.letter-pull__assembly {
 		position: relative;
 		width: 100%;
@@ -255,6 +269,8 @@
 
 	.letter-pull__front {
 		z-index: 30;
+		/* Softer than the letter shadow — just enough lift under the pocket */
+		filter: drop-shadow(0 3px 5px rgb(16 30 11 / 6%));
 	}
 
 	/*
