@@ -8,7 +8,8 @@ type OrientationPermission = {
 	requestPermission?: () => Promise<'granted' | 'denied' | 'default'>;
 };
 
-const MAX_TILT = 4.5;
+const MAX_TILT_MOUSE = 4.5;
+const MAX_TILT_GYRO = 10;
 const LERP = 0.16;
 const SHADOW = 14;
 /** Typical upright phone pitch treated as neutral */
@@ -29,10 +30,12 @@ const clamp = (value: number, min: number, max: number) =>
 const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount;
 
 const applyVars = (el: HTMLElement, x: number, y: number) => {
+	const shadowScale = Math.max(Math.abs(x), Math.abs(y), 0.01);
+	const shadowDenom = Math.max(shadowScale, MAX_TILT_MOUSE);
 	el.style.setProperty('--tilt-x', `${x.toFixed(2)}deg`);
 	el.style.setProperty('--tilt-y', `${y.toFixed(2)}deg`);
-	el.style.setProperty('--shadow-x', `${(-y * (SHADOW / MAX_TILT)).toFixed(2)}px`);
-	el.style.setProperty('--shadow-y', `${(14 + x * (SHADOW / MAX_TILT)).toFixed(2)}px`);
+	el.style.setProperty('--shadow-x', `${(-y * (SHADOW / shadowDenom)).toFixed(2)}px`);
+	el.style.setProperty('--shadow-y', `${(14 + x * (SHADOW / shadowDenom)).toFixed(2)}px`);
 };
 
 export function initTiltEffect() {
@@ -111,8 +114,8 @@ export function initTiltEffect() {
 		const px = (clientX - rect.left) / rect.width - 0.5;
 		const py = (clientY - rect.top) / rect.height - 0.5;
 
-		state.targetX = clamp(-py * 2 * MAX_TILT, -MAX_TILT, MAX_TILT);
-		state.targetY = clamp(px * 2 * MAX_TILT, -MAX_TILT, MAX_TILT);
+		state.targetX = clamp(-py * 2 * MAX_TILT_MOUSE, -MAX_TILT_MOUSE, MAX_TILT_MOUSE);
+		state.targetY = clamp(px * 2 * MAX_TILT_MOUSE, -MAX_TILT_MOUSE, MAX_TILT_MOUSE);
 		state.hovering = true;
 		startLoop();
 	};
@@ -142,9 +145,9 @@ export function initTiltEffect() {
 		const b = beta ?? BETA_REST;
 		const g = gamma ?? 0;
 
-		/* Map handheld motion into the same ±MAX_TILT window as cursor tilt */
-		gyroX = clamp((b - BETA_REST) / 8, -MAX_TILT, MAX_TILT);
-		gyroY = clamp(g / 8, -MAX_TILT, MAX_TILT);
+		/* Stronger mobile range — reaches ±MAX_TILT_GYRO with moderate hand motion */
+		gyroX = clamp((b - BETA_REST) / 4.5, -MAX_TILT_GYRO, MAX_TILT_GYRO);
+		gyroY = clamp(g / 4.5, -MAX_TILT_GYRO, MAX_TILT_GYRO);
 		gyroActive = true;
 		startLoop();
 	};

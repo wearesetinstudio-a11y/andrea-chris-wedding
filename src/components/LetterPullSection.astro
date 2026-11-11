@@ -174,6 +174,24 @@
 		.letter-pull__stage {
 			cursor: pointer;
 		}
+
+		/*
+		 * Sticky uses overflow:hidden — a strong olive drop-shadow gets
+		 * clipped into a hard hairline under the envelope on mobile.
+		 */
+		.letter-pull__tilt {
+			padding: 0.65rem 0.75rem 0.9rem;
+			filter: none;
+		}
+
+		.letter-pull__assembly {
+			/* Cover subpixel gap / letter fringe at the pocket bottom */
+			margin-bottom: -2px;
+		}
+
+		.letter-pull__letter {
+			filter: drop-shadow(0 4px 8px rgb(16 30 11 / 8%));
+		}
 	}
 
 	/*
