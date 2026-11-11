@@ -149,7 +149,7 @@ const cards = [
 							`where-to-eat__card--${card.id}`,
 						]}
 						style={`--rot: ${card.rotation}`}
-						data-menu-tilt
+						data-tilt
 					>
 						<h3 class="where-to-eat__card-title">{card.title}</h3>
 						<ul class="where-to-eat__list" role="list">
@@ -237,6 +237,10 @@ const cards = [
 	}
 
 	.where-to-eat__card {
+		--tilt-x: 0deg;
+		--tilt-y: 0deg;
+		--shadow-x: 0px;
+		--shadow-y: 18px;
 		position: relative;
 		width: 100%;
 		padding: 1.25rem 0.95rem 0.85rem;
@@ -249,9 +253,12 @@ const cards = [
 			auto;
 		box-shadow:
 			0 1px 2px rgb(0 0 0 / 6%),
-			0 18px 40px rgb(0 0 0 / 22%);
-		/* Softer tilt on mobile so text stays readable */
-		transform: rotate(var(--rot-mobile, 0deg));
+			var(--shadow-x) var(--shadow-y) 40px rgb(0 0 0 / 22%);
+		/* Soft paper rotation + shared 3D tilt vars (mouse / gyro) */
+		transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
+			rotate(var(--rot-mobile, 0deg));
+		transform-style: preserve-3d;
+		will-change: transform, box-shadow;
 		color: var(--color-accent);
 	}
 
@@ -420,10 +427,6 @@ const cards = [
 		}
 
 		.where-to-eat__card {
-			--tilt-x: 0deg;
-			--tilt-y: 0deg;
-			--shadow-x: 0px;
-			--shadow-y: 18px;
 			position: relative;
 			top: auto;
 			width: min(100%, 33rem);
@@ -432,11 +435,6 @@ const cards = [
 			max-width: 34rem;
 			transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
 				rotate(var(--rot, 0deg));
-			transform-style: preserve-3d;
-			box-shadow:
-				0 1px 2px rgb(0 0 0 / 6%),
-				var(--shadow-x) var(--shadow-y) 40px rgb(0 0 0 / 22%);
-			will-change: transform, box-shadow;
 		}
 
 		.where-to-eat__card--gastronomia {
