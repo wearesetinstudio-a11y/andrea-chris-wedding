@@ -9,8 +9,15 @@ type OrientationPermission = {
 };
 
 const MAX_TILT_MOUSE = 4.5;
-const MAX_TILT_GYRO = 30;
+const MAX_TILT_GYRO = 45;
 const LERP = 0.16;
+/** Faster follow on gyro so mobile tilt feels snappy / live */
+const LERP_GYRO = 0.34;
+/**
+ * Device degrees per visual tilt degree — lower = more dynamic.
+ * ~2.2 reaches ±45° with a moderate hand tilt.
+ */
+const GYRO_SENSITIVITY = 2.2;
 const SHADOW = 14;
 /** Typical upright phone pitch treated as neutral */
 const BETA_REST = 45;
@@ -72,9 +79,10 @@ export function initTiltEffect() {
 			const useGyro = gyroActive && !state.hovering;
 			const tx = useGyro ? gyroX : state.targetX;
 			const ty = useGyro ? gyroY : state.targetY;
+			const amount = useGyro ? LERP_GYRO : LERP;
 
-			state.currentX = lerp(state.currentX, tx, LERP);
-			state.currentY = lerp(state.currentY, ty, LERP);
+			state.currentX = lerp(state.currentX, tx, amount);
+			state.currentY = lerp(state.currentY, ty, amount);
 			if (Math.abs(state.currentX - tx) < 0.01) state.currentX = tx;
 			if (Math.abs(state.currentY - ty) < 0.01) state.currentY = ty;
 
@@ -145,9 +153,9 @@ export function initTiltEffect() {
 		const b = beta ?? BETA_REST;
 		const g = gamma ?? 0;
 
-		/* Stronger mobile range — reaches ±MAX_TILT_GYRO with moderate hand motion */
-		gyroX = clamp((b - BETA_REST) / 4.5, -MAX_TILT_GYRO, MAX_TILT_GYRO);
-		gyroY = clamp(g / 4.5, -MAX_TILT_GYRO, MAX_TILT_GYRO);
+		/* Wide, sensitive mobile range — reaches ±45° with moderate hand motion */
+		gyroX = clamp((b - BETA_REST) / GYRO_SENSITIVITY, -MAX_TILT_GYRO, MAX_TILT_GYRO);
+		gyroY = clamp(g / GYRO_SENSITIVITY, -MAX_TILT_GYRO, MAX_TILT_GYRO);
 		gyroActive = true;
 		startLoop();
 	};
