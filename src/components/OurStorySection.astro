@@ -46,6 +46,7 @@ const placeholderSrc = '/bg_image.webp';
 								class="our-story__polaroid"
 								style={`--rot: ${item.rotation}; --enter: ${index === 0 ? 1 : 0}; --fan: ${index}; --active: ${index === 0 ? 1 : 0};`}
 								data-polaroid={index}
+								data-menu-tilt
 							>
 								<div class="our-story__photo">
 									<img
@@ -147,6 +148,7 @@ const placeholderSrc = '/bg_image.webp';
 		width: 100%;
 		overflow: visible;
 		padding: 0.15rem 0;
+		perspective: 1000px;
 	}
 
 	.our-story__stack {
@@ -161,6 +163,10 @@ const placeholderSrc = '/bg_image.webp';
 	}
 
 	.our-story__polaroid {
+		--tilt-x: 0deg;
+		--tilt-y: 0deg;
+		--shadow-x: 0px;
+		--shadow-y: 12px;
 		position: absolute;
 		top: 0;
 		/* Fan slots — partial overlap, not full cover */
@@ -174,15 +180,23 @@ const placeholderSrc = '/bg_image.webp';
 		background: var(--color-white);
 		box-shadow:
 			0 1px 2px rgb(52 64 40 / 6%),
-			0 10px 22px rgb(52 64 40 / 12%);
+			var(--shadow-x) var(--shadow-y) 22px rgb(52 64 40 / 14%);
 		/* Slide in one-by-one from the right into the fan */
 		opacity: 1;
 		transform: translate3d(calc((1 - var(--enter, 0)) * 110vw), 0, 0)
+			perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
 			rotate(var(--rot, 0deg)) scale(calc(0.97 + var(--active, 0) * 0.03));
+		transform-style: preserve-3d;
 		z-index: calc(1 + var(--fan, 0) + var(--active, 0) * 3);
-		will-change: transform;
+		will-change: transform, box-shadow;
 		pointer-events: none;
 		user-select: none;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.our-story__polaroid {
+			pointer-events: auto;
+		}
 	}
 
 	.our-story__photo {
@@ -191,12 +205,17 @@ const placeholderSrc = '/bg_image.webp';
 		aspect-ratio: 1;
 		overflow: hidden;
 		background: color-mix(in srgb, var(--color-muted) 35%, var(--color-surface));
+		transform-style: preserve-3d;
 	}
 
 	.our-story__photo img {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+		/* Softer nested parallax — inherits --tilt-* from the polaroid */
+		transform: perspective(800px) rotateX(calc(var(--tilt-x, 0deg) * 0.4))
+			rotateY(calc(var(--tilt-y, 0deg) * 0.4)) scale(1.06);
+		will-change: transform;
 	}
 
 	.our-story__caption {
@@ -295,7 +314,9 @@ const placeholderSrc = '/bg_image.webp';
 			gap: 0.7rem;
 			z-index: calc(1 + var(--fan, 0));
 			/* Rise from below the viewport so cards feel like they enter the screen */
-			transform: translate3d(0, calc((1 - var(--enter, 0)) * 110vh), 0) rotate(var(--rot, 0deg));
+			transform: translate3d(0, calc((1 - var(--enter, 0)) * 110vh), 0)
+				perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
+				rotate(var(--rot, 0deg));
 		}
 
 		.our-story__caption {
@@ -378,7 +399,8 @@ const placeholderSrc = '/bg_image.webp';
 			left: auto;
 			width: min(100%, 8.5rem);
 			opacity: 1;
-			transform: rotate(var(--rot, 0deg));
+			transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
+				rotate(var(--rot, 0deg));
 			will-change: auto;
 		}
 

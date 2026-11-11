@@ -149,6 +149,7 @@ const cards = [
 							`where-to-eat__card--${card.id}`,
 						]}
 						style={`--rot: ${card.rotation}`}
+						data-menu-tilt
 					>
 						<h3 class="where-to-eat__card-title">{card.title}</h3>
 						<ul class="where-to-eat__list" role="list">
@@ -415,16 +416,27 @@ const cards = [
 			width: 100%;
 			margin-inline: 0;
 			padding: 1.5rem 0 2rem;
+			perspective: 1000px;
 		}
 
 		.where-to-eat__card {
+			--tilt-x: 0deg;
+			--tilt-y: 0deg;
+			--shadow-x: 0px;
+			--shadow-y: 18px;
 			position: relative;
 			top: auto;
 			width: min(100%, 33rem);
 			padding: 2rem 1.85rem 1.35rem;
 			flex: 1 1 30rem;
 			max-width: 34rem;
-			transform: rotate(var(--rot, 0deg));
+			transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
+				rotate(var(--rot, 0deg));
+			transform-style: preserve-3d;
+			box-shadow:
+				0 1px 2px rgb(0 0 0 / 6%),
+				var(--shadow-x) var(--shadow-y) 40px rgb(0 0 0 / 22%);
+			will-change: transform, box-shadow;
 		}
 
 		.where-to-eat__card--gastronomia {

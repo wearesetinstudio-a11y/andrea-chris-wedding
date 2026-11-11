@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import CustomCursor from '../components/CustomCursor.astro';
+import DeviceTilt from '../components/DeviceTilt.astro';
 import VideoIntro from '../components/VideoIntro.astro';
 
 interface Props {
@@ -69,6 +70,7 @@ const ogImageURL = new URL('/og.jpg', canonicalURL);
 	</head>
 	<body class:list={[showIntro && 'intro-active']}>
 		<CustomCursor />
+		<DeviceTilt />
 		{showIntro && <VideoIntro />}
 		<slot />
 		<script>

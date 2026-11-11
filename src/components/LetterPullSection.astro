@@ -28,35 +28,37 @@
 				tabindex="0"
 				aria-label="Abrir la invitación"
 			>
-				<div class="letter-pull__clip">
-					<div class="letter-pull__assembly">
-						<img
-							class="letter-pull__back"
-							src="/images/envelope-back.png"
-							alt=""
-							width="940"
-							height="1024"
-							draggable="false"
-						/>
+				<div class="letter-pull__tilt" data-menu-tilt>
+					<div class="letter-pull__clip">
+						<div class="letter-pull__assembly">
+							<img
+								class="letter-pull__back"
+								src="/images/envelope-back.png"
+								alt=""
+								width="940"
+								height="1024"
+								draggable="false"
+							/>
 
-						<img
-							class="letter-pull__letter"
-							src="/images/letter.webp"
-							alt=""
-							width="723"
-							height="1024"
-							draggable="false"
-							data-letter
-						/>
+							<img
+								class="letter-pull__letter"
+								src="/images/letter.webp"
+								alt=""
+								width="723"
+								height="1024"
+								draggable="false"
+								data-letter
+							/>
 
-						<img
-							class="letter-pull__front"
-							src="/images/envelope-front.png"
-							alt=""
-							width="940"
-							height="1024"
-							draggable="false"
-						/>
+							<img
+								class="letter-pull__front"
+								src="/images/envelope-front.png"
+								alt=""
+								width="940"
+								height="1024"
+								draggable="false"
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -174,10 +176,34 @@
 		}
 	}
 
+	/*
+	 * Tilt shell sits outside the letter clip so drop-shadow isn't cut,
+	 * and the whole flat envelope+letter sandwich rotates as one piece
+	 * (avoids the letter poking out under the pocket during 3D tilt).
+	 */
+	.letter-pull__tilt {
+		--tilt-x: 0deg;
+		--tilt-y: 0deg;
+		--shadow-x: 0px;
+		--shadow-y: 14px;
+		position: relative;
+		/* Fill stage so nested % widths have a real containing block */
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		box-sizing: border-box;
+		padding: 1.75rem;
+		transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+		filter: drop-shadow(var(--shadow-x) var(--shadow-y) 20px rgb(16 30 11 / 16%));
+		will-change: transform, filter;
+	}
+
 	/* Extra headroom so the card can rise above the flap; bottom clips the tucked letter */
 	.letter-pull__clip {
 		position: relative;
-		width: min(79.4vw, 20.4rem);
+		flex: 0 0 auto;
+		width: min(88vw, 24rem);
 		aspect-ratio: 940 / 1500;
 		overflow: hidden;
 		display: flex;
@@ -190,6 +216,8 @@
 		width: 100%;
 		aspect-ratio: 940 / 1024;
 		isolation: isolate;
+		/* Flatten stacking so z-index keeps letter between back + front pocket */
+		transform-style: flat;
 	}
 
 	.letter-pull__back,
@@ -281,7 +309,7 @@
 		}
 
 		.letter-pull__clip {
-			width: min(100%, 34rem);
+			width: min(100%, 38rem);
 		}
 	}
 
@@ -306,13 +334,13 @@
 		}
 
 		.letter-pull__clip {
-			width: min(100%, 40rem);
+			width: min(100%, 46rem);
 		}
 	}
 
 	@media (max-height: 700px) and (min-width: 768px) {
 		.letter-pull__clip {
-			width: min(100%, 26rem);
+			width: min(100%, 30rem);
 		}
 	}
 

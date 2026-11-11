@@ -115,7 +115,7 @@ const recommendations = [
 				{
 					recommendations.map((item) => (
 						<li class="recommendations__item" style={`--rot: ${item.rotation}`}>
-							<article class="recommendations__polaroid">
+							<article class="recommendations__polaroid" data-menu-tilt>
 								<div class="recommendations__photo">
 									<img
 										src={item.image}
@@ -226,9 +226,9 @@ const recommendations = [
 	.recommendations__track {
 		margin-inline: calc(var(--page-inset) * -1);
 		padding-inline: var(--page-inset);
-		/* Keep shadows inside the scrollport so overflow doesn't cut a full-bleed hairline */
-		padding-top: 0.35rem;
-		padding-bottom: 1.35rem;
+		/* Extra room so polaroid + tilt shadows aren't clipped by overflow-y */
+		padding-top: 0.75rem;
+		padding-bottom: 3.25rem;
 		overflow-x: auto;
 		overflow-y: hidden;
 		scroll-snap-type: x mandatory;
@@ -264,7 +264,7 @@ const recommendations = [
 		align-items: flex-start;
 		gap: clamp(1.1rem, 2.5vw, 1.75rem);
 		margin: 0;
-		padding: 1rem 0 0.25rem;
+		padding: 1rem 0 0.5rem;
 		list-style: none;
 		width: max-content;
 		min-width: 100%;
@@ -277,22 +277,23 @@ const recommendations = [
 	}
 
 	.recommendations__polaroid {
+		--tilt-x: 0deg;
+		--tilt-y: 0deg;
+		--shadow-x: 0px;
+		--shadow-y: 14px;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: 0.55rem;
 		padding: 0.75rem 0.75rem 1.15rem;
 		background: var(--color-white);
-		/* Softer / shorter shadow on small screens to avoid overflow clip lines */
 		box-shadow:
 			0 1px 2px rgb(0 0 0 / 6%),
-			0 8px 18px rgb(0 0 0 / 14%);
-		transform: rotate(var(--rot, 0deg));
-		transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-	}
-
-	.recommendations__polaroid:hover {
-		transform: rotate(0deg) translateY(-0.2rem);
+			var(--shadow-x) var(--shadow-y) 22px rgb(0 0 0 / 16%);
+		transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
+			rotate(var(--rot, 0deg));
+		transform-style: preserve-3d;
+		will-change: transform, box-shadow;
 	}
 
 	.recommendations__photo {
@@ -301,6 +302,7 @@ const recommendations = [
 		aspect-ratio: 4 / 5;
 		overflow: hidden;
 		background: color-mix(in srgb, var(--color-muted) 35%, var(--color-surface));
+		transform-style: preserve-3d;
 	}
 
 	.recommendations__photo img {
@@ -308,6 +310,10 @@ const recommendations = [
 		height: 100%;
 		object-fit: cover;
 		user-select: none;
+		/* Softer nested parallax — inherits --tilt-* from the polaroid */
+		transform: perspective(800px) rotateX(calc(var(--tilt-x, 0deg) * 0.4))
+			rotateY(calc(var(--tilt-y, 0deg) * 0.4)) scale(1.06);
+		will-change: transform;
 	}
 
 	.recommendations__caption {
@@ -343,7 +349,8 @@ const recommendations = [
 		align-items: center;
 		justify-content: center;
 		gap: 0.45rem;
-		margin-top: -0.15rem;
+		/* Sit under cards without eating the shadow breathing room above */
+		margin-top: -1.35rem;
 	}
 
 	.recommendations__dot {
@@ -399,7 +406,7 @@ const recommendations = [
 			gap: 0.65rem;
 			box-shadow:
 				0 1px 2px rgb(0 0 0 / 8%),
-				0 14px 28px rgb(0 0 0 / 18%);
+				var(--shadow-x) var(--shadow-y) 28px rgb(0 0 0 / 18%);
 		}
 	}
 </style>
