@@ -1,0 +1,483 @@
+---
+/**
+ * Honeymoon Fund — paper card with gastro-style tilt/texture,
+ * Yappy number copy + toast confirmation.
+ */
+const phoneDisplay = '+507 6997 9321';
+const phoneCopy = '+507 6997 9321';
+const accountName = 'Andrea Vega Alvarado';
+const bankName = 'Banco General';
+---
+
+<section
+	id="honeymoon-fund"
+	class="honeymoon"
+	aria-labelledby="honeymoon-title"
+	data-honeymoon
+>
+	<div class="honeymoon__inner">
+		<article class="honeymoon__card" style="--rot: -0.85deg" data-tilt>
+			<div class="honeymoon__frame">
+				<div class="honeymoon__content">
+					<h2 id="honeymoon-title" class="honeymoon__title" data-reveal>
+						Honeymoon Fund
+					</h2>
+
+					<div
+						class="honeymoon__body"
+						data-reveal
+						data-reveal-group="honeymoon"
+						style="--reveal-delay: 80ms"
+					>
+						<p>
+							El mejor regalo para nosotros es contar con su presencia en este día tan
+							especial.
+						</p>
+						<p>
+							Si desean hacernos un gesto de cariño adicional, nos encantaría que nos
+							apoyen a hacer realidad la luna de miel de nuestros sueños.
+						</p>
+						<p>¡Gracias por ser parte de nuestra historia!</p>
+					</div>
+
+					<button
+						type="button"
+						class="honeymoon__copy"
+						data-honeymoon-copy
+						data-copy-value={phoneCopy}
+						aria-label={`Copiar número ${phoneDisplay}`}
+					>
+						<span class="honeymoon__number">{phoneDisplay}</span>
+						<span class="honeymoon__icon" aria-hidden="true">
+							<img
+								class="honeymoon__icon-copy"
+								src="/copy-icon.svg"
+								alt=""
+								width="20"
+								height="20"
+								draggable="false"
+							/>
+							<svg
+								class="honeymoon__icon-check"
+								viewBox="0 0 20 20"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="M4 10.5L8.2 14.5L16 5.5"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								></path>
+							</svg>
+						</span>
+					</button>
+
+					<hr class="honeymoon__rule" />
+
+					<div class="honeymoon__meta" aria-label="Datos de Yappy">
+						<span class="honeymoon__meta-name">{accountName}</span>
+						<img
+							class="honeymoon__yappy"
+							src="/yappy-logo.svg"
+							alt="Yappy"
+							width="96"
+							height="24"
+							draggable="false"
+						/>
+						<span class="honeymoon__meta-bank">{bankName}</span>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+
+	<div
+		class="honeymoon__toast"
+		role="status"
+		aria-live="polite"
+		aria-atomic="true"
+		data-honeymoon-toast
+		hidden
+	>
+		<svg
+			class="honeymoon__toast-check"
+			viewBox="0 0 16 16"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			aria-hidden="true"
+		>
+			<path
+				d="M3.2 8.4L6.4 11.5L12.8 4.2"
+				stroke="currentColor"
+				stroke-width="1.75"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			></path>
+		</svg>
+		<span data-honeymoon-toast-text>Numero guardado</span>
+	</div>
+</section>
+
+<style>
+	.honeymoon {
+		position: relative;
+		padding: 5.5rem 0;
+		background: var(--color-section);
+		display: flow-root;
+		overflow-x: clip;
+		margin-top: -1px;
+	}
+
+	.honeymoon__inner {
+		width: 100%;
+		max-width: 40rem;
+		margin-inline: auto;
+		padding-inline: var(--page-inset);
+	}
+
+	.honeymoon__card {
+		--tilt-x: 0deg;
+		--tilt-y: 0deg;
+		--shadow-x: 0px;
+		--shadow-y: 18px;
+		position: relative;
+		width: 100%;
+		border-radius: 0.85rem;
+		background-color: #f6f3ec;
+		background-image:
+			radial-gradient(rgb(90 70 40 / 4%) 0.6px, transparent 0.6px),
+			linear-gradient(180deg, #faf7f1 0%, #f3efe6 100%);
+		background-size:
+			3px 3px,
+			auto;
+		box-shadow:
+			0 1px 2px rgb(0 0 0 / 6%),
+			var(--shadow-x) var(--shadow-y) 40px rgb(0 0 0 / 22%);
+		transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
+			rotate(var(--rot, 0deg));
+		transform-style: preserve-3d;
+		will-change: transform, box-shadow;
+		color: var(--color-accent);
+	}
+
+	.honeymoon__frame {
+		padding: 20px;
+	}
+
+	.honeymoon__content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1.65rem;
+		padding: 1.65rem 1rem 1.35rem;
+		border: 1px solid var(--color-accent);
+		border-radius: 0.35rem;
+		text-align: center;
+	}
+
+	.honeymoon__title {
+		margin: 0;
+		font-family: var(--font-serif);
+		font-weight: 400;
+		font-size: clamp(1.85rem, 5.5vw, 2.35rem);
+		line-height: 1.15;
+		letter-spacing: -0.01em;
+		color: color-mix(in srgb, var(--color-accent) 92%, #000);
+	}
+
+	.honeymoon__body {
+		display: flex;
+		flex-direction: column;
+		gap: 0.95rem;
+		max-width: 28rem;
+	}
+
+	.honeymoon__body p {
+		margin: 0;
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 400;
+		line-height: 1.65;
+		color: color-mix(in srgb, var(--color-accent) 72%, #fff);
+	}
+
+	.honeymoon__copy {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.65rem;
+		margin: 0.35rem 0 0;
+		padding: 0.85rem 1.15rem;
+		min-width: min(100%, 16.5rem);
+		border: 0;
+		border-radius: 0.55rem;
+		background: rgb(52 64 40 / 7%);
+		color: var(--color-accent);
+		transition:
+			background-color 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	.honeymoon__number {
+		font-family: var(--font-sans);
+		font-size: 1rem;
+		font-weight: 500;
+		letter-spacing: 0.01em;
+		line-height: 1;
+		white-space: nowrap;
+	}
+
+	.honeymoon__icon {
+		position: relative;
+		display: grid;
+		place-items: center;
+		width: 1.25rem;
+		height: 1.25rem;
+		flex-shrink: 0;
+	}
+
+	.honeymoon__icon-copy,
+	.honeymoon__icon-check {
+		grid-area: 1 / 1;
+		width: 1.25rem;
+		height: 1.25rem;
+		transition:
+			opacity 0.28s ease,
+			transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.honeymoon__icon-copy {
+		display: block;
+		opacity: 1;
+		transform: scale(1);
+		pointer-events: none;
+		user-select: none;
+	}
+
+	.honeymoon__icon-check {
+		opacity: 0;
+		transform: scale(0.55) rotate(-12deg);
+		color: var(--color-accent);
+	}
+
+	.honeymoon__copy.is-copied .honeymoon__icon-copy {
+		opacity: 0;
+		transform: scale(0.55) rotate(12deg);
+	}
+
+	.honeymoon__copy.is-copied .honeymoon__icon-check {
+		opacity: 1;
+		transform: scale(1) rotate(0deg);
+	}
+
+	.honeymoon__rule {
+		margin: 0.15rem 0 0;
+		border: 0;
+		border-top: 1px solid rgb(52 64 40 / 18%);
+		width: 4.5rem;
+	}
+
+	.honeymoon__meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.65rem 1rem;
+		width: 100%;
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		line-height: 1.3;
+		color: color-mix(in srgb, var(--color-accent) 78%, #fff);
+	}
+
+	.honeymoon__meta-name {
+		font-weight: 600;
+		color: color-mix(in srgb, var(--color-accent) 92%, #000);
+	}
+
+	.honeymoon__meta-bank {
+		font-weight: 400;
+	}
+
+	.honeymoon__yappy {
+		display: block;
+		width: 4.75rem;
+		height: auto;
+		flex-shrink: 0;
+	}
+
+	.honeymoon__toast {
+		position: fixed;
+		left: 50%;
+		bottom: max(1.35rem, env(safe-area-inset-bottom, 0px));
+		z-index: 80;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.55rem;
+		padding: 0.8rem 1.15rem;
+		border-radius: 999px;
+		background: #f7f2ea;
+		color: var(--color-accent);
+		font-family: var(--font-sans);
+		font-size: 0.875rem;
+		font-weight: 500;
+		line-height: 1;
+		box-shadow:
+			0 1px 2px rgb(0 0 0 / 8%),
+			0 12px 32px rgb(0 0 0 / 28%);
+		transform: translate(-50%, 120%);
+		opacity: 0;
+		pointer-events: none;
+		transition:
+			opacity 0.32s ease,
+			transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.honeymoon__toast[hidden] {
+		display: none;
+	}
+
+	.honeymoon__toast.is-visible {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+
+	.honeymoon__toast-check {
+		width: 0.95rem;
+		height: 0.95rem;
+		flex-shrink: 0;
+		color: var(--color-accent);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.honeymoon__copy:hover {
+			background: rgb(52 64 40 / 11%);
+		}
+	}
+
+	.honeymoon__copy:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 3px;
+	}
+
+	.honeymoon__copy:active {
+		transform: scale(0.98);
+	}
+
+	@media (min-width: 768px) {
+		.honeymoon {
+			padding: 7rem 0;
+		}
+
+		.honeymoon__inner {
+			max-width: 42rem;
+		}
+
+		.honeymoon__content {
+			gap: 1.85rem;
+			padding: 2.35rem 2rem 1.75rem;
+		}
+
+		.honeymoon__body p {
+			font-size: 1rem;
+			line-height: 1.7;
+		}
+
+		.honeymoon__meta {
+			gap: 0.85rem 1.35rem;
+			font-size: 0.875rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.honeymoon__card {
+			transform: none;
+			will-change: auto;
+		}
+
+		.honeymoon__icon-copy,
+		.honeymoon__icon-check,
+		.honeymoon__toast,
+		.honeymoon__copy {
+			transition: none;
+		}
+	}
+</style>
+
+<script>
+	function showToast(toast: HTMLElement) {
+		toast.hidden = false;
+		/* Force reflow so the enter transition runs after unhiding */
+		void toast.offsetWidth;
+		toast.classList.add('is-visible');
+	}
+
+	function hideToast(toast: HTMLElement) {
+		toast.classList.remove('is-visible');
+		window.setTimeout(() => {
+			if (!toast.classList.contains('is-visible')) {
+				toast.hidden = true;
+			}
+		}, 420);
+	}
+
+	async function copyText(value: string) {
+		try {
+			if (navigator.clipboard?.writeText) {
+				await navigator.clipboard.writeText(value);
+				return true;
+			}
+		} catch {
+			/* fall through to legacy copy */
+		}
+
+		const input = document.createElement('textarea');
+		input.value = value;
+		input.setAttribute('readonly', '');
+		input.style.position = 'fixed';
+		input.style.opacity = '0';
+		document.body.appendChild(input);
+		input.select();
+		const ok = document.execCommand('copy');
+		input.remove();
+		return ok;
+	}
+
+	function initHoneymoon(root: HTMLElement) {
+		if (root.dataset.honeymoonReady === 'true') return;
+		root.dataset.honeymoonReady = 'true';
+
+		const button = root.querySelector<HTMLButtonElement>('[data-honeymoon-copy]');
+		const toast = root.querySelector<HTMLElement>('[data-honeymoon-toast]');
+		if (!button || !toast) return;
+
+		let resetTimer = 0;
+		let toastTimer = 0;
+
+		button.addEventListener('click', async () => {
+			const value = button.dataset.copyValue?.trim();
+			if (!value) return;
+
+			const copied = await copyText(value);
+			if (!copied) return;
+
+			button.classList.add('is-copied');
+			window.clearTimeout(resetTimer);
+			resetTimer = window.setTimeout(() => {
+				button.classList.remove('is-copied');
+			}, 2200);
+
+			showToast(toast);
+			window.clearTimeout(toastTimer);
+			toastTimer = window.setTimeout(() => hideToast(toast), 2400);
+		});
+	}
+
+	document.querySelectorAll<HTMLElement>('[data-honeymoon]').forEach(initHoneymoon);
+
+	document.addEventListener('astro:page-load', () => {
+		document.querySelectorAll<HTMLElement>('[data-honeymoon]').forEach(initHoneymoon);
+	});
+</script>
