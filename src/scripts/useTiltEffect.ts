@@ -37,12 +37,17 @@ const clamp = (value: number, min: number, max: number) =>
 const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount;
 
 const applyVars = (el: HTMLElement, x: number, y: number) => {
-	const shadowScale = Math.max(Math.abs(x), Math.abs(y), 0.01);
-	const shadowDenom = Math.max(shadowScale, MAX_TILT_MOUSE);
+	/*
+	 * Keep shadow travel tied to mouse range so large gyro tilts don't
+	 * shove drop-shadows far outside padded overflow boxes (hard clips).
+	 */
+	const shadowAmt = SHADOW / MAX_TILT_MOUSE;
+	const sx = clamp(-y * shadowAmt, -SHADOW, SHADOW);
+	const sy = clamp(14 + x * shadowAmt, 6, 14 + SHADOW);
 	el.style.setProperty('--tilt-x', `${x.toFixed(2)}deg`);
 	el.style.setProperty('--tilt-y', `${y.toFixed(2)}deg`);
-	el.style.setProperty('--shadow-x', `${(-y * (SHADOW / shadowDenom)).toFixed(2)}px`);
-	el.style.setProperty('--shadow-y', `${(14 + x * (SHADOW / shadowDenom)).toFixed(2)}px`);
+	el.style.setProperty('--shadow-x', `${sx.toFixed(2)}px`);
+	el.style.setProperty('--shadow-y', `${sy.toFixed(2)}px`);
 };
 
 export function initTiltEffect() {

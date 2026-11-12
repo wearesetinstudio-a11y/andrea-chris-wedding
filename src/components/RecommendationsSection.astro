@@ -226,9 +226,12 @@ const recommendations = [
 	.recommendations__track {
 		margin-inline: calc(var(--page-inset) * -1);
 		padding-inline: var(--page-inset);
-		/* Extra room so polaroid + tilt shadows aren't clipped by overflow-y */
-		padding-top: 0.75rem;
-		padding-bottom: 3.25rem;
+		/*
+		 * Horizontal scroll forces overflow-y clipping — keep generous
+		 * block padding so gyro/mouse tilt shadows fade instead of cutting.
+		 */
+		padding-top: 2.5rem;
+		padding-bottom: 4.75rem;
 		overflow-x: auto;
 		overflow-y: hidden;
 		scroll-snap-type: x mandatory;
@@ -350,7 +353,7 @@ const recommendations = [
 		justify-content: center;
 		gap: 0.45rem;
 		/* Sit under cards without eating the shadow breathing room above */
-		margin-top: -1.35rem;
+		margin-top: -2.25rem;
 	}
 
 	.recommendations__dot {

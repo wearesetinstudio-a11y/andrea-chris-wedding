@@ -42,6 +42,10 @@ const stays = [
 	data-where-to-stay
 >
 	<div class="where-to-stay__inner">
+		<div class="where-to-stay__divider">
+			<hr class="where-to-stay__rule" />
+		</div>
+
 		<header
 			class="where-to-stay__header flex flex-col items-center gap-4 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-12 lg:text-left"
 		>
@@ -142,20 +146,32 @@ const stays = [
 		position: relative;
 		overflow-x: clip;
 		overflow-y: visible;
-		padding: 2.5rem 0 5.5rem;
+		padding: 0 0 5.5rem;
 		background: var(--color-section);
 		margin-top: -1px;
 		display: flow-root;
 	}
 
 	.where-to-stay__inner {
-		display: flex;
-		flex-direction: column;
-		gap: 2.75rem;
 		width: 100%;
 		max-width: 90rem;
 		margin-inline: auto;
 		padding-inline: var(--page-inset);
+	}
+
+	.where-to-stay__divider {
+		padding-block: 4rem;
+	}
+
+	.where-to-stay__rule {
+		margin: 0;
+		border: 0;
+		border-top: 1px solid rgb(255 255 255 / 0.18);
+		width: 100%;
+	}
+
+	.where-to-stay__header {
+		margin-bottom: 2.5rem;
 	}
 
 	.where-to-stay__title-line {
@@ -164,9 +180,14 @@ const stays = [
 
 	.where-to-stay__track {
 		margin-inline: calc(var(--page-inset) * -1);
+		/*
+		 * overflow-y is forced non-visible whenever overflow-x scrolls —
+		 * pad enough that tilt drop-shadows fade inside the scrollport
+		 * instead of hard-clipping under the hangers.
+		 */
 		padding-inline: var(--page-inset);
-		padding-top: 0.85rem;
-		padding-bottom: 2.75rem;
+		padding-top: 2.75rem;
+		padding-bottom: 5rem;
 		overflow-x: auto;
 		overflow-y: hidden;
 		scroll-snap-type: x mandatory;
@@ -336,7 +357,7 @@ const stays = [
 		align-items: center;
 		justify-content: center;
 		gap: 0.45rem;
-		margin-top: -1.15rem;
+		margin-top: -2.35rem;
 	}
 
 	.where-to-stay__dot {
@@ -371,18 +392,22 @@ const stays = [
 
 	@media (min-width: 1024px) {
 		.where-to-stay {
-			padding: 3.5rem 0 7rem;
+			padding: 0 0 7rem;
 		}
 
-		.where-to-stay__inner {
-			gap: 3.5rem;
+		.where-to-stay__divider {
+			padding-block: 5rem;
+		}
+
+		.where-to-stay__header {
+			margin-bottom: 3.25rem;
 		}
 
 		.where-to-stay__track {
 			margin-inline: 0;
 			padding-inline: 0;
-			padding-top: 1rem;
-			padding-bottom: 1.5rem;
+			padding-top: 2rem;
+			padding-bottom: 2.5rem;
 			overflow: visible;
 			scroll-snap-type: none;
 			cursor: default;

@@ -188,7 +188,8 @@ const cards = [
 <style>
 	.where-to-eat {
 		position: relative;
-		padding: 0 0 5.5rem;
+		/* Bottom spacing comes from the next subsection divider (Donde quedar) */
+		padding: 0;
 		background: var(--color-section);
 		/* Contain layout so divider spacing never collapses into page white */
 		display: flow-root;
@@ -233,7 +234,9 @@ const cards = [
 		/* Bleed a little past the section inset so cards feel larger */
 		width: calc(100% + (var(--page-inset) * 0.7));
 		margin-inline: calc(var(--page-inset) * -0.35);
-		padding-bottom: 1.25rem;
+		/* Room for tilt box-shadow so it doesn't hard-clip under the menus */
+		padding-top: 1.25rem;
+		padding-bottom: 3rem;
 	}
 
 	.where-to-eat__card {
@@ -395,7 +398,7 @@ const cards = [
 
 	@media (min-width: 1024px) {
 		.where-to-eat {
-			padding: 0 0 7rem;
+			padding: 0;
 			overflow: visible;
 		}
 
@@ -422,7 +425,7 @@ const cards = [
 			gap: 0;
 			width: 100%;
 			margin-inline: 0;
-			padding: 1.5rem 0 2rem;
+			padding: 2rem 0 3rem;
 			perspective: 1000px;
 		}
 
