@@ -1,0 +1,562 @@
+---
+/**
+ * “Donde quedar en Boquete?” — door-hanger hotel cards.
+ * Desktop: 4-up grid. Mobile: horizontal scroll like Descubre Boquete.
+ */
+const stays = [
+	{
+		name: 'Hotel Panamonte',
+		image: '/images/panamonte.webp',
+		mapUrl: 'https://maps.google.com/?q=Hotel+Panamonte+Boquete',
+		rotation: '-2.25deg',
+		offer: true,
+	},
+	{
+		name: 'Valle Escondido',
+		image: '/images/escondido.webp',
+		mapUrl: 'https://maps.google.com/?q=Valle+Escondido+Resort+Boquete',
+		rotation: '-1deg',
+		offer: true,
+	},
+	{
+		name: 'The Inn at Palo Alto',
+		image: '/images/inn-alto.webp',
+		mapUrl: 'https://maps.google.com/?q=The+Inn+at+Palo+Alto+Boquete',
+		rotation: '1.35deg',
+		offer: true,
+	},
+	{
+		name: 'ONDA',
+		image: '/images/onda.webp',
+		mapUrl: 'https://maps.google.com/?q=ONDA+Boquete',
+		rotation: '2.4deg',
+		offer: false,
+	},
+] as const;
+---
+
+<section
+	id="donde-quedar"
+	class="where-to-stay"
+	aria-labelledby="where-to-stay-title"
+	data-where-to-stay
+>
+	<div class="where-to-stay__inner">
+		<header
+			class="where-to-stay__header flex flex-col items-center gap-4 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-12 lg:text-left"
+		>
+			<h2
+				id="where-to-stay-title"
+				class="where-to-stay__title m-0 font-serif font-normal text-[clamp(2rem,4.8vw,3.15rem)] leading-[1.08] tracking-[-0.01em] text-[#f7f2ea]"
+				data-reveal
+			>
+				<span class="where-to-stay__title-line">Donde quedar</span>
+				<span class="where-to-stay__title-line">en Boquete?</span>
+			</h2>
+
+			<p
+				class="where-to-stay__subtitle m-0 max-w-[26rem] font-sans text-[0.9375rem] leading-relaxed text-[#f7f2ea]/90 lg:max-w-[28rem] lg:pt-2 lg:text-left"
+				data-reveal
+				data-reveal-group="where-to-stay"
+				style="--reveal-delay: 80ms"
+			>
+				Hay algunos hoteles y lugares donde recomendamos dormir, y los precios pueden bajar
+				en estos lugares con nuestros nombres.
+			</p>
+		</header>
+
+		<div
+			class="where-to-stay__track"
+			data-stay-track
+			tabindex="0"
+			role="region"
+			aria-label="Hoteles recomendados en Boquete"
+		>
+			<ul class="where-to-stay__list" role="list">
+				{
+					stays.map((stay) => (
+						<li class="where-to-stay__item" style={`--rot: ${stay.rotation}`}>
+							<article class="where-to-stay__hanger" data-tilt>
+								<div class="where-to-stay__face">
+									<div class="where-to-stay__body">
+										<h3 class="where-to-stay__name">{stay.name}</h3>
+										<div class="where-to-stay__photo">
+											<img
+												src={stay.image}
+												alt={stay.name}
+												width="640"
+												height="420"
+												loading="lazy"
+												draggable="false"
+											/>
+										</div>
+										{stay.offer && (
+											<p class="where-to-stay__offer">
+												Oferta especial con “Boda Andrea & Chris”
+											</p>
+										)}
+										<a
+											class="where-to-stay__cta"
+											href={stay.mapUrl}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<span>Ver el lugar</span>
+											<span class="where-to-stay__cta-arrow" aria-hidden="true">
+												→
+											</span>
+										</a>
+									</div>
+								</div>
+							</article>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+
+		<div
+			class="where-to-stay__dots"
+			role="tablist"
+			aria-label="Posición del carrusel"
+			data-stay-dots
+		>
+			{
+				stays.map((stay, index) => (
+					<button
+						type="button"
+						class:list={['where-to-stay__dot', index === 0 && 'is-active']}
+						role="tab"
+						aria-label={`Ir a ${stay.name}`}
+						aria-selected={index === 0 ? 'true' : 'false'}
+						data-stay-dot={index}
+					/>
+				))
+			}
+		</div>
+	</div>
+</section>
+
+<style>
+	.where-to-stay {
+		position: relative;
+		overflow-x: clip;
+		overflow-y: visible;
+		padding: 2.5rem 0 5.5rem;
+		background: var(--color-section);
+		margin-top: -1px;
+		display: flow-root;
+	}
+
+	.where-to-stay__inner {
+		display: flex;
+		flex-direction: column;
+		gap: 2.75rem;
+		width: 100%;
+		max-width: 90rem;
+		margin-inline: auto;
+		padding-inline: var(--page-inset);
+	}
+
+	.where-to-stay__title-line {
+		display: block;
+	}
+
+	.where-to-stay__track {
+		margin-inline: calc(var(--page-inset) * -1);
+		padding-inline: var(--page-inset);
+		padding-top: 0.85rem;
+		padding-bottom: 2.75rem;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scroll-snap-type: x mandatory;
+		scroll-padding-inline: var(--page-inset);
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+		outline: none;
+		cursor: grab;
+	}
+
+	.where-to-stay__track.is-dragging {
+		cursor: grabbing;
+		scroll-snap-type: none;
+		user-select: none;
+	}
+
+	.where-to-stay__track.is-dragging a {
+		pointer-events: none;
+	}
+
+	.where-to-stay__track::-webkit-scrollbar {
+		display: none;
+		width: 0;
+		height: 0;
+		background: transparent;
+	}
+
+	.where-to-stay__list {
+		display: flex;
+		align-items: flex-start;
+		gap: clamp(1rem, 3vw, 1.5rem);
+		margin: 0;
+		padding: 0.5rem 0 0.25rem;
+		list-style: none;
+		width: max-content;
+		min-width: 100%;
+	}
+
+	.where-to-stay__item {
+		flex: 0 0 auto;
+		scroll-snap-align: center;
+		/* Peek next card like Descubre Boquete */
+		width: min(72vw, 15.5rem);
+	}
+
+	.where-to-stay__hanger {
+		--tilt-x: 0deg;
+		--tilt-y: 0deg;
+		--shadow-x: 0px;
+		--shadow-y: 16px;
+		position: relative;
+		width: 100%;
+		transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
+			rotate(var(--rot, 0deg));
+		transform-style: preserve-3d;
+		filter: drop-shadow(var(--shadow-x) var(--shadow-y) 22px rgb(0 0 0 / 28%));
+		will-change: transform, filter;
+	}
+
+	.where-to-stay__face {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 339 / 640;
+		background-color: #faf7f5;
+		background-image:
+			radial-gradient(rgb(90 70 40 / 4.5%) 0.55px, transparent 0.55px),
+			linear-gradient(180deg, #fdfaf6 0%, #f3efe6 100%);
+		background-size:
+			2.75px 2.75px,
+			auto;
+		-webkit-mask: url('/hanger-mask.svg') center / 100% 100% no-repeat;
+		mask: url('/hanger-mask.svg') center / 100% 100% no-repeat;
+	}
+
+	/* Body lives in the rectangular pocket below the hook (~y 190→640 of 640) */
+	.where-to-stay__body {
+		position: absolute;
+		left: 6.5%;
+		right: 5.5%;
+		top: 32.5%;
+		bottom: 4.5%;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.7rem;
+		min-height: 0;
+	}
+
+	.where-to-stay__name {
+		margin: 0;
+		padding: 0 0.15rem;
+		font-family: var(--font-serif);
+		font-weight: 400;
+		font-size: clamp(1.05rem, 3.6vw, 1.35rem);
+		line-height: 1.15;
+		text-align: center;
+		color: color-mix(in srgb, var(--color-accent) 94%, #000);
+	}
+
+	.where-to-stay__photo {
+		position: relative;
+		flex: 1 1 auto;
+		min-height: 0;
+		aspect-ratio: 4 / 3;
+		overflow: hidden;
+		background: color-mix(in srgb, var(--color-muted) 28%, var(--color-surface));
+	}
+
+	.where-to-stay__photo img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		user-select: none;
+		transform: perspective(800px) rotateX(calc(var(--tilt-x, 0deg) * 0.35))
+			rotateY(calc(var(--tilt-y, 0deg) * 0.35)) scale(1.05);
+		will-change: transform;
+	}
+
+	.where-to-stay__offer {
+		margin: 0;
+		padding: 0 0.15rem;
+		font-family: var(--font-sans);
+		font-size: 0.7rem;
+		font-weight: 400;
+		line-height: 1.35;
+		text-align: center;
+		color: color-mix(in srgb, var(--color-accent) 82%, #000);
+	}
+
+	.where-to-stay__cta {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.45rem;
+		margin-top: auto;
+		padding: 0.72rem 0.85rem;
+		background: var(--color-button);
+		color: var(--color-white);
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		font-weight: 400;
+		line-height: 1;
+		letter-spacing: 0.01em;
+		white-space: nowrap;
+		transition: background-color 0.2s ease;
+	}
+
+	.where-to-stay__cta-arrow {
+		font-size: 0.95em;
+		line-height: 1;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.where-to-stay__cta:hover,
+		.where-to-stay__cta:focus-visible {
+			background: var(--color-button-hover);
+		}
+	}
+
+	.where-to-stay__cta:active {
+		background: var(--color-button-hover);
+	}
+
+	.where-to-stay__dots {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.45rem;
+		margin-top: -1.15rem;
+	}
+
+	.where-to-stay__dot {
+		box-sizing: border-box;
+		display: block;
+		flex: 0 0 auto;
+		width: 4px;
+		height: 4px;
+		min-width: 4px;
+		min-height: 4px;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		aspect-ratio: 1;
+		appearance: none;
+		font-size: 0;
+		line-height: 0;
+		background: rgb(255 255 255 / 10%);
+		cursor: pointer;
+		transition: background 0.2s ease;
+	}
+
+	.where-to-stay__dot.is-active {
+		background: rgb(255 255 255 / 100%);
+	}
+
+	.where-to-stay__dot:focus-visible {
+		outline: 2px solid #fff;
+		outline-offset: 3px;
+	}
+
+	@media (min-width: 1024px) {
+		.where-to-stay {
+			padding: 3.5rem 0 7rem;
+		}
+
+		.where-to-stay__inner {
+			gap: 3.5rem;
+		}
+
+		.where-to-stay__track {
+			margin-inline: 0;
+			padding-inline: 0;
+			padding-top: 1rem;
+			padding-bottom: 1.5rem;
+			overflow: visible;
+			scroll-snap-type: none;
+			cursor: default;
+		}
+
+		.where-to-stay__list {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			align-items: start;
+			gap: 0;
+			width: 100%;
+			min-width: 0;
+			/* Soft overlap like the hangers in the mock */
+			padding: 0.75rem 0.5rem 0;
+		}
+
+		.where-to-stay__item {
+			width: auto;
+			scroll-snap-align: unset;
+		}
+
+		.where-to-stay__item:nth-child(1) {
+			z-index: 1;
+			transform: translateX(6%);
+		}
+
+		.where-to-stay__item:nth-child(2) {
+			z-index: 2;
+			transform: translateX(2%);
+		}
+
+		.where-to-stay__item:nth-child(3) {
+			z-index: 3;
+			transform: translateX(-2%);
+		}
+
+		.where-to-stay__item:nth-child(4) {
+			z-index: 4;
+			transform: translateX(-6%);
+		}
+
+		.where-to-stay__hanger {
+			filter: drop-shadow(var(--shadow-x) var(--shadow-y) 26px rgb(0 0 0 / 30%));
+		}
+
+		.where-to-stay__body {
+			gap: 0.85rem;
+		}
+
+		.where-to-stay__name {
+			font-size: clamp(1.15rem, 1.35vw, 1.45rem);
+		}
+
+		.where-to-stay__offer {
+			font-size: 0.75rem;
+		}
+
+		.where-to-stay__cta {
+			padding: 0.8rem 1rem;
+			font-size: 0.875rem;
+		}
+
+		.where-to-stay__dots {
+			display: none;
+		}
+	}
+</style>
+
+<script>
+	function initWhereToStay(root: HTMLElement) {
+		const track = root.querySelector<HTMLElement>('[data-stay-track]');
+		const items = Array.from(root.querySelectorAll<HTMLElement>('.where-to-stay__item'));
+		const dots = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-stay-dot]'));
+		if (!track || items.length === 0) return;
+
+		const isDesktop = () => window.matchMedia('(min-width: 1024px)').matches;
+
+		const scrollAmount = () => {
+			const first = items[0];
+			const list = track.querySelector('.where-to-stay__list');
+			if (!list) return first.getBoundingClientRect().width;
+			const styles = getComputedStyle(list);
+			const gap = Number.parseFloat(styles.columnGap || styles.gap || '24') || 24;
+			return first.getBoundingClientRect().width + gap;
+		};
+
+		const activeIndex = () => {
+			if (isDesktop()) return 0;
+			const amount = scrollAmount();
+			if (amount <= 0) return 0;
+			const maxScroll = track.scrollWidth - track.clientWidth;
+			if (maxScroll <= 0) return 0;
+			if (track.scrollLeft >= maxScroll - 4) return items.length - 1;
+			return Math.min(items.length - 1, Math.max(0, Math.round(track.scrollLeft / amount)));
+		};
+
+		const updateDots = () => {
+			const index = activeIndex();
+			dots.forEach((dot, i) => {
+				const on = i === index;
+				dot.classList.toggle('is-active', on);
+				dot.setAttribute('aria-selected', on ? 'true' : 'false');
+			});
+		};
+
+		const scrollToIndex = (index: number) => {
+			if (isDesktop()) return;
+			track.scrollTo({ left: index * scrollAmount(), behavior: 'smooth' });
+		};
+
+		dots.forEach((dot) => {
+			dot.addEventListener('click', () => {
+				const index = Number(dot.dataset.stayDot);
+				if (Number.isFinite(index)) scrollToIndex(index);
+			});
+		});
+
+		track.addEventListener('scroll', updateDots, { passive: true });
+		window.addEventListener('resize', updateDots, { passive: true });
+
+		let dragPointerId: number | null = null;
+		let dragStartX = 0;
+		let dragStartScroll = 0;
+		let dragMoved = false;
+
+		const endDrag = (event: PointerEvent) => {
+			if (dragPointerId !== event.pointerId) return;
+			dragPointerId = null;
+			track.classList.remove('is-dragging');
+			try {
+				track.releasePointerCapture(event.pointerId);
+			} catch {
+				/* already released */
+			}
+		};
+
+		track.addEventListener('pointerdown', (event) => {
+			if (isDesktop()) return;
+			if (event.pointerType !== 'mouse' || event.button !== 0) return;
+			dragPointerId = event.pointerId;
+			dragStartX = event.clientX;
+			dragStartScroll = track.scrollLeft;
+			dragMoved = false;
+			track.classList.add('is-dragging');
+			track.setPointerCapture(event.pointerId);
+		});
+
+		track.addEventListener('pointermove', (event) => {
+			if (dragPointerId !== event.pointerId) return;
+			const delta = event.clientX - dragStartX;
+			if (Math.abs(delta) > 3) dragMoved = true;
+			track.scrollLeft = dragStartScroll - delta;
+		});
+
+		track.addEventListener('pointerup', endDrag);
+		track.addEventListener('pointercancel', endDrag);
+		track.addEventListener('lostpointercapture', () => {
+			dragPointerId = null;
+			track.classList.remove('is-dragging');
+		});
+
+		track.addEventListener(
+			'click',
+			(event) => {
+				if (!dragMoved) return;
+				event.preventDefault();
+				event.stopPropagation();
+				dragMoved = false;
+			},
+			true,
+		);
+
+		updateDots();
+	}
+
+	document.querySelectorAll<HTMLElement>('[data-where-to-stay]').forEach(initWhereToStay);
+</script>

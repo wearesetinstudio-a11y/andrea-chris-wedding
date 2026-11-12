@@ -78,15 +78,17 @@ const bankName = 'Banco General';
 
 					<div class="honeymoon__meta" aria-label="Datos de Yappy">
 						<span class="honeymoon__meta-name">{accountName}</span>
-						<img
-							class="honeymoon__yappy"
-							src="/yappy-logo.svg"
-							alt="Yappy"
-							width="96"
-							height="24"
-							draggable="false"
-						/>
-						<span class="honeymoon__meta-bank">{bankName}</span>
+						<div class="honeymoon__meta-pay">
+							<img
+								class="honeymoon__yappy"
+								src="/yappy-logo.svg"
+								alt="Yappy"
+								width="96"
+								height="24"
+								draggable="false"
+							/>
+							<span class="honeymoon__meta-bank">{bankName}</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -281,10 +283,10 @@ const bankName = 'Banco General';
 
 	.honeymoon__meta {
 		display: flex;
-		flex-wrap: wrap;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 0.65rem 1rem;
+		gap: 0.55rem;
 		width: 100%;
 		font-family: var(--font-sans);
 		font-size: 0.8125rem;
@@ -295,6 +297,13 @@ const bankName = 'Banco General';
 	.honeymoon__meta-name {
 		font-weight: 600;
 		color: color-mix(in srgb, var(--color-accent) 92%, #000);
+	}
+
+	.honeymoon__meta-pay {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
 	}
 
 	.honeymoon__meta-bank {
@@ -386,8 +395,14 @@ const bankName = 'Banco General';
 		}
 
 		.honeymoon__meta {
+			flex-direction: row;
+			flex-wrap: wrap;
 			gap: 0.85rem 1.35rem;
 			font-size: 0.875rem;
+		}
+
+		.honeymoon__meta-pay {
+			display: contents;
 		}
 	}
 

@@ -4,25 +4,28 @@
  * (title | polaroid stack | narrative) with cards stacking from below;
  * on mobile, cards slide in from the right within one viewport.
  */
+const placeholderSrc = '/bg_image.webp';
+
 const milestones = [
 	{
 		label: '2019',
 		rotation: '-2deg',
-		text: 'En enero de 2019, un viaje para conocer al papa Francisco terminó cambiando nuestras vidas para siempre. Sin saberlo, y bajo la bendición de Dios, nuestros caminos ya estaban destinados a encontrarse. Lo que comenzó como una coincidencia se convirtió en una historia de amor que desafiaría más de 10,000 kilómetros de distancia, siete horas de diferencia, el idioma y nuestras distintas culturas.',
+		image: '/images/2019.webp',
+		text: 'En enero de 2019, un viaje para conocer al papa Francisco terminó cambiando nuestras vidas para siempre. Sin saberlo, nuestros caminos ya estaban destinados a encontrarse. Lo que comenzó como una coincidencia se convirtió en una historia de amor que desafiaría más de 10,000 kilómetros de distancia, siete horas de diferencia, el idioma y distintas culturas.',
 	},
 	{
 		label: '2026',
 		rotation: '1.5deg',
-		text: 'Con la determinación que tanto caracteriza a Chris, fuimos encontrando la manera de acercar dos mundos que parecía tan lejanos. No siempre fue fácil, pero cada desafío nos enseñó que el amor también se construye con esfuerzo, compromiso, comprensión y esa capacidad de tomar la decisión consciente de elegirnos cada día. Y así, el 12 de julio de 2026, en Lisboa, Portugal, con una romántica melodía de flauta de fondo y estando solo los dos, dimos uno de los pasos más importantes de nuestra historia: decidir compartir el resto de nuestras vidas.',
+		image: placeholderSrc,
+		text: 'Con la paciencia que tanto caracteriza a Chris, fuimos encontrando la manera de acercar dos mundos que parecían lejanos. No siempre fue fácil, pero cada desafío nos enseñó que el amor también se construye con esfuerzo, compromiso, y esa capacidad de tomar la decisión consciente de elegirnos cada día. Y así, el 12 de julio de 2026, en Lisboa, Portugal, dimos uno de los pasos más importantes de nuestra historia: decidir compartir el resto de nuestras vidas.',
 	},
 	{
 		label: 'Ahora',
 		rotation: '-1deg',
+		image: placeholderSrc,
 		text: 'Desde entonces, con amor, paciencia y la firme decisión de caminar juntos, hemos comenzado a construir, paso a paso, esa vida que tanto soñamos. Porque si algo nos han enseñado, nuestra historia y la vida, es que el amor no consiste en encontrar un camino perfecto, sino en encontrar a alguien con quien quieras recorrerlo todo, confiando en que, de la mano de Dios, siempre encontraremos el camino.',
 	},
 ] as const;
-
-const placeholderSrc = '/bg_image.webp';
 ---
 
 <section
@@ -50,7 +53,7 @@ const placeholderSrc = '/bg_image.webp';
 							>
 								<div class="our-story__photo">
 									<img
-										src={placeholderSrc}
+										src={item.image}
 										alt=""
 										width="800"
 										height="800"
