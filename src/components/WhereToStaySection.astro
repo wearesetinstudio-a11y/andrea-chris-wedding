@@ -47,18 +47,18 @@ const stays = [
 		</div>
 
 		<header
-			class="where-to-stay__header flex flex-col items-center gap-4 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-12 lg:text-left"
+			class="where-to-stay__header flex flex-col items-center gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-12"
 		>
 			<h2
 				id="where-to-stay-title"
-				class="where-to-stay__title m-0 font-serif font-normal text-[clamp(2rem,4.8vw,3.15rem)] leading-[1.08] tracking-[-0.01em] text-[#f7f2ea]"
+				class="where-to-stay__title m-0 text-center font-serif font-normal text-[clamp(2rem,4.8vw,3.15rem)] leading-[1.08] tracking-[-0.01em] text-[#f7f2ea] lg:text-left"
 				data-reveal
 			>
 				¿Dónde hospedarte?
 			</h2>
 
 			<p
-				class="where-to-stay__subtitle m-0 max-w-[26rem] font-sans text-[0.9375rem] leading-relaxed text-[#f7f2ea]/90 lg:max-w-[28rem] lg:pt-2 lg:text-left"
+				class="where-to-stay__subtitle m-0 max-w-[26rem] font-sans text-[0.9375rem] leading-relaxed text-[#f7f2ea]/90 lg:max-w-[28rem] lg:pt-2"
 				data-reveal
 				data-reveal-group="where-to-stay"
 				style="--reveal-delay: 80ms"
@@ -102,7 +102,7 @@ const stays = [
 										</div>
 										{stay.offer && (
 											<p class="where-to-stay__offer">
-												Oferta especial con “Boda Andrea & Chris”
+												Tarifa especial con “Boda Andrea & Chris”
 											</p>
 										)}
 										<span class="where-to-stay__cta">
@@ -173,6 +173,11 @@ const stays = [
 
 	.where-to-stay__header {
 		margin-bottom: 2.5rem;
+	}
+
+	.where-to-stay__subtitle {
+		text-align: justify;
+		text-justify: inter-word;
 	}
 
 	.where-to-stay__title-line {

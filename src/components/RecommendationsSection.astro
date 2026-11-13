@@ -13,6 +13,7 @@ const rotations = [
 	'-0.75deg',
 	'1.75deg',
 	'-1.25deg',
+	'0.85deg',
 ] as const;
 
 const recommendations = [
@@ -70,6 +71,12 @@ const recommendations = [
 		mapUrl:
 			'https://www.google.com/maps/place/Piedras+Pintadas+de+Caldera+(petroglifos+de+Caldera)/@8.666882,-82.4167227,13.25z/data=!4m6!3m5!1s0x8fa58e13458188d7:0x76c9c98999bae773!8m2!3d8.6593855!4d-82.3699076!16s%2Fg%2F11ckvkrkzg',
 	},
+	{
+		title: 'Altieri Coffee',
+		image: '/images/altieri-coffee.webp',
+		mapUrl:
+			'https://www.google.com/maps/place/Altieri+Coffee+Boquete/data=!4m2!3m1!1s0x8fa5ed9ad33a0685:0x668477a4390b1879',
+	},
 ].map((item, index) => ({
 	...item,
 	rotation: rotations[index % rotations.length],
@@ -95,7 +102,7 @@ const recommendations = [
 			</h2>
 
 			<p
-				class="recommendations__subtitle m-0 max-w-[22rem] font-sans text-[0.9375rem] leading-relaxed text-[#f7f2ea]/90 lg:max-w-[21rem] lg:justify-self-center lg:pt-1 lg:text-left"
+				class="recommendations__subtitle m-0 max-w-[22rem] font-sans text-[0.9375rem] leading-relaxed text-[#f7f2ea]/90 lg:max-w-[21rem] lg:justify-self-center lg:pt-1"
 				data-reveal
 				data-reveal-group="recommendations"
 				style="--reveal-delay: 80ms"
@@ -207,6 +214,11 @@ const recommendations = [
 		max-width: 90rem;
 		margin-inline: auto;
 		padding-inline: var(--page-inset);
+	}
+
+	.recommendations__subtitle {
+		text-align: justify;
+		text-justify: inter-word;
 	}
 
 	.recommendations__arrow {

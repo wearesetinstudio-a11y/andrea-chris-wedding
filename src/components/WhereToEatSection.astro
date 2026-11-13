@@ -118,11 +118,11 @@ const cards = [
 		</div>
 
 		<header
-			class="where-to-eat__header flex flex-col items-center gap-4 text-center lg:flex-row lg:items-start lg:justify-between lg:gap-12 lg:text-left"
+			class="where-to-eat__header flex flex-col items-center gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-12"
 		>
 			<h2
 				id="where-to-eat-title"
-				class="where-to-eat__title m-0 font-serif font-normal text-[clamp(2rem,4.8vw,3.15rem)] leading-[1.08] tracking-[-0.01em] text-[#f7f2ea]"
+				class="where-to-eat__title m-0 text-center font-serif font-normal text-[clamp(2rem,4.8vw,3.15rem)] leading-[1.08] tracking-[-0.01em] text-[#f7f2ea] lg:text-left"
 				data-reveal
 			>
 				<span class="where-to-eat__title-line">¿Qué comer</span>
@@ -130,7 +130,7 @@ const cards = [
 			</h2>
 
 			<p
-				class="where-to-eat__subtitle m-0 max-w-[26rem] font-sans text-[0.9375rem] leading-relaxed text-[#f7f2ea]/90 lg:max-w-[28rem] lg:pt-2 lg:text-left"
+				class="where-to-eat__subtitle m-0 max-w-[26rem] font-sans text-[0.9375rem] leading-relaxed text-[#f7f2ea]/90 lg:max-w-[28rem] lg:pt-2"
 				data-reveal
 				data-reveal-group="where-to-eat"
 				style="--reveal-delay: 80ms"
@@ -220,6 +220,11 @@ const cards = [
 
 	.where-to-eat__header {
 		margin-bottom: 2.5rem;
+	}
+
+	.where-to-eat__subtitle {
+		text-align: justify;
+		text-justify: inter-word;
 	}
 
 	.where-to-eat__title-line {

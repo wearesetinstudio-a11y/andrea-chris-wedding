@@ -6,14 +6,9 @@ const faqItems = [
 			'Formal elegante / Tropical elegante. Queremos que te sientas cómodo pero con estilo para celebrar este día tan especial con nosotros.',
 	},
 	{
-		question: 'Regalos',
-		answer:
-			'Tu presencia es nuestro mejor regalo. Si aún así deseas hacernos un detalle, tendremos un buzón para sobres el día del evento o puedes consultar nuestra mesa de regalos.',
-	},
-	{
 		question: 'Niños',
 		answer:
-			'Amamos a los pequeños, pero hemos decidido organizar una celebración exclusivamente para adultos. Queremos que disfrutes de una noche libre de preocupaciones.',
+			'Amamos a los más pequeños, pero para esta ocasión hemos preparado una celebración solo para adultos. Queremos que disfruten, celebren y compartan con nosotros una noche muy especial.',
 	},
 	{
 		question: 'Cómo llegar',
@@ -51,8 +46,8 @@ const answersOf = (answer: string | string[]) => (Array.isArray(answer) ? answer
 <section id="faq" class="faq" aria-labelledby="faq-title" data-faq>
 	<div class="faq__inner">
 		<h2 id="faq-title" class="faq__title" data-reveal>
-			<span class="faq__title-line">Lo que tal vez</span>
-			<span class="faq__title-line">quieras saber antes</span>
+			<span class="faq__title-line">Todo lo que</span>
+			<span class="faq__title-line">necesitan saber</span>
 		</h2>
 
 		<ul class="faq__list" role="list">
@@ -171,6 +166,8 @@ const answersOf = (answer: string | string[]) => (Array.isArray(answer) ? answer
 		font-weight: 500;
 		line-height: 1.4;
 		color: #1a1a1a;
+		text-align: justify;
+		text-wrap: pretty;
 		transition: opacity 0.2s ease;
 	}
 
@@ -212,6 +209,8 @@ const answersOf = (answer: string | string[]) => (Array.isArray(answer) ? answer
 		line-height: 1.7;
 		color: color-mix(in srgb, var(--color-accent) 72%, #fff);
 		max-width: 42rem;
+		text-align: justify;
+		text-wrap: pretty;
 	}
 
 	.faq__answer + .faq__answer {
