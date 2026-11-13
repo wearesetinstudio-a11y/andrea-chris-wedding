@@ -3,48 +3,72 @@
  * “Descubre Boquete!” — horizontal polaroid recommendations carousel.
  * Desktop: title | subtitle | arrow controls. Mobile: centered copy, touch scroll.
  */
-const rotations = ['-1.5deg', '2deg', '-1deg', '1.5deg', '-2deg', '1deg', '-0.75deg', '1.75deg'] as const;
+const rotations = [
+	'-1.5deg',
+	'2deg',
+	'-1deg',
+	'1.5deg',
+	'-2deg',
+	'1deg',
+	'-0.75deg',
+	'1.75deg',
+	'-1.25deg',
+] as const;
 
 const recommendations = [
 	{
 		title: 'Volcán Barú',
-		image: '/bg_image.webp',
-		mapUrl: 'https://maps.google.com/?q=Volcan+Baru',
+		image: '/images/baru.webp',
+		mapUrl:
+			'https://www.google.com/maps/place/Volc%C3%A1n+Bar%C3%BA/@8.8088319,-82.5526388,15z/data=!3m1!4b1!4m6!3m5!1s0x8fa5ea6050b7e431:0xaa272f8ce9430b06!8m2!3d8.808811!4d-82.542339!16zL20vMDV5bWZq',
 	},
 	{
-		title: 'Las Tres Cascadas',
-		image: '/contact_image.webp',
-		mapUrl: 'https://maps.google.com/?q=Las+Tres+Cascadas+Boquete',
+		title: 'Paseo del Río',
+		image: '/images/paseo-del-rio.webp',
+		mapUrl:
+			'https://www.google.com/maps/place/Paseo+del+R%C3%ADo/@8.7836267,-82.4318539,17z/data=!3m1!4b1!4m6!3m5!1s0x8fa5ed001a478695:0x6c389e45a7abe254!8m2!3d8.7836214!4d-82.429279!16s%2Fg%2F11vq2xdq3z',
 	},
 	{
-		title: 'Elida Estate Coffee',
-		image: '/og.jpg',
-		mapUrl: 'https://maps.google.com/?q=Elida+Estate+Coffee',
+		title: 'Cascada El Tatica',
+		image: '/images/el-tatica.webp',
+		mapUrl:
+			'https://www.google.com/maps/place/Cascada+El+Tatica/@8.840474,-82.4875412,17z/data=!3m1!4b1!4m6!3m5!1s0x8fa5eb91f2bcdf31:0xd483187ab375edde!8m2!3d8.8404687!4d-82.4849663!16s%2Fg%2F11s9k8p4_7',
 	},
 	{
-		title: 'Nature',
-		image: '/bg_image.webp',
-		mapUrl: 'https://maps.google.com/?q=Boquete+Nature',
+		title: 'Ecoparque Cerro la Cruz',
+		image: '/images/ecoparque.webp',
+		mapUrl:
+			'https://www.google.com/maps/place/Ecoparque+Cerro+la+Cruz/@8.7848189,-82.4396645,17z/data=!3m1!4b1!4m6!3m5!1s0x8fa5ed3bd246340f:0x2647b930dc7a53b4!8m2!3d8.7848136!4d-82.4370896!16s%2Fg%2F11lrhfr5l2',
 	},
 	{
-		title: 'Callejón Seco',
-		image: '/contact_image.webp',
-		mapUrl: 'https://maps.google.com/?q=Callejon+Seco+Boquete',
+		title: 'Los Ladrillos',
+		image: '/images/ladrillos.webp',
+		mapUrl:
+			'https://www.google.com/maps/place/Parque+ecol%C3%B3gico+Los+ladrillos/@8.8000862,-82.453915,17z/data=!3m1!4b1!4m6!3m5!1s0x8fa5eda82f6b2311:0x55bdb09e6fcc612c!8m2!3d8.8000809!4d-82.4513401!16s%2Fg%2F11j237tt0s',
 	},
 	{
-		title: 'Lost & Found Waterfall',
-		image: '/og.jpg',
-		mapUrl: 'https://maps.google.com/?q=Lost+and+Found+Waterfall+Boquete',
+		title: 'Sendero The Pipeline',
+		image: '/images/the-pipeline.webp',
+		mapUrl:
+			'https://www.google.com/maps/place/Pipeline+Trail+(Waterfall)/@8.8300951,-82.4828879,17z/data=!3m1!4b1!4m6!3m5!1s0x8fa5ebf47c77ef1d:0x9a976151b58581ae!8m2!3d8.8300898!4d-82.480313!16s%2Fg%2F11c2j30rdg',
 	},
 	{
-		title: 'Kotowa Coffee Estate',
-		image: '/bg_image.webp',
-		mapUrl: 'https://maps.google.com/?q=Kotowa+Coffee+Boquete',
+		title: 'Finca Lérida Coffee Shop',
+		image: '/images/finca-lerida.webp',
+		mapUrl:
+			'https://www.google.com/maps/place/Finca+L%C3%A9rida+Coffee+Shop/@8.8130148,-82.4855245,17z/data=!3m1!4b1!4m9!3m8!1s0x8fa5eb8800239553:0xa14d1cbe133e7964!5m2!4m1!1i2!8m2!3d8.8130095!4d-82.4829496!16s%2Fg%2F11h37lj1dp',
 	},
 	{
-		title: 'Pipeline Trail',
-		image: '/contact_image.webp',
-		mapUrl: 'https://maps.google.com/?q=Pipeline+Trail+Boquete',
+		title: 'San Ramón Waterfall',
+		image: '/images/san-ramon.webp',
+		mapUrl:
+			'https://www.google.com/maps/place/San+Ram%C3%B3n+Waterfall/@8.8175653,-82.4680349,17z/data=!3m1!4b1!4m6!3m5!1s0x8fa5ec703eaa09d7:0x277a5c1573a37c97!8m2!3d8.81756!4d-82.46546!16s%2Fg%2F11bx1yqnz5',
+	},
+	{
+		title: 'Piedra Pintada',
+		image: '/images/piedra-pintada.webp',
+		mapUrl:
+			'https://www.google.com/maps/place/Piedras+Pintadas+de+Caldera+(petroglifos+de+Caldera)/@8.666882,-82.4167227,13.25z/data=!4m6!3m5!1s0x8fa58e13458188d7:0x76c9c98999bae773!8m2!3d8.6593855!4d-82.3699076!16s%2Fg%2F11ckvkrkzg',
 	},
 ].map((item, index) => ({
 	...item,
@@ -76,8 +100,8 @@ const recommendations = [
 				data-reveal-group="recommendations"
 				style="--reveal-delay: 80ms"
 			>
-				¿Vienen antes a Boquete, o quedan más tiempo? ¡Ver nuestras recomendaciones para
-				disfrutar este paraíso!
+				¿Llegan unos días antes o se quedan un poquito más? Les dejamos algunos de nuestros
+				rinconcitos favoritos para que se enamoren de Boquete.
 			</p>
 
 			<div
@@ -115,11 +139,18 @@ const recommendations = [
 				{
 					recommendations.map((item) => (
 						<li class="recommendations__item" style={`--rot: ${item.rotation}`}>
-							<article class="recommendations__polaroid" data-tilt>
+							<a
+								class="recommendations__polaroid"
+								href={item.mapUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label={`${item.title} — ver en el mapa`}
+								data-tilt
+							>
 								<div class="recommendations__photo">
 									<img
 										src={item.image}
-										alt={item.title}
+										alt=""
 										width="640"
 										height="800"
 										loading="lazy"
@@ -127,15 +158,10 @@ const recommendations = [
 									/>
 								</div>
 								<p class="recommendations__caption font-handlee">{item.title}</p>
-								<a
-									class="recommendations__map text-xs text-stone-500"
-									href={item.mapUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
+								<span class="recommendations__map text-xs text-stone-500">
 									Ver en el mapa →
-								</a>
-							</article>
+								</span>
+							</a>
 						</li>
 					))
 				}
@@ -290,6 +316,8 @@ const recommendations = [
 		gap: 0.55rem;
 		padding: 0.75rem 0.75rem 1.15rem;
 		background: var(--color-white);
+		color: inherit;
+		text-decoration: none;
 		box-shadow:
 			0 1px 2px rgb(0 0 0 / 6%),
 			var(--shadow-x) var(--shadow-y) 22px rgb(0 0 0 / 16%);
@@ -297,6 +325,12 @@ const recommendations = [
 			rotate(var(--rot, 0deg));
 		transform-style: preserve-3d;
 		will-change: transform, box-shadow;
+		cursor: pointer;
+	}
+
+	.recommendations__polaroid:focus-visible {
+		outline: 2px solid #fff;
+		outline-offset: 4px;
 	}
 
 	.recommendations__photo {
@@ -338,13 +372,10 @@ const recommendations = [
 		transition: color 0.2s ease;
 	}
 
-	.recommendations__map:hover {
-		color: var(--color-accent);
-	}
-
-	.recommendations__map:focus-visible {
-		outline: 2px solid var(--color-accent);
-		outline-offset: 3px;
+	@media (hover: hover) and (pointer: fine) {
+		.recommendations__polaroid:hover .recommendations__map {
+			color: var(--color-accent);
+		}
 	}
 
 	.recommendations__dots {
@@ -477,14 +508,19 @@ const recommendations = [
 		track.addEventListener('scroll', updateButtons, { passive: true });
 		window.addEventListener('resize', updateButtons, { passive: true });
 
-		/** Mouse drag-to-scroll on desktop; touch keeps native pan. */
+		/**
+		 * Mouse drag-to-scroll on desktop; touch keeps native pan.
+		 * Capture only after a real drag so simple clicks still open map links.
+		 */
 		let dragPointerId: number | null = null;
 		let dragStartX = 0;
 		let dragStartScroll = 0;
 		let dragMoved = false;
+		const DRAG_THRESHOLD = 6;
 
 		const endDrag = (event: PointerEvent) => {
 			if (dragPointerId !== event.pointerId) return;
+			const wasDragging = dragMoved;
 			dragPointerId = null;
 			track.classList.remove('is-dragging');
 			try {
@@ -492,6 +528,8 @@ const recommendations = [
 			} catch {
 				/* already released */
 			}
+			/* Keep dragMoved true until click so we can suppress the post-drag click */
+			if (!wasDragging) dragMoved = false;
 		};
 
 		track.addEventListener('pointerdown', (event) => {
@@ -500,14 +538,17 @@ const recommendations = [
 			dragStartX = event.clientX;
 			dragStartScroll = track.scrollLeft;
 			dragMoved = false;
-			track.classList.add('is-dragging');
-			track.setPointerCapture(event.pointerId);
 		});
 
 		track.addEventListener('pointermove', (event) => {
 			if (dragPointerId !== event.pointerId) return;
 			const delta = event.clientX - dragStartX;
-			if (Math.abs(delta) > 3) dragMoved = true;
+			if (!dragMoved) {
+				if (Math.abs(delta) < DRAG_THRESHOLD) return;
+				dragMoved = true;
+				track.classList.add('is-dragging');
+				track.setPointerCapture(event.pointerId);
+			}
 			track.scrollLeft = dragStartScroll - delta;
 		});
 
@@ -518,12 +559,16 @@ const recommendations = [
 			track.classList.remove('is-dragging');
 		});
 
-		track.addEventListener('click', (event) => {
-			if (!dragMoved) return;
-			event.preventDefault();
-			event.stopPropagation();
-			dragMoved = false;
-		}, true);
+		track.addEventListener(
+			'click',
+			(event) => {
+				if (!dragMoved) return;
+				event.preventDefault();
+				event.stopPropagation();
+				dragMoved = false;
+			},
+			true,
+		);
 
 		updateButtons();
 	}

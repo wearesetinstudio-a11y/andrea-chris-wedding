@@ -15,22 +15,17 @@
 		</div>
 
 		<div class="hero__content">
-			<p class="hero__meta hero__enter" style="--enter-delay: 120ms">
-				<span>10 de abril, 2027</span>
-				<span>Boquete, Panama</span>
-			</p>
-
 			<div class="hero__stage">
 				<div class="hero__intro">
 					<h1 class="hero__title" aria-label="Andrea & Chris">
 						<span
 							class="hero__name hero__name--andrea hero__enter"
-							style="--enter-delay: 280ms"
+							style="--enter-delay: 160ms"
 							aria-hidden="true">Andrea</span
 						>
 						<span
 							class="hero__name-row hero__enter"
-							style="--enter-delay: 420ms"
+							style="--enter-delay: 300ms"
 							aria-hidden="true"
 						>
 							<span class="hero__amp">&</span>
@@ -40,7 +35,7 @@
 				</div>
 			</div>
 
-			<p class="hero__scroll hero__enter" style="--enter-delay: 580ms">(Desplaza hacia abajo ↓)</p>
+			<p class="hero__scroll hero__enter" style="--enter-delay: 460ms">(Desplaza hacia abajo ↓)</p>
 		</div>
 	</div>
 </section>
@@ -127,22 +122,6 @@
 		text-align: center;
 	}
 
-	.hero__meta {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.15rem;
-		margin: 0;
-		font-size: 0.9375rem;
-		font-weight: 400;
-		line-height: 1.4;
-		letter-spacing: 0.01em;
-	}
-
-	.hero__meta span {
-		display: block;
-	}
-
 	.hero__stage {
 		display: flex;
 		flex-direction: column;
@@ -150,7 +129,7 @@
 		justify-content: flex-end;
 		width: 100%;
 		flex: 1;
-		padding-bottom: 1.75rem;
+		padding-bottom: 2.75rem;
 	}
 
 	.hero__intro {
@@ -189,11 +168,15 @@
 	}
 
 	.hero__scroll {
-		margin: 0.35rem 0 0;
+		position: absolute;
+		right: 1.25rem;
+		bottom: 1.25rem;
+		margin: 0;
 		font-size: 0.9375rem;
 		letter-spacing: 0.01em;
 		opacity: 0.92;
 		white-space: nowrap;
+		text-align: right;
 	}
 
 	.hero__enter {
@@ -249,14 +232,6 @@
 			text-align: left;
 		}
 
-		.hero__meta {
-			position: absolute;
-			right: 2.75rem;
-			bottom: 3.85rem;
-			align-items: flex-end;
-			text-align: right;
-		}
-
 		.hero__stage {
 			position: absolute;
 			left: 2.75rem;
@@ -282,18 +257,8 @@
 		}
 
 		.hero__scroll {
-			position: absolute;
-			left: 50%;
-			bottom: 1.35rem;
-			transform: translate3d(-50%, 0, 0);
-		}
-
-		.hero__scroll.hero__enter {
-			transform: translate3d(-50%, 0, 0);
-		}
-
-		.hero.is-entered .hero__scroll.hero__enter {
-			transform: translate3d(-50%, 0, 0);
+			right: 2.75rem;
+			bottom: 1.5rem;
 		}
 	}
 </style>

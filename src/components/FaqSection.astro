@@ -28,7 +28,7 @@ const faqItems = [
 	{
 		question: 'El clima',
 		answer:
-			'Boquete se caracteriza por un clima fresco y primaveral (entre 16°C y 23°C). Les recomendamos traer un suéter ligero o chaqueta para la noche.',
+			'Boquete se caracteriza por un clima fresco y primaveral (entre 16°C y 23°C).',
 	},
 	{
 		question: '¿Puedo dar un discurso?',
@@ -36,16 +36,16 @@ const faqItems = [
 			'¡Nos encantaría! Si deseas dedicar unos minutos a decir unas palabras, por favor avísanos con anticipación en el formulario para coordinarlo en el programa.',
 	},
 	{
-		question: '¿Habrá opciones veganas o vegetarianas?',
-		answer:
-			'¡Sí, totalmente! Tendremos opciones deliciosas para personas vegetarianas, veganas y con restricciones alimenticias. Solo asegúrate de indicarlo en tu RSVP.',
-	},
-	{
-		question: 'Recomendaciones gastronómicas en Boquete',
-		answer:
-			'Les recomendamos probar el café Geisha en locales como Café de Eleta o Kotowa, y cenar en restaurantes como The Rock, Palo Cortao o Retrogusto.',
+		question: '¿Cómo llegar a Boquete?',
+		answer: [
+			'¡Queremos que su viaje sea lo más fácil posible! Les compartimos dos opciones para llegar a Boquete:',
+			'Por carretera: Desde Ciudad de Panamá, el recorrido es de aproximadamente 480 km (6 a 7 horas).',
+			'Por avión: Pueden volar con Copa Airlines o Air Panama hasta David, Chiriquí. El vuelo dura aproximadamente 1 hora y, desde allí, Boquete está a unos 45 minutos en carro.',
+		],
 	},
 ];
+
+const answersOf = (answer: string | string[]) => (Array.isArray(answer) ? answer : [answer]);
 ---
 
 <section id="faq" class="faq" aria-labelledby="faq-title" data-faq>
@@ -95,7 +95,9 @@ const faqItems = [
 							data-faq-panel
 						>
 							<div class="faq__panel-inner">
-								<p class="faq__answer">{item.answer}</p>
+								{answersOf(item.answer).map((paragraph) => (
+									<p class="faq__answer">{paragraph}</p>
+								))}
 							</div>
 						</div>
 					</li>
@@ -203,13 +205,21 @@ const faqItems = [
 
 	.faq__answer {
 		margin: 0;
-		padding: 0 0 1.35rem;
+		padding: 0;
 		font-family: var(--font-sans);
 		font-size: 0.9375rem;
 		font-weight: 400;
 		line-height: 1.7;
 		color: color-mix(in srgb, var(--color-accent) 72%, #fff);
 		max-width: 42rem;
+	}
+
+	.faq__answer + .faq__answer {
+		margin-top: 0.85rem;
+	}
+
+	.faq__panel-inner .faq__answer:last-child {
+		padding-bottom: 1.35rem;
 	}
 
 	@media (min-width: 768px) {
@@ -237,7 +247,7 @@ const faqItems = [
 			font-size: 1.125rem;
 		}
 
-		.faq__answer {
+		.faq__panel-inner .faq__answer:last-child {
 			padding-bottom: 1.5rem;
 		}
 	}

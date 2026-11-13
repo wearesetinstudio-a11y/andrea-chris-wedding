@@ -54,8 +54,7 @@ const stays = [
 				class="where-to-stay__title m-0 font-serif font-normal text-[clamp(2rem,4.8vw,3.15rem)] leading-[1.08] tracking-[-0.01em] text-[#f7f2ea]"
 				data-reveal
 			>
-				<span class="where-to-stay__title-line">Donde quedar</span>
-				<span class="where-to-stay__title-line">en Boquete?</span>
+				¿Dónde hospedarte?
 			</h2>
 
 			<p
@@ -64,8 +63,8 @@ const stays = [
 				data-reveal-group="where-to-stay"
 				style="--reveal-delay: 80ms"
 			>
-				Hay algunos hoteles y lugares donde recomendamos dormir, y los precios pueden bajar
-				en estos lugares con nuestros nombres.
+				Aquí encontrarán opciones para hospedarse en Boquete. En algunos alojamientos podrán
+				obtener una tarifa especial a nombre de Andrea y Chris.
 			</p>
 		</header>
 
@@ -80,14 +79,21 @@ const stays = [
 				{
 					stays.map((stay) => (
 						<li class="where-to-stay__item" style={`--rot: ${stay.rotation}`}>
-							<article class="where-to-stay__hanger" data-tilt>
+							<a
+								class="where-to-stay__hanger"
+								href={stay.mapUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								aria-label={`${stay.name} — ver el lugar`}
+								data-tilt
+							>
 								<div class="where-to-stay__face">
 									<div class="where-to-stay__body">
 										<h3 class="where-to-stay__name">{stay.name}</h3>
 										<div class="where-to-stay__photo">
 											<img
 												src={stay.image}
-												alt={stay.name}
+												alt=""
 												width="640"
 												height="420"
 												loading="lazy"
@@ -99,20 +105,15 @@ const stays = [
 												Oferta especial con “Boda Andrea & Chris”
 											</p>
 										)}
-										<a
-											class="where-to-stay__cta"
-											href={stay.mapUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-										>
+										<span class="where-to-stay__cta">
 											<span>Ver el lugar</span>
 											<span class="where-to-stay__cta-arrow" aria-hidden="true">
 												→
 											</span>
-										</a>
+										</span>
 									</div>
 								</div>
-							</article>
+							</a>
 						</li>
 					))
 				}
@@ -240,12 +241,21 @@ const stays = [
 		--shadow-x: 0px;
 		--shadow-y: 16px;
 		position: relative;
+		display: block;
 		width: 100%;
+		color: inherit;
+		text-decoration: none;
+		cursor: pointer;
 		transform: perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y))
 			rotate(var(--rot, 0deg));
 		transform-style: preserve-3d;
 		filter: drop-shadow(var(--shadow-x) var(--shadow-y) 22px rgb(0 0 0 / 28%));
 		will-change: transform, filter;
+	}
+
+	.where-to-stay__hanger:focus-visible {
+		outline: 2px solid #fff;
+		outline-offset: 4px;
 	}
 
 	.where-to-stay__face {
@@ -342,13 +352,12 @@ const stays = [
 	}
 
 	@media (hover: hover) and (pointer: fine) {
-		.where-to-stay__cta:hover,
-		.where-to-stay__cta:focus-visible {
+		.where-to-stay__hanger:hover .where-to-stay__cta {
 			background: var(--color-button-hover);
 		}
 	}
 
-	.where-to-stay__cta:active {
+	.where-to-stay__hanger:active .where-to-stay__cta {
 		background: var(--color-button-hover);
 	}
 
@@ -528,13 +537,19 @@ const stays = [
 		track.addEventListener('scroll', updateDots, { passive: true });
 		window.addEventListener('resize', updateDots, { passive: true });
 
+		/**
+		 * Mouse drag-to-scroll; capture only after real movement so taps
+		 * still open map links (same pattern as Descubre Boquete).
+		 */
 		let dragPointerId: number | null = null;
 		let dragStartX = 0;
 		let dragStartScroll = 0;
 		let dragMoved = false;
+		const DRAG_THRESHOLD = 6;
 
 		const endDrag = (event: PointerEvent) => {
 			if (dragPointerId !== event.pointerId) return;
+			const wasDragging = dragMoved;
 			dragPointerId = null;
 			track.classList.remove('is-dragging');
 			try {
@@ -542,6 +557,7 @@ const stays = [
 			} catch {
 				/* already released */
 			}
+			if (!wasDragging) dragMoved = false;
 		};
 
 		track.addEventListener('pointerdown', (event) => {
@@ -551,14 +567,17 @@ const stays = [
 			dragStartX = event.clientX;
 			dragStartScroll = track.scrollLeft;
 			dragMoved = false;
-			track.classList.add('is-dragging');
-			track.setPointerCapture(event.pointerId);
 		});
 
 		track.addEventListener('pointermove', (event) => {
 			if (dragPointerId !== event.pointerId) return;
 			const delta = event.clientX - dragStartX;
-			if (Math.abs(delta) > 3) dragMoved = true;
+			if (!dragMoved) {
+				if (Math.abs(delta) < DRAG_THRESHOLD) return;
+				dragMoved = true;
+				track.classList.add('is-dragging');
+				track.setPointerCapture(event.pointerId);
+			}
 			track.scrollLeft = dragStartScroll - delta;
 		});
 

@@ -1,12 +1,31 @@
 ---
 /**
  * Honeymoon Fund — paper card with gastro-style tilt/texture,
- * Yappy number copy + toast confirmation.
+ * bank account + Yappy copy fields with toast confirmation.
  */
-const phoneDisplay = '+507 6997 9321';
+const accountDisplay = '0472380202517';
+const accountCopy = '0472380202517';
+const phoneDisplay = '(+507) 6997 9321';
 const phoneCopy = '+507 6997 9321';
-const accountName = 'Andrea Vega Alvarado';
+const accountName = 'Andrea Carolina Vega Alvarado';
 const bankName = 'Banco General';
+
+const copyFields = [
+	{
+		id: 'cuenta',
+		label: 'CUENTA',
+		display: accountDisplay,
+		copy: accountCopy,
+		aria: `Copiar número de cuenta ${accountDisplay}`,
+	},
+	{
+		id: 'yappy',
+		label: 'YAPPY',
+		display: phoneDisplay,
+		copy: phoneCopy,
+		aria: `Copiar número Yappy ${phoneDisplay}`,
+	},
+] as const;
 ---
 
 <section
@@ -40,55 +59,54 @@ const bankName = 'Banco General';
 						<p>¡Gracias por ser parte de nuestra historia!</p>
 					</div>
 
-					<button
-						type="button"
-						class="honeymoon__copy"
-						data-honeymoon-copy
-						data-copy-value={phoneCopy}
-						aria-label={`Copiar número ${phoneDisplay}`}
-					>
-						<span class="honeymoon__number">{phoneDisplay}</span>
-						<span class="honeymoon__icon" aria-hidden="true">
-							<img
-								class="honeymoon__icon-copy"
-								src="/copy-icon.svg"
-								alt=""
-								width="20"
-								height="20"
-								draggable="false"
-							/>
-							<svg
-								class="honeymoon__icon-check"
-								viewBox="0 0 20 20"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-							>
-								<path
-									d="M4 10.5L8.2 14.5L16 5.5"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								></path>
-							</svg>
-						</span>
-					</button>
+					<div class="honeymoon__fields">
+						{
+							copyFields.map((field) => (
+								<div class="honeymoon__field">
+									<span class="honeymoon__label">{field.label}</span>
+									<button
+										type="button"
+										class="honeymoon__copy"
+										data-honeymoon-copy
+										data-copy-value={field.copy}
+										aria-label={field.aria}
+									>
+										<span class="honeymoon__number">{field.display}</span>
+										<span class="honeymoon__icon" aria-hidden="true">
+											<img
+												class="honeymoon__icon-copy"
+												src="/copy-icon.svg"
+												alt=""
+												width="20"
+												height="20"
+												draggable="false"
+											/>
+											<svg
+												class="honeymoon__icon-check"
+												viewBox="0 0 20 20"
+												fill="none"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													d="M4 10.5L8.2 14.5L16 5.5"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linecap="round"
+													stroke-linejoin="round"
+												/>
+											</svg>
+										</span>
+									</button>
+								</div>
+							))
+						}
+					</div>
 
 					<hr class="honeymoon__rule" />
 
-					<div class="honeymoon__meta" aria-label="Datos de Yappy">
+					<div class="honeymoon__meta" aria-label="Datos de transferencia">
+						<span class="honeymoon__meta-bank">{bankName}</span>
 						<span class="honeymoon__meta-name">{accountName}</span>
-						<div class="honeymoon__meta-pay">
-							<img
-								class="honeymoon__yappy"
-								src="/yappy-logo.svg"
-								alt="Yappy"
-								width="96"
-								height="24"
-								draggable="false"
-							/>
-							<span class="honeymoon__meta-bank">{bankName}</span>
-						</div>
 					</div>
 				</div>
 			</div>
@@ -207,14 +225,42 @@ const bankName = 'Banco General';
 		color: color-mix(in srgb, var(--color-accent) 72%, #fff);
 	}
 
+	.honeymoon__fields {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.75rem;
+		width: 100%;
+		max-width: 22rem;
+		margin-top: 0.15rem;
+	}
+
+	.honeymoon__field {
+		display: grid;
+		grid-template-columns: 4.25rem minmax(0, 1fr);
+		align-items: center;
+		gap: 0.65rem;
+		width: 100%;
+	}
+
+	.honeymoon__label {
+		font-family: var(--font-sans);
+		font-size: 0.6875rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		line-height: 1;
+		text-align: right;
+		color: color-mix(in srgb, var(--color-accent) 72%, #fff);
+	}
+
 	.honeymoon__copy {
 		display: inline-flex;
 		align-items: center;
-		justify-content: center;
+		justify-content: space-between;
 		gap: 0.65rem;
-		margin: 0.35rem 0 0;
-		padding: 0.85rem 1.15rem;
-		min-width: min(100%, 16.5rem);
+		width: 100%;
+		margin: 0;
+		padding: 0.85rem 1rem;
 		border: 0;
 		border-radius: 0.55rem;
 		background: rgb(52 64 40 / 7%);
@@ -226,7 +272,7 @@ const bankName = 'Banco General';
 
 	.honeymoon__number {
 		font-family: var(--font-sans);
-		font-size: 1rem;
+		font-size: 0.9375rem;
 		font-weight: 500;
 		letter-spacing: 0.01em;
 		line-height: 1;
@@ -288,35 +334,22 @@ const bankName = 'Banco General';
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 0.55rem;
+		gap: 0.35rem;
 		width: 100%;
 		font-family: var(--font-sans);
-		font-size: 0.8125rem;
 		line-height: 1.3;
-		color: color-mix(in srgb, var(--color-accent) 78%, #fff);
-	}
-
-	.honeymoon__meta-name {
-		font-weight: 600;
-		color: color-mix(in srgb, var(--color-accent) 92%, #000);
-	}
-
-	.honeymoon__meta-pay {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.75rem;
 	}
 
 	.honeymoon__meta-bank {
+		font-size: 0.8125rem;
 		font-weight: 400;
+		color: color-mix(in srgb, var(--color-accent) 68%, #fff);
 	}
 
-	.honeymoon__yappy {
-		display: block;
-		width: 4.75rem;
-		height: auto;
-		flex-shrink: 0;
+	.honeymoon__meta-name {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: color-mix(in srgb, var(--color-accent) 92%, #000);
 	}
 
 	.honeymoon__toast {
@@ -396,15 +429,30 @@ const bankName = 'Banco General';
 			line-height: 1.7;
 		}
 
-		.honeymoon__meta {
-			flex-direction: row;
-			flex-wrap: wrap;
-			gap: 0.85rem 1.35rem;
+		.honeymoon__fields {
+			max-width: 24rem;
+			gap: 0.85rem;
+		}
+
+		.honeymoon__field {
+			grid-template-columns: 4.75rem minmax(0, 1fr);
+			gap: 0.85rem;
+		}
+
+		.honeymoon__label {
+			font-size: 0.75rem;
+		}
+
+		.honeymoon__number {
+			font-size: 1rem;
+		}
+
+		.honeymoon__meta-bank {
 			font-size: 0.875rem;
 		}
 
-		.honeymoon__meta-pay {
-			display: contents;
+		.honeymoon__meta-name {
+			font-size: 0.9375rem;
 		}
 	}
 
@@ -466,29 +514,34 @@ const bankName = 'Banco General';
 		if (root.dataset.honeymoonReady === 'true') return;
 		root.dataset.honeymoonReady = 'true';
 
-		const button = root.querySelector<HTMLButtonElement>('[data-honeymoon-copy]');
+		const buttons = Array.from(
+			root.querySelectorAll<HTMLButtonElement>('[data-honeymoon-copy]'),
+		);
 		const toast = root.querySelector<HTMLElement>('[data-honeymoon-toast]');
-		if (!button || !toast) return;
+		if (!buttons.length || !toast) return;
 
 		let resetTimer = 0;
 		let toastTimer = 0;
 
-		button.addEventListener('click', async () => {
-			const value = button.dataset.copyValue?.trim();
-			if (!value) return;
+		buttons.forEach((button) => {
+			button.addEventListener('click', async () => {
+				const value = button.dataset.copyValue?.trim();
+				if (!value) return;
 
-			const copied = await copyText(value);
-			if (!copied) return;
+				const copied = await copyText(value);
+				if (!copied) return;
 
-			button.classList.add('is-copied');
-			window.clearTimeout(resetTimer);
-			resetTimer = window.setTimeout(() => {
-				button.classList.remove('is-copied');
-			}, 2200);
+				buttons.forEach((other) => other.classList.remove('is-copied'));
+				button.classList.add('is-copied');
+				window.clearTimeout(resetTimer);
+				resetTimer = window.setTimeout(() => {
+					button.classList.remove('is-copied');
+				}, 2200);
 
-			showToast(toast);
-			window.clearTimeout(toastTimer);
-			toastTimer = window.setTimeout(() => hideToast(toast), 2400);
+				showToast(toast);
+				window.clearTimeout(toastTimer);
+				toastTimer = window.setTimeout(() => hideToast(toast), 2400);
+			});
 		});
 	}
 
