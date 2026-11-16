@@ -108,7 +108,13 @@ const stays = [
 										<span class="where-to-stay__cta">
 											<span>Ver el lugar</span>
 											<span class="where-to-stay__cta-arrow" aria-hidden="true">
-												→
+												<img
+													src="/Arrow.svg"
+													alt=""
+													width="24"
+													height="24"
+													draggable="false"
+												/>
 											</span>
 										</span>
 									</div>
@@ -139,6 +145,16 @@ const stays = [
 				))
 			}
 		</div>
+
+		<p
+			class="where-to-stay__note m-0 mx-auto max-w-[36rem] text-center font-sans text-[0.9375rem] leading-relaxed text-[#f7f2ea]/90"
+			data-reveal
+			data-reveal-group="where-to-stay"
+			style="--reveal-delay: 160ms"
+		>
+			Boquete cuenta con excelentes hoteles y Airbnbs. Les recomendamos reservar con anticipación
+			en la zona central de Boquete o cerca de Bajo Boquete.
+		</p>
 	</div>
 </section>
 
@@ -352,8 +368,21 @@ const stays = [
 	}
 
 	.where-to-stay__cta-arrow {
-		font-size: 0.95em;
-		line-height: 1;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 0.95rem;
+		height: 0.95rem;
+	}
+
+	.where-to-stay__cta-arrow img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		/* Arrow.svg is white + left-facing; flip for CTA on olive button */
+		transform: scaleX(-1);
+		pointer-events: none;
+		user-select: none;
 	}
 
 	@media (hover: hover) and (pointer: fine) {
@@ -372,6 +401,11 @@ const stays = [
 		justify-content: center;
 		gap: 0.45rem;
 		margin-top: -2.35rem;
+	}
+
+	.where-to-stay__note {
+		margin-top: 1.75rem;
+		text-wrap: pretty;
 	}
 
 	.where-to-stay__dot {
@@ -486,6 +520,11 @@ const stays = [
 
 		.where-to-stay__dots {
 			display: none;
+		}
+
+		.where-to-stay__note {
+			margin-top: 2.25rem;
+			max-width: 40rem;
 		}
 	}
 </style>

@@ -203,7 +203,7 @@ const {
 		const group = document.createElement('div');
 		group.className = 'rsvp__choice-group';
 		group.setAttribute('role', 'radiogroup');
-		group.setAttribute('aria-label', '¿Nos acompañarás?');
+		group.setAttribute('aria-label', 'Nos acompañarás?');
 
 		/** @type {HTMLButtonElement[]} */
 		const optionBtns = [];
@@ -231,7 +231,7 @@ const {
 		}
 
 		const options = [
-			{ value: 'yes', label: '¡Sí! Claro :)' },
+			{ value: 'yes', label: 'Sí! Claro :)' },
 			{ value: 'no', label: 'No puedo :(' },
 		];
 
@@ -419,7 +419,7 @@ const {
 	}
 
 	function attendanceLabel() {
-		return state.attending ? '¡Sí! Claro :)' : 'No puedo :(';
+		return state.attending ? 'Sí! Claro :)' : 'No puedo :(';
 	}
 
 	async function submitRsvp() {
@@ -457,14 +457,14 @@ const {
 		addUserBubble(attendanceLabel(), 'attendance');
 
 		if (!state.attending) {
-			await withTyping(['¡Qué mal :(', 'Bueno, ¡tenemos que vernos y celebrar antes!']);
+			await withTyping(['Qué mal :(', 'Bueno, tenemos que vernos y celebrar antes!']);
 			busy = false;
 			return;
 		}
 
 		await withTyping([
-			'¡Genial! ¡Tengo muchas ganas de verte allí!',
-			'¿Vienes solo o con alguien?',
+			'Genial! Tengo muchas ganas de verte allí!',
+			'Vienes solo o con alguien?',
 		]);
 		busy = false;
 		renderGuestControls();
@@ -474,7 +474,7 @@ const {
 		busy = true;
 		renderIdleArrow();
 		addUserBubble(guestLabel(state.guests), 'guests');
-		await withTyping(['¡Maravilloso! ¿Podrías dejarnos tus datos?']);
+		await withTyping(['Maravilloso! Podrías dejarnos tus datos?']);
 		busy = false;
 		renderContactControls();
 	}
@@ -495,7 +495,7 @@ const {
 			return;
 		}
 
-		await withTyping(['¡Muchas gracias! ¡Tenemos muchas ganas de verte allí!']);
+		await withTyping(['Muchas gracias! Tenemos muchas ganas de verte allí!']);
 		addBubble('signoff', 'Andrea & Chris');
 		busy = false;
 	}
@@ -503,8 +503,8 @@ const {
 	async function boot() {
 		busy = true;
 		renderIdleArrow();
-		addBubble('bot', '¡Hola! ¿Cómo estás?');
-		await withTyping(['¿Nos acompañaras en nuestra boda civil?']);
+		addBubble('bot', 'Hola! Cómo estás?');
+		await withTyping(['Nos acompañaras en nuestra boda civil?']);
 		busy = false;
 		renderAttendanceControls();
 	}
