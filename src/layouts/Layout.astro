@@ -74,6 +74,36 @@ const ogImageURL = new URL('/og.jpg', canonicalURL);
 		{showIntro && <VideoIntro />}
 		<slot />
 		<script>
+			/* Mobile tap = desktop hover: press state for [data-press] */
+			(() => {
+				const fineHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+				let pressed: HTMLElement | null = null;
+
+				const clearPressed = () => {
+					if (!pressed) return;
+					pressed.classList.remove('is-pressed');
+					pressed = null;
+				};
+
+				document.addEventListener(
+					'pointerdown',
+					(event) => {
+						if (fineHover.matches) return;
+						const target = (event.target as Element | null)?.closest?.('[data-press]');
+						if (!(target instanceof HTMLElement)) return;
+						if (target.getAttribute('aria-disabled') === 'true' || (target as HTMLButtonElement).disabled)
+							return;
+						clearPressed();
+						pressed = target;
+						pressed.classList.add('is-pressed');
+					},
+					{ passive: true },
+				);
+
+				document.addEventListener('pointerup', clearPressed, { passive: true });
+				document.addEventListener('pointercancel', clearPressed, { passive: true });
+			})();
+
 			const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 			const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
 

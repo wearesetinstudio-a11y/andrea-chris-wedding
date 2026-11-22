@@ -1,0 +1,1641 @@
+---
+const playlistId = import.meta.env.SPOTIFY_PLAYLIST_ID ?? '';
+---
+
+<section
+	id="playlist"
+	class="song-request"
+	aria-labelledby="song-request-title"
+	data-song-request
+	data-playlist-id={playlistId}
+>
+	<div class="song-request__inner">
+		<header class="song-request__header">
+			<h2 id="song-request-title" class="song-request__title" data-reveal>
+				Sugiere la canción
+			</h2>
+			<p
+				class="song-request__subtitle"
+				data-reveal
+				data-reveal-group="song-request"
+				style="--reveal-delay: 80ms"
+			>
+				Busca tu favorita y agrégala a la playlist de la fiesta. ¡Queremos bailar con ustedes!
+			</p>
+		</header>
+
+		<div class="song-request__stack">
+			<div
+				class="song-request__search"
+				data-reveal
+				data-reveal-group="song-request"
+				style="--reveal-delay: 120ms"
+			>
+				<label class="song-request__label" for="song-search">Busca tu canción</label>
+				<div class="song-request__field" data-press>
+					<svg
+						class="song-request__search-icon"
+						viewBox="0 0 20 20"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+						aria-hidden="true"
+					>
+						<circle cx="8.5" cy="8.5" r="5.75" stroke="currentColor" stroke-width="1.5"
+						></circle>
+						<path
+							d="M12.75 12.75L16.25 16.25"
+							stroke="currentColor"
+							stroke-width="1.5"
+							stroke-linecap="round"></path>
+					</svg>
+					<input
+						id="song-search"
+						class="song-request__input"
+						type="search"
+						name="song-search"
+						placeholder="Busca tu canción"
+						autocomplete="off"
+						autocapitalize="off"
+						spellcheck="false"
+						data-song-search
+					/>
+					<button
+						type="button"
+						class="song-request__clear"
+						aria-label="Clear search"
+						data-song-clear
+						hidden
+					>
+						<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+							<path
+								d="M4 4l8 8M12 4l-8 8"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"></path>
+						</svg>
+					</button>
+					<span class="song-request__spinner" data-song-spinner hidden aria-hidden="true"
+					></span>
+				</div>
+
+				<div
+					class="song-request__results"
+					role="listbox"
+					aria-label="Resultados de búsqueda"
+					data-song-results
+					hidden
+				></div>
+
+				<p
+					class="song-request__status"
+					role="status"
+					aria-live="polite"
+					data-song-status
+					hidden
+				></p>
+			</div>
+
+			<div
+				class="song-request__playlist"
+				data-reveal
+				data-reveal-group="song-request"
+				style="--reveal-delay: 160ms"
+				aria-label="Playlist de la fiesta"
+			>
+				<ol class="song-request__playlist-list" data-song-playlist>
+					<li class="song-request__playlist-empty">Cargando playlist…</li>
+				</ol>
+				<button
+					type="button"
+					class="song-request__more"
+					data-song-playlist-more
+					hidden
+				>
+					Ver playlista
+				</button>
+			</div>
+		</div>
+
+		<div class="song-request__preview-shell" data-song-preview-shell aria-hidden="true">
+			<div data-song-preview-host></div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.song-request {
+		--song-bg: #1a1f16;
+		--song-panel: rgb(0 0 0 / 28%);
+		--song-line: rgb(255 255 255 / 12%);
+		--song-muted: rgb(255 255 255 / 55%);
+		--song-add: #5d7047;
+		--song-add-hover: color-mix(in srgb, #5d7047 82%, white);
+		position: relative;
+		background: var(--song-bg);
+		color: #fff;
+	}
+
+	.song-request__inner {
+		position: relative;
+		margin-inline: auto;
+		width: 100%;
+		padding: 7.5rem 1.15rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2rem;
+	}
+
+	.song-request__header {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		align-items: center;
+		text-align: center;
+		width: 100%;
+		max-width: 36rem;
+	}
+
+	.song-request__title {
+		margin: 0;
+		font-family: var(--font-serif);
+		font-weight: 400;
+		font-size: clamp(1.55rem, 6.2vw, 2.1rem);
+		line-height: 1.08;
+		letter-spacing: -0.015em;
+		color: #fff;
+		white-space: nowrap;
+		text-align: center;
+	}
+
+	.song-request__subtitle {
+		margin: 0;
+		max-width: 28rem;
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 400;
+		line-height: 1.55;
+		color: rgb(255 255 255 / 82%);
+		text-align: center;
+	}
+
+	.song-request__stack {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+		width: 100%;
+		max-width: 32rem;
+		min-width: 0;
+	}
+
+	.song-request__search {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		min-width: 0;
+	}
+
+	.song-request__search:has(.song-request__results:not([hidden])) {
+		background: var(--song-panel);
+		padding: 1rem 1rem 0.35rem;
+	}
+
+	.song-request__label {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	.song-request__field {
+		position: relative;
+		display: flex;
+		align-items: center;
+		transform-origin: left center;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	.song-request__search-icon {
+		position: absolute;
+		left: 1rem;
+		width: 1.1rem;
+		height: 1.1rem;
+		color: rgb(255 255 255 / 45%);
+		pointer-events: none;
+	}
+
+	.song-request__input {
+		width: 100%;
+		margin: 0;
+		padding: 0.95rem 2.75rem 0.95rem 2.75rem;
+		border: 1px solid rgb(255 255 255 / 22%);
+		border-radius: 0;
+		background: rgb(0 0 0 / 22%);
+		color: #fff;
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 400;
+		line-height: 1.3;
+		outline: none;
+		transition: border-color 0.2s ease;
+	}
+
+	.song-request__input::placeholder {
+		color: rgb(255 255 255 / 38%);
+	}
+
+	.song-request__input::-webkit-search-cancel-button {
+		-webkit-appearance: none;
+		appearance: none;
+	}
+
+	.song-request__input:focus {
+		border-color: rgb(255 255 255 / 42%);
+	}
+
+	.song-request__clear {
+		position: absolute;
+		right: 0.75rem;
+		display: grid;
+		place-items: center;
+		width: 1.75rem;
+		height: 1.75rem;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+		color: rgb(255 255 255 / 55%);
+	}
+
+	.song-request__clear[hidden] {
+		display: none;
+	}
+
+	.song-request__clear svg {
+		width: 0.9rem;
+		height: 0.9rem;
+	}
+
+	.song-request__spinner {
+		position: absolute;
+		right: 2.75rem;
+		width: 0.95rem;
+		height: 0.95rem;
+		border: 1.5px solid rgb(255 255 255 / 18%);
+		border-top-color: #fff;
+		border-radius: 50%;
+		animation: song-spin 0.7s linear infinite;
+	}
+
+	.song-request__results {
+		display: flex;
+		flex-direction: column;
+		margin-top: 0.35rem;
+	}
+
+	.song-request__results[hidden] {
+		display: none;
+	}
+
+	.song-request__search:has(.song-request__results:not([hidden])) .song-request__field {
+		margin-bottom: 0.35rem;
+	}
+
+	.song-request__status {
+		margin: 0;
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		line-height: 1.4;
+		color: var(--song-muted);
+	}
+
+	.song-request__status[hidden] {
+		display: none;
+	}
+
+	.song-request__status.is-error {
+		color: #f0b4a8;
+	}
+
+	.song-request__playlist {
+		min-width: 0;
+		width: 100%;
+		border-radius: 0;
+		background: var(--song-panel);
+		overflow: hidden;
+		height: fit-content;
+	}
+
+	.song-request__playlist-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.song-request__playlist-list :global(li) {
+		list-style: none;
+	}
+
+	.song-request__playlist-list :global(li::marker) {
+		content: none;
+	}
+
+	/*
+	  Spotify createController replaces the inner host node with an iframe.
+	  Keep a stable outer shell so opacity/position survive that swap.
+	*/
+	.song-request__preview-shell {
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 300px;
+		height: 80px;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		overflow: hidden;
+		opacity: 0;
+		pointer-events: none;
+		z-index: 0;
+	}
+
+	.song-request__preview-shell :global(iframe) {
+		border: 0;
+		pointer-events: none;
+	}
+
+	/* Dynamically injected markup */
+	.song-request :global(.song-request__result) {
+		display: grid;
+		grid-template-columns: 2.75rem minmax(0, 1fr) 2.35rem;
+		align-items: center;
+		gap: 0.85rem;
+		padding: 0.85rem 0.15rem;
+		border: 0;
+		border-bottom: 1px solid var(--song-line);
+		border-radius: 0;
+		background: transparent;
+		cursor: pointer;
+		text-align: left;
+		width: 100%;
+	}
+
+	.song-request :global(.song-request__result:last-child) {
+		border-bottom: 0;
+	}
+
+	.song-request :global(.song-request__result.is-playing) {
+		background: rgb(255 255 255 / 10%);
+	}
+
+	.song-request :global(.song-request__preview) {
+		position: relative;
+		display: grid;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		overflow: hidden;
+		background: rgb(255 255 255 / 10%);
+		color: #fff;
+		pointer-events: none;
+	}
+
+	.song-request :global(.song-request__cover) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.song-request :global(.song-request__cover--empty) {
+		display: grid;
+		place-items: center;
+		width: 100%;
+		height: 100%;
+		color: rgb(255 255 255 / 35%);
+		font-size: 0.75rem;
+	}
+
+	.song-request :global(.song-request__preview-icon) {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		background: rgb(0 0 0 / 42%);
+		opacity: 0;
+		transition: opacity 0.2s ease;
+		pointer-events: none;
+		color: #fff;
+	}
+
+	.song-request :global(.song-request__result:hover .song-request__preview-icon),
+	.song-request :global(.song-request__result.is-playing .song-request__preview-icon),
+	.song-request :global(.song-request__result:focus-visible .song-request__preview-icon) {
+		opacity: 1;
+	}
+
+	@media (hover: none) {
+		.song-request :global(.song-request__preview .song-request__preview-icon) {
+			opacity: 1;
+			background: rgb(0 0 0 / 28%);
+		}
+	}
+
+	.song-request :global(.song-request__eq) {
+		display: block;
+		width: 0.9rem;
+		height: 1rem;
+		overflow: visible;
+		filter: drop-shadow(0 1px 2px rgb(0 0 0 / 45%));
+	}
+
+	.song-request :global(.song-request__eq-bar) {
+		fill: currentColor;
+		width: 2px;
+	}
+
+	.song-request :global(.song-request__result.is-playing .song-request__eq-bar),
+	.song-request :global(.song-request__playlist-item.is-playing .song-request__eq-bar) {
+		animation: song-eq-bounce var(--bar-duration, 0.5s) ease-in-out infinite alternate;
+	}
+
+	.song-request :global(.song-request__meta) {
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+	}
+
+	.song-request :global(.song-request__name) {
+		display: block;
+		margin: 0;
+		font-family: var(--font-sans);
+		font-size: 0.9375rem;
+		font-weight: 500;
+		line-height: 1.25;
+		color: #fff;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		transform-origin: left center;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	.song-request :global(.song-request__artist) {
+		display: block;
+		margin: 0;
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		font-weight: 400;
+		line-height: 1.3;
+		color: var(--song-muted);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		transform-origin: left center;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	.song-request :global(.song-request__add) {
+		display: grid;
+		place-items: center;
+		width: 2.35rem;
+		height: 2.35rem;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: var(--song-add);
+		color: #fff;
+		transition:
+			background-color 0.2s ease,
+			transform 0.2s ease,
+			opacity 0.2s ease;
+	}
+
+	.song-request :global(.song-request__add svg) {
+		width: 0.95rem;
+		height: 0.95rem;
+	}
+
+	.song-request :global(.song-request__add:active:not([aria-disabled='true'])),
+	.song-request :global(.song-request__add.is-pressed:not([aria-disabled='true'])) {
+		background: var(--song-add-hover);
+		opacity: 0.65;
+		transform: scale(1.04);
+	}
+
+	.song-request :global(.song-request__add:focus-visible) {
+		outline: 2px solid #fff;
+		outline-offset: 2px;
+	}
+
+	.song-request :global(.song-request__add[aria-disabled='true']) {
+		cursor: default;
+		pointer-events: none;
+	}
+
+	.song-request :global(.song-request__add.is-loading) {
+		opacity: 0.65;
+	}
+
+	.song-request :global(.song-request__add.is-added),
+	.song-request :global(.song-request__add.is-duplicate),
+	.song-request :global(.song-request__add.is-added:hover),
+	.song-request :global(.song-request__add.is-duplicate:hover) {
+		background: #fff;
+		color: var(--song-add);
+	}
+
+	.song-request :global(.song-request__playlist-item) {
+		display: grid;
+		grid-template-columns: 2.1rem minmax(0, 1fr) auto;
+		align-items: center;
+		gap: 0.85rem;
+		width: 100%;
+		margin: 0;
+		padding: 1.05rem 1.25rem;
+		border: 0;
+		border-bottom: 1px solid var(--song-line);
+		border-radius: 0;
+		background: transparent;
+		color: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.song-request :global(.song-request__playlist-item:first-child) {
+		padding-top: 1.05rem;
+	}
+
+	.song-request :global(.song-request__playlist-item:last-child) {
+		border-bottom: 0;
+		padding-bottom: 1.05rem;
+	}
+
+	.song-request :global(.song-request__playlist-item.is-playing) {
+		background: rgb(255 255 255 / 10%);
+	}
+
+	.song-request :global(.song-request__playlist-index) {
+		position: relative;
+		display: grid;
+		place-items: center;
+		width: 1.25rem;
+		height: 1.25rem;
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		font-weight: 400;
+		color: var(--song-muted);
+		line-height: 1;
+	}
+
+	.song-request :global(.song-request__playlist-number) {
+		grid-area: 1 / 1;
+		transform-origin: center center;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	.song-request :global(.song-request__playlist-eq) {
+		grid-area: 1 / 1;
+		display: none;
+		color: #fff;
+	}
+
+	.song-request :global(.song-request__playlist-item.is-playing .song-request__playlist-number) {
+		display: none;
+	}
+
+	.song-request :global(.song-request__playlist-item.is-playing .song-request__playlist-eq) {
+		display: block;
+	}
+
+	.song-request :global(.song-request__playlist-eq .song-request__eq) {
+		width: 0.85rem;
+		height: 0.95rem;
+		filter: none;
+	}
+
+	.song-request :global(.song-request__playlist-meta) {
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+	}
+
+	.song-request :global(.song-request__playlist-name) {
+		display: block;
+		margin: 0;
+		font-family: var(--font-serif);
+		font-size: 1.05rem;
+		font-weight: 400;
+		line-height: 1.2;
+		color: #fff;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		transform-origin: left center;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	.song-request :global(.song-request__playlist-artist) {
+		display: block;
+		margin: 0;
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		font-weight: 400;
+		line-height: 1.3;
+		color: var(--song-muted);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		transform-origin: left center;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	.song-request :global(.song-request__playlist-duration) {
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		font-weight: 400;
+		color: var(--song-muted);
+		line-height: 1;
+		white-space: nowrap;
+		font-variant-numeric: tabular-nums;
+		min-width: 2.75rem;
+		text-align: right;
+		transform-origin: right center;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.song-request__field:hover,
+		.song-request__field:focus-within {
+			opacity: 0.65;
+			transform: scale(1.04);
+		}
+
+		.song-request :global(.song-request__add:hover:not([aria-disabled='true'])),
+		.song-request :global(.song-request__add:focus-visible:not([aria-disabled='true'])) {
+			background: var(--song-add-hover);
+			opacity: 0.65;
+			transform: scale(1.04);
+		}
+
+		.song-request :global(.song-request__result:hover .song-request__name),
+		.song-request :global(.song-request__result:hover .song-request__artist),
+		.song-request :global(.song-request__result:focus-visible .song-request__name),
+		.song-request :global(.song-request__result:focus-visible .song-request__artist) {
+			opacity: 0.65;
+			transform: scale(1.04);
+		}
+
+		.song-request :global(.song-request__playlist-item:hover .song-request__playlist-number),
+		.song-request :global(.song-request__playlist-item:hover .song-request__playlist-name),
+		.song-request :global(.song-request__playlist-item:hover .song-request__playlist-artist),
+		.song-request :global(.song-request__playlist-item:hover .song-request__playlist-duration),
+		.song-request :global(.song-request__playlist-item:focus-visible .song-request__playlist-number),
+		.song-request :global(.song-request__playlist-item:focus-visible .song-request__playlist-name),
+		.song-request :global(.song-request__playlist-item:focus-visible .song-request__playlist-artist),
+		.song-request :global(.song-request__playlist-item:focus-visible .song-request__playlist-duration) {
+			opacity: 0.65;
+			transform: scale(1.04);
+		}
+	}
+
+	.song-request__field:active,
+	.song-request__field.is-pressed {
+		opacity: 0.65;
+		transform: scale(1.04);
+	}
+
+	.song-request :global(.song-request__result:active .song-request__name),
+	.song-request :global(.song-request__result:active .song-request__artist),
+	.song-request :global(.song-request__result.is-pressed .song-request__name),
+	.song-request :global(.song-request__result.is-pressed .song-request__artist) {
+		opacity: 0.65;
+		transform: scale(1.04);
+	}
+
+	.song-request :global(.song-request__playlist-item:active .song-request__playlist-number),
+	.song-request :global(.song-request__playlist-item:active .song-request__playlist-name),
+	.song-request :global(.song-request__playlist-item:active .song-request__playlist-artist),
+	.song-request :global(.song-request__playlist-item:active .song-request__playlist-duration),
+	.song-request :global(.song-request__playlist-item.is-pressed .song-request__playlist-number),
+	.song-request :global(.song-request__playlist-item.is-pressed .song-request__playlist-name),
+	.song-request :global(.song-request__playlist-item.is-pressed .song-request__playlist-artist),
+	.song-request :global(.song-request__playlist-item.is-pressed .song-request__playlist-duration) {
+		opacity: 0.65;
+		transform: scale(1.04);
+	}
+
+	.song-request :global(.song-request__playlist-empty) {
+		padding: 1.05rem 1.25rem;
+		font-family: var(--font-sans);
+		font-size: 0.875rem;
+		color: var(--song-muted);
+	}
+
+	.song-request__more {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.35rem;
+		margin: 0;
+		padding: 0.95rem 1.25rem 1.15rem;
+		border: 0;
+		background: transparent;
+		font-family: var(--font-sans);
+		font-size: 0.8125rem;
+		font-weight: 400;
+		line-height: 1.3;
+		color: var(--song-muted);
+		text-decoration: underline;
+		text-underline-offset: 0.18em;
+		cursor: pointer;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+		transform-origin: left center;
+	}
+
+	.song-request__more[hidden] {
+		display: none;
+	}
+
+	.song-request__more-count {
+		text-decoration: underline;
+		text-underline-offset: 0.18em;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.song-request__more:hover,
+		.song-request__more:focus-visible {
+			opacity: 0.65;
+			transform: scale(1.04);
+		}
+	}
+
+	.song-request__more:active {
+		opacity: 0.65;
+		transform: scale(1.04);
+	}
+
+	@media (min-width: 768px) {
+		.song-request__inner {
+			padding: 9rem 1.5rem;
+			gap: 2.75rem;
+		}
+
+		.song-request__title {
+			font-size: clamp(2.75rem, 4vw, 3.75rem);
+		}
+
+		.song-request__subtitle {
+			font-size: 1rem;
+			line-height: 1.6;
+			max-width: 32rem;
+		}
+
+		.song-request__stack {
+			max-width: 34rem;
+			gap: 1.5rem;
+		}
+
+		.song-request__search:has(.song-request__results:not([hidden])) {
+			padding: 1.15rem 1.15rem 0.45rem;
+		}
+
+		.song-request__field {
+			transform-origin: center center;
+		}
+	}
+
+	@media (min-width: 900px) {
+		.song-request__inner {
+			/* Match FAQ / contact horizontal inset */
+			padding-inline: max(1.5rem, 2.75vw);
+		}
+
+		.song-request__stack {
+			max-width: 36rem;
+		}
+	}
+
+	@keyframes song-spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.song-request__spinner {
+			animation: none;
+			border-top-color: rgb(255 255 255 / 4%);
+		}
+
+		.song-request :global(.song-request__add) {
+			transition: none;
+		}
+	}
+</style>
+
+<style is:global>
+	@keyframes song-eq-bounce {
+		0% {
+			height: calc(var(--bar-from, 4) * 1px);
+			y: calc((16 - var(--bar-from, 4)) / 2 * 1px);
+		}
+		100% {
+			height: calc(var(--bar-to, 16) * 1px);
+			y: calc((16 - var(--bar-to, 16)) / 2 * 1px);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.song-request .song-request__result.is-playing .song-request__eq-bar,
+		.song-request .song-request__playlist-item.is-playing .song-request__eq-bar {
+			animation: none;
+			height: calc(var(--bar-to, 12) * 1px);
+			y: calc((16 - var(--bar-to, 12)) / 2 * 1px);
+		}
+	}
+</style>
+
+<script>
+	type Track = {
+		id: string;
+		name: string;
+		artist: string;
+		albumCover: string | null;
+		uri: string;
+		previewUrl: string | null;
+		alreadyOnPlaylist?: boolean;
+	};
+
+	type PlaylistTrack = {
+		id: string;
+		name: string;
+		artist: string;
+		uri: string;
+		durationMs: number;
+		previewUrl?: string | null;
+	};
+
+	type AddResponse = {
+		ok?: boolean;
+		status?: 'added' | 'already_on_playlist';
+		message?: string;
+		error?: string;
+	};
+
+	type SpotifyEmbedController = {
+		addListener: (
+			event: 'ready' | 'playback_started' | 'playback_update',
+			cb: (e: {
+				data?: {
+					isPaused?: boolean;
+					playingURI?: string;
+					position?: number;
+					duration?: number;
+				};
+			}) => void,
+		) => void;
+		loadUri?: (uri: string) => void;
+		loadEntity?: (uriOrUrl: string) => void;
+		play: () => void;
+		pause: () => void;
+		togglePlay?: () => void;
+	};
+
+	type SpotifyIFrameApi = {
+		createController: (
+			element: HTMLElement,
+			options: {
+				uri?: string;
+				width?: number | string;
+				height?: number | string;
+			},
+			callback: (controller: SpotifyEmbedController) => void,
+		) => void;
+	};
+
+	const LABELS = {
+		empty: 'No encontramos canciones con ese nombre.',
+		error: 'Algo salió mal. Intenta de nuevo.',
+		addedOk: '¡Listo! La agregamos a la playlist.',
+		alreadyThere: 'Esta canción ya está en la playlist.',
+		playlistEmpty: 'La playlist todavía está vacía.',
+		playlistError: 'No pudimos cargar la playlist.',
+		noPreview: 'Esta canción no tiene vista previa.',
+	} as const;
+
+	const ICON_PLUS = `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`;
+	const ICON_CHECK = `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.2 8.4L6.4 11.5L12.8 4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+	const ICON_EQ = `<svg class="song-request__eq" viewBox="0 0 14 16" width="14" height="16" aria-hidden="true" shape-rendering="crispEdges"><rect class="song-request__eq-bar" x="1" y="6" width="2" height="4" style="--bar-from:4;--bar-to:14;--bar-duration:0.42s"></rect><rect class="song-request__eq-bar" x="6" y="4" width="2" height="8" style="--bar-from:6;--bar-to:16;--bar-duration:0.56s"></rect><rect class="song-request__eq-bar" x="11" y="7" width="2" height="2" style="--bar-from:3;--bar-to:12;--bar-duration:0.48s"></rect></svg>`;
+
+	function escapeHtml(value: string) {
+		return value
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;')
+			.replaceAll("'", '&#39;');
+	}
+
+	function formatDuration(ms: number) {
+		if (!Number.isFinite(ms) || ms < 0) return '00:00';
+		const totalSec = Math.floor(ms / 1000);
+		const min = Math.floor(totalSec / 60);
+		const sec = totalSec % 60;
+		return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+	}
+
+	/** Spotify embed may report seconds or ms depending on context — normalize to ms. */
+	function normalizePositionMs(position: number, duration?: number) {
+		if (!Number.isFinite(position) || position < 0) return 0;
+		if (typeof duration === 'number' && duration > 0 && duration < 10_000) {
+			return position * 1000;
+		}
+		// Plain seconds heuristic (song progress rarely exceeds 600s as an integer ms value this low with matching duration)
+		if (position > 0 && position < 1_000 && (duration == null || duration < 10_000)) {
+			return position * 1000;
+		}
+		return position;
+	}
+
+	function initSongRequest(root: HTMLElement) {
+		if (root.dataset.songReady === 'true') return;
+		root.dataset.songReady = 'true';
+
+		const input = root.querySelector<HTMLInputElement>('[data-song-search]');
+		const clearBtn = root.querySelector<HTMLButtonElement>('[data-song-clear]');
+		const results = root.querySelector<HTMLElement>('[data-song-results]');
+		const spinner = root.querySelector<HTMLElement>('[data-song-spinner]');
+		const status = root.querySelector<HTMLElement>('[data-song-status]');
+		const playlistList = root.querySelector<HTMLOListElement>('[data-song-playlist]');
+		const playlistMore = root.querySelector<HTMLButtonElement>('[data-song-playlist-more]');
+		const previewShell = root.querySelector<HTMLElement>('[data-song-preview-shell]');
+
+		if (
+			!input ||
+			!results ||
+			!spinner ||
+			!status ||
+			!playlistList ||
+			!clearBtn ||
+			!previewShell ||
+			!playlistMore
+		)
+			return;
+
+		const PLAYLIST_PREVIEW_COUNT = 4;
+		let playlistTracksCache: PlaylistTrack[] = [];
+		let playlistExpanded = false;
+
+		const getPreviewHost = () => {
+			let host = previewShell.querySelector<HTMLElement>('[data-song-preview-host]');
+			if (!host) {
+				previewShell.replaceChildren();
+				host = document.createElement('div');
+				host.setAttribute('data-song-preview-host', '');
+				previewShell.appendChild(host);
+			}
+			return host;
+		};
+
+		let debounceTimer = 0;
+		let requestId = 0;
+		let playingUri: string | null = null;
+		let embedPlaying = false;
+		let embedController: SpotifyEmbedController | null = null;
+		let embedReady = false;
+		let pendingEmbedUri: string | null = null;
+		let embedInitPromise: Promise<SpotifyEmbedController> | null = null;
+		let currentPositionMs = 0;
+		const buttonState = new Map<string, 'default' | 'loading' | 'added' | 'duplicate'>();
+		const previewAudio = new Audio();
+		previewAudio.preload = 'none';
+
+		const pauseSiteMusic = () => {
+			const music = (window as Window & { __weddingMusic?: { pause: () => void } })
+				.__weddingMusic;
+			music?.pause();
+			window.dispatchEvent(new CustomEvent('wedding:spotify-playing'));
+		};
+
+		const isPreviewPlaying = (trackUri: string) => {
+			if (playingUri !== trackUri) return false;
+			if (previewAudio.src && !previewAudio.paused) return true;
+			return embedPlaying;
+		};
+
+		const syncElapsedTimes = () => {
+			playlistList.querySelectorAll<HTMLElement>('[data-song-playlist-play]').forEach((row) => {
+				const trackUri = row.dataset.trackUri ?? '';
+				const durationEl = row.querySelector<HTMLElement>('[data-playlist-duration]');
+				if (!durationEl) return;
+				const fullMs = Number(row.dataset.durationMs) || 0;
+				if (trackUri && trackUri === playingUri && isPreviewPlaying(trackUri)) {
+					durationEl.textContent = formatDuration(currentPositionMs);
+				} else {
+					durationEl.textContent = formatDuration(fullMs);
+				}
+			});
+		};
+
+		const syncPreviewButtons = () => {
+			results.querySelectorAll<HTMLElement>('[data-song-result]').forEach((row) => {
+				const trackUri = row.dataset.trackUri ?? '';
+				const isPlaying = isPreviewPlaying(trackUri);
+				row.classList.toggle('is-playing', isPlaying);
+				row.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
+			});
+
+			playlistList.querySelectorAll<HTMLElement>('[data-song-playlist-play]').forEach((row) => {
+				const trackUri = row.dataset.trackUri ?? '';
+				const isPlaying = isPreviewPlaying(trackUri);
+				row.classList.toggle('is-playing', isPlaying);
+				row.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
+			});
+
+			syncElapsedTimes();
+		};
+
+		const stopAudioPreview = () => {
+			previewAudio.pause();
+			previewAudio.removeAttribute('src');
+			previewAudio.load();
+		};
+
+		const stopEmbedPreview = () => {
+			embedController?.pause();
+			embedPlaying = false;
+			pendingEmbedUri = null;
+		};
+
+		const stopPreview = () => {
+			stopAudioPreview();
+			stopEmbedPreview();
+			playingUri = null;
+			currentPositionMs = 0;
+			syncPreviewButtons();
+		};
+
+		const loadSpotifyIframeApi = (onReady: (api: SpotifyIFrameApi) => void) => {
+			const win = window as Window & {
+				onSpotifyIframeApiReady?: (api: SpotifyIFrameApi) => void;
+				__spotifyIframeApi?: SpotifyIFrameApi;
+			};
+
+			if (win.__spotifyIframeApi) {
+				onReady(win.__spotifyIframeApi);
+				return;
+			}
+
+			const previous = win.onSpotifyIframeApiReady;
+			win.onSpotifyIframeApiReady = (api) => {
+				win.__spotifyIframeApi = api;
+				previous?.(api);
+				onReady(api);
+			};
+
+			if (!document.querySelector('script[data-spotify-iframe-api]')) {
+				const script = document.createElement('script');
+				script.src = 'https://open.spotify.com/embed/iframe-api/v1';
+				script.async = true;
+				script.dataset.spotifyIframeApi = '';
+				document.body.appendChild(script);
+			}
+		};
+
+		const ensureEmbedController = () => {
+			if (embedController && embedReady) {
+				return Promise.resolve(embedController);
+			}
+			if (embedInitPromise) return embedInitPromise;
+
+			embedInitPromise = new Promise<SpotifyEmbedController>((resolve, reject) => {
+				const timeout = window.setTimeout(() => {
+					reject(new Error('Spotify embed timeout'));
+					embedInitPromise = null;
+				}, 12000);
+
+				loadSpotifyIframeApi((api) => {
+					const host = getPreviewHost();
+					api.createController(
+						host,
+						{
+							uri: 'spotify:track:4cOdK2wGLETKBW3PvgPWqT',
+							width: 300,
+							height: 80,
+						},
+						(controller) => {
+							embedController = controller;
+							// Spotify may swap the host for an iframe — keep it eager + inside the shell
+							const iframe = previewShell.querySelector('iframe');
+							if (iframe) {
+								iframe.loading = 'eager';
+								iframe.setAttribute('loading', 'eager');
+							}
+							controller.addListener('ready', () => {
+								embedReady = true;
+								window.clearTimeout(timeout);
+								if (pendingEmbedUri) {
+									const uri = pendingEmbedUri;
+									pendingEmbedUri = null;
+									if (typeof controller.loadUri === 'function') controller.loadUri(uri);
+									else if (typeof controller.loadEntity === 'function')
+										controller.loadEntity(uri);
+									try {
+										controller.play();
+										embedPlaying = true;
+									} catch {
+										/* autoplay may require another tap */
+									}
+									syncPreviewButtons();
+								}
+								resolve(controller);
+							});
+							controller.addListener('playback_update', (event) => {
+								const eventUri = event.data?.playingURI ?? null;
+								// Ignore stale updates from the previous / placeholder track
+								if (playingUri && eventUri && eventUri !== playingUri) return;
+
+								const paused = event.data?.isPaused !== false;
+								embedPlaying = !paused && Boolean(playingUri);
+
+								if (
+									!paused &&
+									typeof event.data?.position === 'number' &&
+									Number.isFinite(event.data.position)
+								) {
+									currentPositionMs = normalizePositionMs(
+										event.data.position,
+										event.data.duration,
+									);
+								}
+
+								if (paused && (event.data?.position ?? 0) <= 0) {
+									currentPositionMs = 0;
+								}
+
+								syncPreviewButtons();
+							});
+						},
+					);
+				});
+			}).catch((error) => {
+				embedInitPromise = null;
+				throw error;
+			});
+
+			return embedInitPromise;
+		};
+
+		const playEmbedUri = (controller: SpotifyEmbedController, trackUri: string) => {
+			if (typeof controller.loadUri === 'function') controller.loadUri(trackUri);
+			else if (typeof controller.loadEntity === 'function') controller.loadEntity(trackUri);
+			else pendingEmbedUri = trackUri;
+
+			try {
+				controller.play();
+			} catch {
+				pendingEmbedUri = trackUri;
+			}
+			embedPlaying = true;
+			currentPositionMs = 0;
+			syncPreviewButtons();
+		};
+
+		const playViaEmbed = async (trackUri: string) => {
+			pauseSiteMusic();
+			stopAudioPreview();
+			embedController?.pause();
+			embedPlaying = false;
+			playingUri = trackUri;
+			currentPositionMs = 0;
+			syncPreviewButtons();
+
+			if (embedController && embedReady) {
+				pendingEmbedUri = null;
+				playEmbedUri(embedController, trackUri);
+				return;
+			}
+
+			// Controller still booting — queue URI so it plays on ready
+			pendingEmbedUri = trackUri;
+			const controller = await ensureEmbedController();
+			if (playingUri !== trackUri) return;
+			if (pendingEmbedUri === trackUri) {
+				pendingEmbedUri = null;
+				playEmbedUri(controller, trackUri);
+			}
+		};
+
+		// Warm embed on first interaction so play() stays closer to the user gesture
+		root.addEventListener(
+			'pointerdown',
+			() => {
+				void ensureEmbedController().catch(() => {
+					/* ignore warmup errors; play path will retry */
+				});
+			},
+			{ once: true, passive: true },
+		);
+
+		const togglePreview = async (trackUri: string, previewUrl: string | null) => {
+			if (isPreviewPlaying(trackUri)) {
+				stopPreview();
+				return;
+			}
+
+			setStatus('');
+			// Always clear previous playback before starting another track
+			stopAudioPreview();
+			embedController?.pause();
+			embedPlaying = false;
+			pendingEmbedUri = null;
+			playingUri = trackUri;
+			currentPositionMs = 0;
+			syncPreviewButtons();
+
+			if (previewUrl) {
+				pauseSiteMusic();
+				previewAudio.src = previewUrl;
+				try {
+					await previewAudio.play();
+					if (playingUri === trackUri) syncPreviewButtons();
+					return;
+				} catch {
+					/* fall through to Spotify embed */
+				}
+			}
+
+			try {
+				await playViaEmbed(trackUri);
+			} catch {
+				if (playingUri === trackUri) {
+					playingUri = null;
+					currentPositionMs = 0;
+					embedPlaying = false;
+					syncPreviewButtons();
+					setStatus(LABELS.noPreview, true);
+				}
+			}
+		};
+
+		previewAudio.addEventListener('timeupdate', () => {
+			if (!playingUri || previewAudio.paused) return;
+			currentPositionMs = Math.max(0, previewAudio.currentTime * 1000);
+			syncElapsedTimes();
+		});
+
+		previewAudio.addEventListener('ended', () => {
+			playingUri = null;
+			currentPositionMs = 0;
+			syncPreviewButtons();
+		});
+
+		previewAudio.addEventListener('pause', () => {
+			if (previewAudio.ended) return;
+			syncPreviewButtons();
+		});
+
+		const setStatus = (message: string, isError = false) => {
+			if (!message) {
+				status.hidden = true;
+				status.textContent = '';
+				status.classList.remove('is-error');
+				return;
+			}
+			status.hidden = false;
+			status.textContent = message;
+			status.classList.toggle('is-error', isError);
+		};
+
+		const setSearching = (active: boolean) => {
+			spinner.hidden = !active;
+		};
+
+		const syncClear = () => {
+			clearBtn.hidden = !input.value;
+		};
+
+		const renderButtonIcon = (state: 'default' | 'loading' | 'added' | 'duplicate') => {
+			if (state === 'added' || state === 'duplicate') return ICON_CHECK;
+			return ICON_PLUS;
+		};
+
+		const applyButtonState = (
+			button: HTMLElement,
+			state: 'default' | 'loading' | 'added' | 'duplicate',
+		) => {
+			button.dataset.state = state;
+			button.classList.toggle('is-loading', state === 'loading');
+			button.classList.toggle('is-added', state === 'added');
+			button.classList.toggle('is-duplicate', state === 'duplicate');
+			if (state === 'default') button.removeAttribute('aria-disabled');
+			else button.setAttribute('aria-disabled', 'true');
+			button.setAttribute(
+				'aria-label',
+				state === 'duplicate' || state === 'added' ? 'Ya está en la playlist' : 'Agregar a la playlist',
+			);
+			button.innerHTML = renderButtonIcon(state);
+		};
+
+		const renderResults = (tracks: Track[]) => {
+			if (!tracks.length) {
+				stopPreview();
+				results.hidden = true;
+				results.innerHTML = '';
+				return;
+			}
+
+			results.hidden = false;
+			results.innerHTML = tracks
+				.map((track) => {
+					const state = buttonState.get(track.uri) ?? 'default';
+					const cover = track.albumCover
+						? `<img class="song-request__cover" src="${escapeHtml(track.albumCover)}" alt="" width="44" height="44" loading="lazy" />`
+						: `<div class="song-request__cover song-request__cover--empty" aria-hidden="true">♪</div>`;
+
+					return `
+						<button
+							type="button"
+							class="song-request__result"
+							role="option"
+							data-song-result
+							data-press
+							data-track-uri="${escapeHtml(track.uri)}"
+							data-preview-url="${track.previewUrl ? escapeHtml(track.previewUrl) : ''}"
+							aria-label="Escuchar vista previa de ${escapeHtml(track.name)}"
+							aria-pressed="false"
+						>
+							<span class="song-request__preview" aria-hidden="true">
+								${cover}
+								<span class="song-request__preview-icon">${ICON_EQ}</span>
+							</span>
+							<span class="song-request__meta">
+								<span class="song-request__name">${escapeHtml(track.name)}</span>
+								<span class="song-request__artist">${escapeHtml(track.artist)}</span>
+							</span>
+							<span
+								class="song-request__add${state === 'loading' ? ' is-loading' : ''}${state === 'added' ? ' is-added' : ''}${state === 'duplicate' ? ' is-duplicate' : ''}"
+								data-song-add
+								data-press
+								data-track-uri="${escapeHtml(track.uri)}"
+								data-state="${state}"
+								role="button"
+								aria-label="${state === 'duplicate' || state === 'added' ? 'Ya está en la playlist' : 'Agregar a la playlist'}"
+								${state !== 'default' ? 'aria-disabled="true"' : ''}
+							>
+								${renderButtonIcon(state)}
+							</span>
+						</button>
+					`;
+				})
+				.join('');
+
+			syncPreviewButtons();
+		};
+
+		const renderPlaylist = (tracks: PlaylistTrack[], expanded = playlistExpanded) => {
+			playlistTracksCache = tracks;
+			playlistExpanded = expanded;
+
+			if (!tracks.length) {
+				playlistList.innerHTML = `<li class="song-request__playlist-empty">${LABELS.playlistEmpty}</li>`;
+				playlistMore.hidden = true;
+				playlistMore.textContent = 'Ver playlista';
+				return;
+			}
+
+			const showAll = expanded || tracks.length <= PLAYLIST_PREVIEW_COUNT;
+			const visible = showAll ? tracks : tracks.slice(0, PLAYLIST_PREVIEW_COUNT);
+
+			playlistList.innerHTML = visible
+				.map((track, index) => {
+					const n = String(index + 1).padStart(2, '0');
+					return `
+						<li>
+							<button
+								type="button"
+								class="song-request__playlist-item"
+								data-song-playlist-play
+								data-press
+								data-track-uri="${escapeHtml(track.uri)}"
+								data-preview-url="${track.previewUrl ? escapeHtml(track.previewUrl) : ''}"
+								data-duration-ms="${track.durationMs}"
+								aria-label="Escuchar ${escapeHtml(track.name)}"
+								aria-pressed="false"
+							>
+								<span class="song-request__playlist-index" aria-hidden="true">
+									<span class="song-request__playlist-number">${n}</span>
+									<span class="song-request__playlist-eq">${ICON_EQ}</span>
+								</span>
+								<span class="song-request__playlist-meta">
+									<span class="song-request__playlist-name">${escapeHtml(track.name)}</span>
+									<span class="song-request__playlist-artist">${escapeHtml(track.artist)}</span>
+								</span>
+								<span class="song-request__playlist-duration" data-playlist-duration>${formatDuration(track.durationMs)}</span>
+							</button>
+						</li>
+					`;
+				})
+				.join('');
+
+			if (tracks.length > PLAYLIST_PREVIEW_COUNT) {
+				playlistMore.hidden = false;
+				if (expanded) {
+					playlistMore.innerHTML = `Ocultar playlista`;
+					playlistMore.setAttribute('aria-expanded', 'true');
+				} else {
+					playlistMore.innerHTML = `Ver playlista <span class="song-request__more-count">(${tracks.length})</span>`;
+					playlistMore.setAttribute('aria-expanded', 'false');
+				}
+			} else {
+				playlistMore.hidden = true;
+				playlistMore.setAttribute('aria-expanded', 'false');
+			}
+
+			syncPreviewButtons();
+		};
+
+		const loadPlaylist = async () => {
+			try {
+				const response = await fetch('/api/spotify/playlist');
+				const data = (await response.json()) as {
+					tracks?: PlaylistTrack[];
+					error?: string;
+				};
+				if (!response.ok) throw new Error(data.error || LABELS.playlistError);
+				renderPlaylist(data.tracks ?? []);
+			} catch {
+				playlistTracksCache = [];
+				playlistExpanded = false;
+				playlistList.innerHTML = `<li class="song-request__playlist-empty">${LABELS.playlistError}</li>`;
+				playlistMore.hidden = true;
+			}
+		};
+
+		const search = async (query: string) => {
+			const currentId = ++requestId;
+
+			if (!query) {
+				setSearching(false);
+				results.hidden = true;
+				results.innerHTML = '';
+				setStatus('');
+				return;
+			}
+
+			setSearching(true);
+			setStatus('');
+			stopPreview();
+
+			try {
+				const response = await fetch(`/api/spotify/search?q=${encodeURIComponent(query)}`);
+				const data = (await response.json()) as { tracks?: Track[]; error?: string };
+
+				if (currentId !== requestId) return;
+
+				if (!response.ok) {
+					throw new Error(data.error || LABELS.error);
+				}
+
+				const tracks = data.tracks ?? [];
+				for (const track of tracks) {
+					if (track.alreadyOnPlaylist) {
+						buttonState.set(track.uri, 'duplicate');
+					}
+				}
+				renderResults(tracks);
+				setStatus(tracks.length ? '' : LABELS.empty);
+			} catch {
+				if (currentId !== requestId) return;
+				results.hidden = true;
+				results.innerHTML = '';
+				setStatus(LABELS.error, true);
+			} finally {
+				if (currentId === requestId) setSearching(false);
+			}
+		};
+
+		input.addEventListener('input', () => {
+			syncClear();
+			const query = input.value.trim();
+			window.clearTimeout(debounceTimer);
+			debounceTimer = window.setTimeout(() => {
+				void search(query);
+			}, 320);
+		});
+
+		clearBtn.addEventListener('click', () => {
+			input.value = '';
+			syncClear();
+			stopPreview();
+			results.hidden = true;
+			results.innerHTML = '';
+			setStatus('');
+			input.focus();
+		});
+
+		results.addEventListener('click', async (event) => {
+			const target = event.target;
+			if (!(target instanceof HTMLElement)) return;
+
+			const addBtn = target.closest<HTMLElement>('[data-song-add]');
+			if (addBtn) {
+				event.preventDefault();
+				event.stopPropagation();
+				if (addBtn.getAttribute('aria-disabled') === 'true') return;
+
+				const trackUri = addBtn.dataset.trackUri;
+				if (!trackUri) return;
+
+				stopPreview();
+				buttonState.set(trackUri, 'loading');
+				applyButtonState(addBtn, 'loading');
+				setStatus('');
+
+				try {
+					const response = await fetch('/api/spotify/add', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ trackUri }),
+					});
+					const data = (await response.json()) as AddResponse;
+
+					if (!response.ok) {
+						throw new Error(data.error || LABELS.error);
+					}
+
+					if (data.status === 'already_on_playlist') {
+						buttonState.set(trackUri, 'duplicate');
+						applyButtonState(addBtn, 'duplicate');
+						setStatus(LABELS.alreadyThere);
+						return;
+					}
+
+					buttonState.set(trackUri, 'added');
+					applyButtonState(addBtn, 'added');
+					setStatus(LABELS.addedOk);
+					void loadPlaylist();
+				} catch {
+					buttonState.set(trackUri, 'default');
+					applyButtonState(addBtn, 'default');
+					setStatus(LABELS.error, true);
+				}
+				return;
+			}
+
+			const row = target.closest<HTMLElement>('[data-song-result]');
+			if (!row) return;
+			void togglePreview(row.dataset.trackUri ?? '', row.dataset.previewUrl || null);
+		});
+
+		playlistList.addEventListener('click', (event) => {
+			const target = event.target;
+			if (!(target instanceof HTMLElement)) return;
+			const row = target.closest<HTMLElement>('[data-song-playlist-play]');
+			if (!row) return;
+			void togglePreview(row.dataset.trackUri ?? '', row.dataset.previewUrl || null);
+		});
+
+		playlistMore.addEventListener('click', () => {
+			renderPlaylist(playlistTracksCache, !playlistExpanded);
+		});
+
+		syncClear();
+		void loadPlaylist();
+	}
+
+	document.querySelectorAll<HTMLElement>('[data-song-request]').forEach(initSongRequest);
+
+	document.addEventListener('astro:page-load', () => {
+		document.querySelectorAll<HTMLElement>('[data-song-request]').forEach(initSongRequest);
+	});
+</script>

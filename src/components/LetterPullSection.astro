@@ -18,7 +18,7 @@
 					<span class="letter-pull__title-line">Les invitamos</span>
 					<span class="letter-pull__title-line">a nuestra boda civil!</span>
 				</h2>
-				<a href="#rsvp" class="letter-pull__cta" data-btn-press> Confirma su presencia </a>
+				<a href="#rsvp" class="letter-pull__cta" data-btn-press data-press> Confirma su presencia </a>
 			</div>
 
 			<div
@@ -140,19 +140,23 @@
 		line-height: 1;
 		letter-spacing: 0.01em;
 		white-space: nowrap;
-		transition: background-color 0.2s ease;
+		transition:
+			background-color 0.2s ease,
+			transform 0.2s ease;
 	}
 
 	@media (hover: hover) and (pointer: fine) {
 		.letter-pull__cta:hover,
 		.letter-pull__cta:focus-visible {
 			background: var(--color-button-hover);
+			transform: scale(1.04);
 		}
 	}
 
 	.letter-pull__cta:active,
 	.letter-pull__cta.is-pressed {
 		background: var(--color-button-hover);
+		transform: scale(1.04);
 	}
 
 	.letter-pull__stage {

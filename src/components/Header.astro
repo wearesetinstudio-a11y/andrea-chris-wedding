@@ -5,6 +5,7 @@ import MusicPlayerBadge from './MusicPlayerBadge.astro';
 const navLinks = [
 	{ href: '#boquete', label: 'Nuestra Boda' },
 	{ href: '#itinerary', label: 'Itinerario' },
+	{ href: '#playlist', label: 'Playlista' },
 	{ href: '#faq', label: 'Detalles' },
 	{ href: '#contact', label: 'Contacto' },
 ];
@@ -20,7 +21,7 @@ const navLinks = [
 		<nav class="site-header__nav" aria-label="Primary">
 			{
 				navLinks.map((link) => (
-					<a href={link.href} class="site-header__link">
+					<a href={link.href} class="site-header__link" data-press>
 						{link.label}
 					</a>
 				))
@@ -58,7 +59,7 @@ const navLinks = [
 		<div class="site-header__drawer-links">
 			{
 				navLinks.map((link) => (
-					<a href={link.href} class="site-header__drawer-link">
+					<a href={link.href} class="site-header__drawer-link" data-press>
 						{link.label}
 					</a>
 				))
@@ -122,17 +123,30 @@ const navLinks = [
 	.site-header__nav {
 		display: none;
 		align-items: center;
-		gap: 1.5rem;
+		gap: 2.25rem;
 	}
 
 	.site-header__link {
+		display: inline-block;
 		font-size: 0.9375rem;
 		font-weight: 500;
-		transition: opacity 0.2s ease;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
 	}
 
-	.site-header__link:hover {
+	@media (hover: hover) and (pointer: fine) {
+		.site-header__link:hover,
+		.site-header__link:focus-visible {
+			opacity: 0.65;
+			transform: scale(1.04);
+		}
+	}
+
+	.site-header__link:active,
+	.site-header__link.is-pressed {
 		opacity: 0.65;
+		transform: scale(1.04);
 	}
 
 	.site-header__actions {
@@ -230,10 +244,24 @@ const navLinks = [
 	}
 
 	.site-header__drawer-link {
+		display: inline-block;
 		font-size: 1.75rem;
 		font-weight: 600;
 		letter-spacing: -0.01em;
 		line-height: 1.1;
+		transition: transform 0.2s ease;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.site-header__drawer-link:hover,
+		.site-header__drawer-link:focus-visible {
+			transform: scale(1.04);
+		}
+	}
+
+	.site-header__drawer-link:active,
+	.site-header__drawer-link.is-pressed {
+		transform: scale(1.04);
 	}
 
 	.site-header__drawer :global(.site-header__drawer-cta) {

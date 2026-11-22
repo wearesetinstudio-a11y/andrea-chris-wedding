@@ -69,6 +69,7 @@ const copyFields = [
 										class="honeymoon__copy"
 										data-honeymoon-copy
 										data-copy-value={field.copy}
+										data-press
 										aria-label={field.aria}
 									>
 										<span class="honeymoon__number">{field.display}</span>
@@ -396,8 +397,10 @@ const copyFields = [
 	}
 
 	@media (hover: hover) and (pointer: fine) {
-		.honeymoon__copy:hover {
+		.honeymoon__copy:hover,
+		.honeymoon__copy:focus-visible {
 			background: rgb(52 64 40 / 11%);
+			transform: scale(1.04);
 		}
 	}
 
@@ -406,8 +409,10 @@ const copyFields = [
 		outline-offset: 3px;
 	}
 
-	.honeymoon__copy:active {
-		transform: scale(0.98);
+	.honeymoon__copy:active,
+	.honeymoon__copy.is-pressed {
+		background: rgb(52 64 40 / 11%);
+		transform: scale(1.04);
 	}
 
 	@media (min-width: 768px) {

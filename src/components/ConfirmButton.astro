@@ -12,6 +12,7 @@ const showCheckbox = variant === 'hero';
 	href="#rsvp"
 	class:list={['confirm-btn', `confirm-btn--${variant}`, className]}
 	data-confirm-btn
+	data-press
 >
 	<span class="confirm-btn__label">Confirmar asistencia</span>
 	{
@@ -93,6 +94,7 @@ const showCheckbox = variant === 'hero';
 		.confirm-btn:hover,
 		.confirm-btn:focus-visible {
 			background: var(--color-button-hover);
+			transform: scale(1.04);
 		}
 
 		.confirm-btn--hero:hover .confirm-btn__check,
@@ -105,6 +107,7 @@ const showCheckbox = variant === 'hero';
 	.confirm-btn:active,
 	.confirm-btn.is-pressed {
 		background: var(--color-button-hover);
+		transform: scale(1.04);
 	}
 
 	.confirm-btn--hero:active .confirm-btn__check,

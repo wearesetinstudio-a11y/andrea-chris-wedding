@@ -276,6 +276,10 @@ const START_OFFSET_MS = 1000;
 			playMusic({ fromStart: true });
 		});
 
+		window.addEventListener('wedding:spotify-playing', () => {
+			pauseMusic();
+		});
+
 		(window as Window & { __weddingMusic?: WeddingMusicApi }).__weddingMusic = {
 			play: () => playMusic({ fromStart: true }),
 			pause: pauseMusic,

@@ -119,6 +119,7 @@ const {
 	function addUserBubble(text, step) {
 		const el = addBubble('user', text);
 		el.dataset.step = step;
+		el.dataset.press = '';
 		el.setAttribute('role', 'button');
 		el.setAttribute('tabindex', '0');
 		el.setAttribute('aria-label', `Volver a editar: ${text}`);
@@ -184,6 +185,7 @@ const {
 		btn.className = `rsvp__arrow${enabled ? ' is-ready' : ''}`;
 		btn.setAttribute('aria-label', 'Continuar');
 		btn.disabled = !enabled;
+		if (enabled) btn.dataset.press = '';
 		btn.innerHTML = `<img src="/Arrow.svg" alt="" width="24" height="24" draggable="false" aria-hidden="true" />`;
 		if (enabled && onClick) btn.addEventListener('click', onClick);
 		return btn;
@@ -240,6 +242,7 @@ const {
 			btn.type = 'button';
 			btn.className = 'rsvp__choice';
 			btn.dataset.value = value;
+			btn.dataset.press = '';
 			btn.setAttribute('role', 'radio');
 			btn.setAttribute('aria-checked', 'false');
 			btn.innerHTML = `<span class="rsvp__choice-label">${label}</span>${checkboxIcon()}`;
@@ -247,9 +250,6 @@ const {
 				state.attending = value === 'yes';
 				paint();
 			});
-			btn.addEventListener('touchstart', () => btn.classList.add('is-pressed'), { passive: true });
-			btn.addEventListener('touchend', () => btn.classList.remove('is-pressed'));
-			btn.addEventListener('touchcancel', () => btn.classList.remove('is-pressed'));
 			optionBtns.push(btn);
 			group.appendChild(btn);
 		});
@@ -283,12 +283,14 @@ const {
 		const minus = document.createElement('button');
 		minus.type = 'button';
 		minus.className = 'rsvp__step';
+		minus.dataset.press = '';
 		minus.setAttribute('aria-label', 'Menos invitados');
 		minus.textContent = '−';
 
 		const plus = document.createElement('button');
 		plus.type = 'button';
 		plus.className = 'rsvp__step';
+		plus.dataset.press = '';
 		plus.setAttribute('aria-label', 'Más invitados');
 		plus.textContent = '+';
 
@@ -661,13 +663,27 @@ const {
 		align-self: flex-end;
 		background: var(--rsvp-bubble-user);
 		cursor: pointer;
-		transition: background-color 0.2s ease;
+		transition:
+			background-color 0.2s ease,
+			transform 0.2s ease;
 	}
 
 	.rsvp__bubble--user:hover,
 	.rsvp__bubble--user:focus-visible {
 		background: var(--rsvp-bubble-user-hover);
 		outline: none;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.rsvp__bubble--user:hover,
+		.rsvp__bubble--user:focus-visible {
+			transform: scale(1.04);
+		}
+	}
+
+	.rsvp__bubble--user:active,
+	.rsvp__bubble--user.is-pressed {
+		transform: scale(1.04);
 	}
 
 	.rsvp__bubble--typing {
@@ -767,7 +783,8 @@ const {
 		transition:
 			background-color 0.2s ease,
 			color 0.2s ease,
-			border-color 0.2s ease;
+			border-color 0.2s ease,
+			transform 0.2s ease;
 	}
 
 	.rsvp__choice-label {
@@ -801,11 +818,21 @@ const {
 	}
 
 	@media (hover: hover) and (pointer: fine) {
+		.rsvp__choice:hover,
+		.rsvp__choice:focus-visible {
+			transform: scale(1.04);
+		}
+
 		.rsvp__choice:hover .rsvp__check-mark,
 		.rsvp__choice:focus-visible .rsvp__check-mark {
 			opacity: 1;
 			transform: scale(1);
 		}
+	}
+
+	.rsvp__choice:active,
+	.rsvp__choice.is-pressed {
+		transform: scale(1.04);
 	}
 
 	.rsvp__choice:active .rsvp__check-mark,
@@ -833,7 +860,8 @@ const {
 		transition:
 			background-color 0.2s ease,
 			color 0.2s ease,
-			opacity 0.2s ease;
+			opacity 0.2s ease,
+			transform 0.2s ease;
 	}
 
 	.rsvp__arrow img {
@@ -861,8 +889,18 @@ const {
 		opacity: 0.85;
 	}
 
-	.rsvp__arrow.is-ready:not(:disabled):hover {
+	@media (hover: hover) and (pointer: fine) {
+		.rsvp__arrow.is-ready:not(:disabled):hover,
+		.rsvp__arrow.is-ready:not(:disabled):focus-visible {
+			opacity: 0.92;
+			transform: scale(1.04);
+		}
+	}
+
+	.rsvp__arrow.is-ready:not(:disabled):active,
+	.rsvp__arrow.is-ready:not(:disabled).is-pressed {
 		opacity: 0.92;
+		transform: scale(1.04);
 	}
 
 	.rsvp__guest-label {
@@ -893,12 +931,26 @@ const {
 		color: var(--rsvp-text);
 		font-size: 1.15rem;
 		line-height: 1;
-		transition: opacity 0.2s ease;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
 	}
 
 	.rsvp__step:disabled {
 		opacity: 0.35;
 		cursor: default;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.rsvp__step:not(:disabled):hover,
+		.rsvp__step:not(:disabled):focus-visible {
+			transform: scale(1.04);
+		}
+	}
+
+	.rsvp__step:not(:disabled):active,
+	.rsvp__step:not(:disabled).is-pressed {
+		transform: scale(1.04);
 	}
 
 	.rsvp__form {

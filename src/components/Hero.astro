@@ -169,14 +169,25 @@
 
 	.hero__scroll {
 		position: absolute;
-		right: 1.25rem;
+		left: 50%;
 		bottom: 1.25rem;
 		margin: 0;
 		font-size: 0.9375rem;
 		letter-spacing: 0.01em;
 		opacity: 0.92;
 		white-space: nowrap;
-		text-align: right;
+		text-align: center;
+		transform: translate3d(-50%, 0, 0);
+	}
+
+	.hero__scroll.hero__enter {
+		transform: translate3d(-50%, 0, 0);
+	}
+
+	.hero.is-entered .hero__scroll.hero__enter {
+		opacity: 0.92;
+		filter: blur(0);
+		transform: translate3d(-50%, 0, 0);
 	}
 
 	.hero__enter {
@@ -194,10 +205,6 @@
 		opacity: 1;
 		filter: blur(0);
 		transform: translate3d(0, 0, 0);
-	}
-
-	.hero.is-entered .hero__scroll.hero__enter {
-		opacity: 0.92;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -257,7 +264,6 @@
 		}
 
 		.hero__scroll {
-			right: 2.75rem;
 			bottom: 1.5rem;
 		}
 	}

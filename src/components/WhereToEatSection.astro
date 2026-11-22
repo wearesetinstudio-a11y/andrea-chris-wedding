@@ -145,6 +145,7 @@ const cards = [
 										href={item.mapUrl}
 										target="_blank"
 										rel="noopener noreferrer"
+										data-press
 									>
 										<span class="where-to-eat__link-copy">
 											<span class="where-to-eat__name">{item.name}</span>
@@ -359,10 +360,6 @@ const cards = [
 		user-select: none;
 	}
 
-	.where-to-eat__link:active {
-		background: rgb(52 64 40 / 6%);
-	}
-
 	@media (hover: hover) and (pointer: fine) {
 		.where-to-eat__link:hover {
 			background: rgb(52 64 40 / 6%);
@@ -379,6 +376,26 @@ const cards = [
 		.where-to-eat__link:hover .where-to-eat__name {
 			color: var(--color-accent);
 		}
+	}
+
+	.where-to-eat__link:active,
+	.where-to-eat__link.is-pressed {
+		background: rgb(52 64 40 / 6%);
+	}
+
+	.where-to-eat__link:active .where-to-eat__arrow,
+	.where-to-eat__link.is-pressed .where-to-eat__arrow {
+		transform: translateX(0.2rem);
+	}
+
+	.where-to-eat__link:active .where-to-eat__arrow img,
+	.where-to-eat__link.is-pressed .where-to-eat__arrow img {
+		filter: brightness(0) saturate(100%) opacity(0.75);
+	}
+
+	.where-to-eat__link:active .where-to-eat__name,
+	.where-to-eat__link.is-pressed .where-to-eat__name {
+		color: var(--color-accent);
 	}
 
 	.where-to-eat__link:focus-visible {

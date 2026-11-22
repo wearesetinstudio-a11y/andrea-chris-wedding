@@ -121,6 +121,7 @@ const recommendations = [
 					class="recommendations__arrow"
 					aria-label="Anterior"
 					data-rec-prev
+					data-press
 				>
 					<img src="/Arrow.svg" alt="" width="24" height="24" aria-hidden="true" />
 				</button>
@@ -129,6 +130,7 @@ const recommendations = [
 					class="recommendations__arrow recommendations__arrow--next"
 					aria-label="Siguiente"
 					data-rec-next
+					data-press
 				>
 					<img src="/Arrow.svg" alt="" width="24" height="24" aria-hidden="true" />
 				</button>
@@ -153,6 +155,7 @@ const recommendations = [
 								rel="noopener noreferrer"
 								aria-label={`${item.title} — ver en el mapa`}
 								data-tilt
+								data-press
 							>
 								<div class="recommendations__photo">
 									<img
@@ -256,7 +259,9 @@ const recommendations = [
 		transform: scaleX(-1);
 	}
 
-	.recommendations__arrow:hover:not(:disabled) {
+	.recommendations__arrow:hover:not(:disabled),
+	.recommendations__arrow:active:not(:disabled),
+	.recommendations__arrow.is-pressed:not(:disabled) {
 		background: rgb(255 255 255 / 20%);
 	}
 
@@ -422,6 +427,16 @@ const recommendations = [
 		.recommendations__polaroid:hover .recommendations__map-arrow img {
 			filter: brightness(0) saturate(100%) opacity(0.75);
 		}
+	}
+
+	.recommendations__polaroid:active .recommendations__map,
+	.recommendations__polaroid.is-pressed .recommendations__map {
+		color: var(--color-accent);
+	}
+
+	.recommendations__polaroid:active .recommendations__map-arrow img,
+	.recommendations__polaroid.is-pressed .recommendations__map-arrow img {
+		filter: brightness(0) saturate(100%) opacity(0.75);
 	}
 
 	.recommendations__dots {

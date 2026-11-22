@@ -56,6 +56,7 @@ const answersOf = (answer: string | string[]) => (Array.isArray(answer) ? answer
 							aria-expanded="false"
 							aria-controls={`faq-panel-${index}`}
 							data-faq-trigger
+							data-press
 						>
 							<span class="faq__question">{item.question}</span>
 							<svg
@@ -163,7 +164,9 @@ const answersOf = (answer: string | string[]) => (Array.isArray(answer) ? answer
 		color: #1a1a1a;
 		text-align: justify;
 		text-wrap: pretty;
-		transition: opacity 0.2s ease;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
 	}
 
 	.faq__chevron {
@@ -250,12 +253,36 @@ const answersOf = (answer: string | string[]) => (Array.isArray(answer) ? answer
 		.faq__item:hover .faq__question,
 		.faq__trigger:focus-visible .faq__question {
 			opacity: 0.65;
+			transform: translateX(10px);
 		}
 
 		.faq__item:hover .faq__chevron,
 		.faq__trigger:focus-visible .faq__chevron {
 			color: var(--color-accent);
+			transform: translateX(-10px);
 		}
+
+		.faq__item.is-open:hover .faq__chevron,
+		.faq__item.is-open .faq__trigger:focus-visible .faq__chevron {
+			transform: translateX(-10px) rotate(180deg);
+		}
+	}
+
+	.faq__trigger:active .faq__question,
+	.faq__trigger.is-pressed .faq__question {
+		opacity: 0.65;
+		transform: translateX(10px);
+	}
+
+	.faq__trigger:active .faq__chevron,
+	.faq__trigger.is-pressed .faq__chevron {
+		color: var(--color-accent);
+		transform: translateX(-10px);
+	}
+
+	.faq__item.is-open .faq__trigger:active .faq__chevron,
+	.faq__item.is-open .faq__trigger.is-pressed .faq__chevron {
+		transform: translateX(-10px) rotate(180deg);
 	}
 
 	@media (min-width: 900px) {

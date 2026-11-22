@@ -87,6 +87,7 @@ const stays = [
 								rel="noopener noreferrer"
 								aria-label={`${stay.name} — ver el lugar`}
 								data-tilt
+								data-press
 							>
 								<div class="where-to-stay__face">
 									<div class="where-to-stay__body">
@@ -365,7 +366,9 @@ const stays = [
 		line-height: 1;
 		letter-spacing: 0.01em;
 		white-space: nowrap;
-		transition: background-color 0.2s ease;
+		transition:
+			background-color 0.2s ease,
+			transform 0.2s ease;
 	}
 
 	.where-to-stay__cta-arrow {
@@ -389,11 +392,14 @@ const stays = [
 	@media (hover: hover) and (pointer: fine) {
 		.where-to-stay__hanger:hover .where-to-stay__cta {
 			background: var(--color-button-hover);
+			transform: scale(1.04);
 		}
 	}
 
-	.where-to-stay__hanger:active .where-to-stay__cta {
+	.where-to-stay__hanger:active .where-to-stay__cta,
+	.where-to-stay__hanger.is-pressed .where-to-stay__cta {
 		background: var(--color-button-hover);
+		transform: scale(1.04);
 	}
 
 	.where-to-stay__dots {
