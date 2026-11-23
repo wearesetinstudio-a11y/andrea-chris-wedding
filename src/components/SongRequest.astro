@@ -1487,17 +1487,23 @@ const playlistId = import.meta.env.SPOTIFY_PLAYLIST_ID ?? '';
 		const loadPlaylist = async () => {
 			try {
 				const response = await fetch('/api/spotify/playlist');
-				const data = (await response.json()) as {
+				const data = (await response.json().catch(() => ({}))) as {
 					tracks?: PlaylistTrack[];
 					error?: string;
 				};
 				if (!response.ok) throw new Error(data.error || LABELS.playlistError);
 				renderPlaylist(data.tracks ?? []);
-			} catch {
+			} catch (error) {
+				const message = error instanceof Error ? error.message : LABELS.playlistError;
+				console.error('[song-request] playlist', message);
 				playlistTracksCache = [];
 				playlistExpanded = false;
 				playlistList.innerHTML = `<li class="song-request__playlist-empty">${LABELS.playlistError}</li>`;
 				playlistMore.hidden = true;
+				// Surface deploy/config failures (missing Vercel env vars, etc.)
+				if (/missing required environment variable|SPOTIFY_/i.test(message)) {
+					setStatus(message, true);
+				}
 			}
 		};
 
@@ -1518,7 +1524,10 @@ const playlistId = import.meta.env.SPOTIFY_PLAYLIST_ID ?? '';
 
 			try {
 				const response = await fetch(`/api/spotify/search?q=${encodeURIComponent(query)}`);
-				const data = (await response.json()) as { tracks?: Track[]; error?: string };
+				const data = (await response.json().catch(() => ({}))) as {
+					tracks?: Track[];
+					error?: string;
+				};
 
 				if (currentId !== requestId) return;
 
@@ -1534,11 +1543,18 @@ const playlistId = import.meta.env.SPOTIFY_PLAYLIST_ID ?? '';
 				}
 				renderResults(tracks);
 				setStatus(tracks.length ? '' : LABELS.empty);
-			} catch {
+			} catch (error) {
 				if (currentId !== requestId) return;
 				results.hidden = true;
 				results.innerHTML = '';
-				setStatus(LABELS.error, true);
+				const message = error instanceof Error ? error.message : LABELS.error;
+				console.error('[song-request] search', message);
+				setStatus(
+					/missing required environment variable|SPOTIFY_/i.test(message)
+						? message
+						: LABELS.error,
+					true,
+				);
 			} finally {
 				if (currentId === requestId) setSearching(false);
 			}
