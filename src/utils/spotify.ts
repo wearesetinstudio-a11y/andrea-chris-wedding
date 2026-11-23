@@ -40,20 +40,20 @@ function peekEnv(
 		| 'SPOTIFY_REFRESH_TOKEN'
 		| 'SPOTIFY_PLAYLIST_ID',
 ): string | undefined {
-	const map = {
-		SPOTIFY_CLIENT_ID:
-			process.env.SPOTIFY_CLIENT_ID ?? import.meta.env.SPOTIFY_CLIENT_ID,
-		SPOTIFY_CLIENT_SECRET:
-			process.env.SPOTIFY_CLIENT_SECRET ?? import.meta.env.SPOTIFY_CLIENT_SECRET,
-		SPOTIFY_REFRESH_TOKEN:
-			process.env.SPOTIFY_REFRESH_TOKEN ?? import.meta.env.SPOTIFY_REFRESH_TOKEN,
-		SPOTIFY_PLAYLIST_ID:
-			process.env.SPOTIFY_PLAYLIST_ID ?? import.meta.env.SPOTIFY_PLAYLIST_ID,
-	} as const;
+	// Prefer process.env (Vercel runtime). Use dynamic import.meta.env[name]
+	// only as a local-dev fallback — never static import.meta.env.SPOTIFY_*
+	// access, which Vite inlines into the server bundle at build time.
+	const fromProcess = process.env[name];
+	if (typeof fromProcess === 'string' && fromProcess.trim()) {
+		return fromProcess.trim();
+	}
 
-	const value = map[name];
-	if (typeof value !== 'string' || !value.trim()) return undefined;
-	return value.trim();
+	const fromMeta = (import.meta.env as Record<string, unknown>)[name];
+	if (typeof fromMeta === 'string' && fromMeta.trim()) {
+		return fromMeta.trim();
+	}
+
+	return undefined;
 }
 
 function readEnv(
